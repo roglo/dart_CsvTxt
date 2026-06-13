@@ -1,4 +1,7 @@
 all:
 	flutter run --release
 
-.PHONY: all
+linux:
+	GDK_SCALE=2 flutter run --release -d linux
+
+.PHONY: all linux
