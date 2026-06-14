@@ -866,7 +866,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     ];
   }
 
-  Widget buildNormal() {
+  Widget _buildNormal() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -932,7 +932,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(16),
-            child: buildNormal(),
+            child: _buildNormal(),
           ),
         ),
       );
