@@ -798,6 +798,74 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     );
   }
 
+  List<Widget> _buildContent() {
+    return [
+      if (_fileType == FileType.image)
+        ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width,
+            maxHeight: MediaQuery.of(context).size.height,
+          ),
+          child: InteractiveViewer(
+            minScale: 0.1,
+            maxScale: 4.0,
+            constrained: true,
+            child: Image.memory(_bytes!, fit: BoxFit.contain),
+          ),
+        )
+      else if (_fileType == FileType.pdf)
+        Expanded(
+          child: PdfViewer.data(
+            _bytes!,
+            sourceName: _fileName!,
+            controller: _pdfController,
+            params: PdfViewerParams(scrollByMouseWheel: 1.0),
+          ),
+        )
+      else if (_fileType == FileType.tar)
+        Expanded(
+          child: SingleChildScrollView(
+            controller: _vScrollController,
+            child: SingleChildScrollView(
+              controller: _hScrollController,
+              scrollDirection: Axis.horizontal,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: _tarList.asMap().entries.map((entry) {
+                  final file = entry.value;
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(file.tperm, style: fixedTextStyle()),
+                      Text(" ", style: fixedTextStyle()),
+                      Text(file.uname, style: fixedTextStyle()),
+                      Text("/", style: fixedTextStyle()),
+                      Text(file.gname, style: fixedTextStyle()),
+                      Text(" ", style: fixedTextStyle()),
+                      Text(
+                        file.size.toString().padLeft(8),
+                        style: fixedTextStyle(),
+                      ),
+                      Text(" ", style: fixedTextStyle()),
+                      _clickOnTarFileName(entry.key, file),
+                    ],
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+        )
+      else if (_fileContent != null)
+        Expanded(
+          child: _modeFixe
+              ? (_fileType == FileType.csv
+                    ? _fixedCsvView(_fileContent!)
+                    : _fixedView(_fileContent!))
+              : _normalView(_fileContent!),
+        ),
+    ];
+  }
+
   Widget buildNormal() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -822,69 +890,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
           Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
 
         const SizedBox(height: 8),
-        if (_fileType == FileType.image)
-          ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: MediaQuery.of(context).size.width,
-              maxHeight: MediaQuery.of(context).size.height,
-            ),
-            child: InteractiveViewer(
-              minScale: 0.1,
-              maxScale: 4.0,
-              constrained: true,
-              child: Image.memory(_bytes!, fit: BoxFit.contain),
-            ),
-          )
-        else if (_fileType == FileType.pdf)
-          Expanded(
-            child: PdfViewer.data(
-              _bytes!,
-              sourceName: _fileName!,
-              controller: _pdfController,
-              params: PdfViewerParams(scrollByMouseWheel: 1.0),
-            ),
-          )
-        else if (_fileType == FileType.tar)
-          Expanded(
-            child: SingleChildScrollView(
-              controller: _vScrollController,
-              child: SingleChildScrollView(
-                controller: _hScrollController,
-                scrollDirection: Axis.horizontal,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: _tarList.asMap().entries.map((entry) {
-                    final file = entry.value;
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text(file.tperm, style: fixedTextStyle()),
-                        Text(" ", style: fixedTextStyle()),
-                        Text(file.uname, style: fixedTextStyle()),
-                        Text("/", style: fixedTextStyle()),
-                        Text(file.gname, style: fixedTextStyle()),
-                        Text(" ", style: fixedTextStyle()),
-                        Text(
-                          file.size.toString().padLeft(8),
-                          style: fixedTextStyle(),
-                        ),
-                        Text(" ", style: fixedTextStyle()),
-                        _clickOnTarFileName(entry.key, file),
-                      ],
-                    );
-                  }).toList(),
-                ),
-              ),
-            ),
-          )
-        else if (_fileContent != null)
-          Expanded(
-            child: _modeFixe
-                ? (_fileType == FileType.csv
-                      ? _fixedCsvView(_fileContent!)
-                      : _fixedView(_fileContent!))
-                : _normalView(_fileContent!),
-          ),
+        ..._buildContent(),
         if (_fileContent != null && _fileType == FileType.csv && _modeFixe)
           ElevatedButton(
             onPressed: () => setState(() {
