@@ -904,7 +904,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
               ),
             ),
         ] else ...[
-          const SizedBox(height: 8),
           ..._buildContent(),
         ],
       ],
