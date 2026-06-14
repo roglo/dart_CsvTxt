@@ -869,11 +869,11 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   }
 
   Widget _buildNormal() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (Platform.isLinux ||
-            MediaQuery.of(context).orientation == Orientation.portrait) ...[
+    if (Platform.isLinux ||
+        MediaQuery.of(context).orientation == Orientation.portrait) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           const SizedBox(height: 40),
           _buildButtonsChooseModeRow(),
           if (_fileName != null &&
@@ -905,11 +905,14 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
                 _newVersion ? "Une ligne par entrée" : "Colonnes courtes",
               ),
             ),
-        ] else ...[
-          ..._buildContent(),
         ],
-      ],
-    );
+      );
+    } else {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: _buildContent(),
+      );
+    }
   }
 
   @override
