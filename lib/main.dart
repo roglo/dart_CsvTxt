@@ -618,6 +618,8 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
 
   Future<void> _actionClickOnTarFileName(TarEntry entry) async {
     final String tarFileName = entry.tarFilePath.split("/").last;
+    _vScrollController.jumpTo(0);
+    _hScrollController.jumpTo(0);
     if (entry.type == 53) {
       final fileName = entry.fname;
       setState(() {
