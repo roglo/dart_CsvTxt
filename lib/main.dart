@@ -870,37 +870,43 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 40),
-        _buildButtonsChooseModeRow(),
-        if (_fileName != null &&
-            _fileType != FileType.image &&
-            _fileType != FileType.pdf &&
-            _errorMessage == null) ...[
-          const SizedBox(width: 16),
-          _buildButtonsSizeChange(),
-        ],
-        const SizedBox(height: 16),
-        if (_fileName != null)
-          Text(
-            "Fichier : $_fileName",
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-        const SizedBox(height: 8),
-        if (_errorMessage != null)
-          Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
-
-        const SizedBox(height: 8),
-        ..._buildContent(),
-        if (_fileContent != null && _fileType == FileType.csv && _modeFixe)
-          ElevatedButton(
-            onPressed: () => setState(() {
-              _newVersion = !_newVersion;
-              _csvLines = [];
-            }),
-            child: Text(
-              _newVersion ? "Une ligne par entrée" : "Colonnes courtes",
+        if (Platform.isLinux ||
+            MediaQuery.of(context).orientation == Orientation.portrait) ...[
+          const SizedBox(height: 40),
+          _buildButtonsChooseModeRow(),
+          if (_fileName != null &&
+              _fileType != FileType.image &&
+              _fileType != FileType.pdf &&
+              _errorMessage == null) ...[
+            const SizedBox(width: 16),
+            _buildButtonsSizeChange(),
+          ],
+          const SizedBox(height: 16),
+          if (_fileName != null)
+            Text(
+              "Fichier : $_fileName",
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-          ),
+          const SizedBox(height: 8),
+          if (_errorMessage != null)
+            Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
+
+          const SizedBox(height: 8),
+          ..._buildContent(),
+          if (_fileContent != null && _fileType == FileType.csv && _modeFixe)
+            ElevatedButton(
+              onPressed: () => setState(() {
+                _newVersion = !_newVersion;
+                _csvLines = [];
+              }),
+              child: Text(
+                _newVersion ? "Une ligne par entrée" : "Colonnes courtes",
+              ),
+            ),
+        ] else ...[
+          const SizedBox(height: 8),
+          ..._buildContent(),
+        ],
       ],
     );
   }
