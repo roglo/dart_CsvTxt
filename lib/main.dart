@@ -803,25 +803,27 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 40),
-        _buildButtonsChooseModeRow(),
-        if (_fileName != null &&
-            _fileType != FileType.image &&
-            _fileType != FileType.pdf &&
-            _errorMessage == null) ...[
-          const SizedBox(width: 16),
-          _buildButtonsSizeChange(),
+        if (MediaQuery.of(context).orientation == Orientation.portrait) ...[
+          _buildButtonsChooseModeRow(),
+          if (_fileName != null &&
+              _fileType != FileType.image &&
+              _fileType != FileType.pdf &&
+              _errorMessage == null) ...[
+            const SizedBox(width: 16),
+            _buildButtonsSizeChange(),
+          ],
+          const SizedBox(height: 16),
+          if (_fileName != null)
+            Text(
+              "Fichier : $_fileName",
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          const SizedBox(height: 8),
         ],
-        const SizedBox(height: 16),
-        if (_fileName != null)
-          Text(
-            "Fichier : $_fileName",
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-        const SizedBox(height: 8),
-        if (_errorMessage != null)
+        if (_errorMessage != null) ...[
           Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
-
-        const SizedBox(height: 8),
+          const SizedBox(height: 8),
+        ],
         if (_fileType == FileType.image)
           ConstrainedBox(
             constraints: BoxConstraints(
@@ -885,7 +887,8 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
                       : _fixedView(_fileContent!))
                 : _normalView(_fileContent!),
           ),
-        if (_fileContent != null && _fileType == FileType.csv && _modeFixe)
+        if (_fileContent != null && _fileType == FileType.csv && _modeFixe &&
+            MediaQuery.of(context).orientation == Orientation.portrait)
           ElevatedButton(
             onPressed: () => setState(() {
               _newVersion = !_newVersion;
