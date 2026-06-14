@@ -908,7 +908,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         ],
       );
     } else {
-      return Column(
+      return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: _buildContent(),
       );
