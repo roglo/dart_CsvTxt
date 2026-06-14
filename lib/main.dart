@@ -203,7 +203,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     });
   }
 
-  Widget _buildButtonsSizeChange() {
+  Widget _buildButtonSizeAndJump() {
     return Row(
       children: [
         ElevatedButton(
@@ -881,7 +881,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
               _fileType != FileType.pdf &&
               _errorMessage == null) ...[
             const SizedBox(width: 16),
-            _buildButtonsSizeChange(),
+            _buildButtonSizeAndJump(),
           ],
           const SizedBox(height: 16),
           if (_fileName != null)
