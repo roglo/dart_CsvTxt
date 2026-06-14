@@ -159,13 +159,25 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   // final String _lang = "en"; // ← force l'anglais pour tester
   final ScrollController _vScrollController = ScrollController();
   final ScrollController _hScrollController = ScrollController();
-  final _pdfController = PdfViewerController();
+  late PdfViewerController _pdfController;
+  @override
+  void initState() {
+    super.initState();
+    _pdfController = PdfViewerController();
+  }
+
   @override
   void dispose() {
     _vScrollController.dispose();
     _hScrollController.dispose();
     //    _pdfController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _pdfController = PdfViewerController();
   }
 
   String _t(String fr, String en) => _lang == "fr" ? fr : en;
@@ -206,28 +218,42 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   Widget _buildRowButtonSizeAndJump() {
     return Row(
       children: [
-        ElevatedButton(
-          onPressed: () => _changeFontSize(_fontSize - 1),
-          child: const Text("A-"),
-        ),
-        ElevatedButton(
-          onPressed: () => _changeFontSize(_initialFontSize),
-          child: const Text("A"),
-        ),
-        ElevatedButton(
-          onPressed: () => _changeFontSize(_fontSize + 1),
-          child: const Text("A+"),
-        ),
-        ElevatedButton(
-          onPressed: () => _vScrollController.jumpTo(0),
-          child: const Text("«"),
-        ),
-        ElevatedButton(
-          onPressed: () => _vScrollController.jumpTo(
-            _vScrollController.position.maxScrollExtent,
+        if (_fileType == FileType.pdf) ...[
+          ElevatedButton(
+            onPressed: () => _pdfController.goToPage(pageNumber: 1),
+            child: const Text("«"),
           ),
-          child: const Text("»"),
-        ),
+          ElevatedButton(
+            onPressed: () {
+              final last = _pdfController.pageCount;
+              _pdfController.goToPage(pageNumber: last);
+            },
+            child: const Text("»"),
+          ),
+        ] else ...[
+          ElevatedButton(
+            onPressed: () => _changeFontSize(_fontSize - 1),
+            child: const Text("A-"),
+          ),
+          ElevatedButton(
+            onPressed: () => _changeFontSize(_initialFontSize),
+            child: const Text("A"),
+          ),
+          ElevatedButton(
+            onPressed: () => _changeFontSize(_fontSize + 1),
+            child: const Text("A+"),
+          ),
+          ElevatedButton(
+            onPressed: () => _vScrollController.jumpTo(0),
+            child: const Text("«"),
+          ),
+          ElevatedButton(
+            onPressed: () => _vScrollController.jumpTo(
+              _vScrollController.position.maxScrollExtent,
+            ),
+            child: const Text("»"),
+          ),
+        ],
       ],
     );
   }
@@ -235,16 +261,30 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   Widget _buildColumnButtonsJump() {
     return Column(
       children: [
-        ElevatedButton(
-          onPressed: () => _vScrollController.jumpTo(0),
-          child: const Text("«"),
-        ),
-        ElevatedButton(
-          onPressed: () => _vScrollController.jumpTo(
-            _vScrollController.position.maxScrollExtent,
+        if (_fileType == FileType.pdf) ...[
+          ElevatedButton(
+            onPressed: () => _pdfController.goToPage(pageNumber: 1),
+            child: const Text("«"),
           ),
-          child: const Text("»"),
-        ),
+          ElevatedButton(
+            onPressed: () {
+              final last = _pdfController.pageCount;
+              _pdfController.goToPage(pageNumber: last);
+            },
+            child: const Text("»"),
+          ),
+        ] else ...[
+          ElevatedButton(
+            onPressed: () => _vScrollController.jumpTo(0),
+            child: const Text("«"),
+          ),
+          ElevatedButton(
+            onPressed: () => _vScrollController.jumpTo(
+              _vScrollController.position.maxScrollExtent,
+            ),
+            child: const Text("»"),
+          ),
+        ],
       ],
     );
   }
@@ -836,6 +876,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         Expanded(
           child: PdfViewer.data(
             _bytes!,
+            key: ValueKey(_fileName),
             sourceName: _fileName!,
             controller: _pdfController,
             params: PdfViewerParams(scrollByMouseWheel: 1.0),
@@ -895,7 +936,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
           _buildButtonsChooseModeRow(),
           if (_fileName != null &&
               _fileType != FileType.image &&
-              _fileType != FileType.pdf &&
               _errorMessage == null) ...[
             const SizedBox(width: 16),
             _buildRowButtonSizeAndJump(),
@@ -931,7 +971,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
           ..._buildContent(),
           if (_fileName != null &&
               _fileType != FileType.image &&
-              _fileType != FileType.pdf &&
               _errorMessage == null) ...[
             const SizedBox(height: 16),
             _buildColumnButtonsJump(),
