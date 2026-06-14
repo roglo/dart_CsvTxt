@@ -232,6 +232,23 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     );
   }
 
+  Widget _buildColumnButtonsJump() {
+    return Column(
+      children: [
+        ElevatedButton(
+          onPressed: () => _vScrollController.jumpTo(0),
+          child: const Text("«"),
+        ),
+        ElevatedButton(
+          onPressed: () => _vScrollController.jumpTo(
+            _vScrollController.position.maxScrollExtent,
+          ),
+          child: const Text("»"),
+        ),
+      ],
+    );
+  }
+
   // ignore: unused_element
   Future<String?> _pickFile() async {
     final result = await FilePicker.platform.pickFiles();
@@ -910,7 +927,16 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     } else {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: _buildContent(),
+        children: [
+          ..._buildContent(),
+          if (_fileName != null &&
+              _fileType != FileType.image &&
+              _fileType != FileType.pdf &&
+              _errorMessage == null) ...[
+            const SizedBox(height: 16),
+            _buildColumnButtonsJump(),
+          ],
+        ],
       );
     }
   }
