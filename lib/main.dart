@@ -305,19 +305,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     );
   }
 
-  // ignore: unused_element
-  Future<String?> _pickFile() async {
-    final result = await FilePicker.platform.pickFiles();
-    if (result != null && result.files.single.path != null) {
-      final path = result.files.single.path!;
-      final name = result.files.single.name;
-      _filePicked(path, name);
-      myprint(path);
-      return path;
-    }
-    return null;
-  }
-
   String tPerm(Uint8List bytes) {
     final modeStr = parseTarString(bytes, 100, 8);
     final mode = int.parse(modeStr.trim(), radix: 8);
@@ -529,6 +516,19 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         _errorMessage = null;
       });
     }
+  }
+
+  // ignore: unused_element
+  Future<String?> _pickFile() async {
+    final result = await FilePicker.platform.pickFiles();
+    if (result != null && result.files.single.path != null) {
+      final path = result.files.single.path!;
+      final name = result.files.single.name;
+      _filePicked(path, name);
+      myprint(path);
+      return path;
+    }
+    return null;
   }
 
   Widget _buildButtonsChooseModeRow() {
