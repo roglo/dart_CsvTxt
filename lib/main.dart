@@ -430,6 +430,10 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     });
   }
 
+  void _setStateLoading(bool loading) {
+    setState(() => _loading = loading);
+  }
+
   Future<void> _filePicked(String path, String name) async {
     _fontSize = _initialFontSize;
     if (_vScrollController.hasClients) {
@@ -486,10 +490,10 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     } else if (header.startsWith(257, [0x75, 0x73, 0x74, 0x61, 0x72])) {
       List<TarEntry> tarList = [];
       if (isGzip) {
-        setState(() => _loading = true);
+        _setStateLoading(true);
         await Future.delayed(Duration(milliseconds: 200));
         tarList = await _parseTarGz(path);
-        setState(() => _loading = false);
+        _setStateLoading(false);
       } else {
         tarList = await _parseTar(path);
       }
