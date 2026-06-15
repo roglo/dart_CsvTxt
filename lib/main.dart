@@ -161,6 +161,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   final ScrollController _hScrollController = ScrollController();
   late PdfViewerController _pdfController;
   int _currentPage = 1;
+  int _pdfLoadCount = 0;
 
   @override
   void initState() {
@@ -539,6 +540,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
               setState(() {
                 _initialDir = file.substring(0, file.lastIndexOf("/"));
                 _currentPage = 1;
+                _pdfLoadCount++;
               });
               _filePicked(file, name);
             }
@@ -885,7 +887,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         Expanded(
           child: PdfViewer.data(
             _bytes!,
-            key: ValueKey(_fileName),
+            key: ValueKey("$_fileName-$_pdfLoadCount"),
             sourceName: _fileName!,
             controller: _pdfController,
             initialPageNumber: _currentPage,
