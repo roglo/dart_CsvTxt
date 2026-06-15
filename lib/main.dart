@@ -319,6 +319,35 @@ Future<List<TarEntry>> _parseTarGz(String path) async {
   return tarList;
 }
 
+Future<List<TarEntry>> _parseTar(String path) async {
+  final tarList = <TarEntry>[];
+  final bytes = await File(path).readAsBytes();
+  int pos = 0;
+  while (pos + 512 <= bytes.length) {
+    if (bytes[pos] == 0) break;
+    final name = readString(bytes, pos, 100);
+    final sizeStr = readString(bytes, pos + 124, 12);
+    final size = int.parse(sizeStr.trim(), radix: 8);
+    final type = bytes[pos + 156];
+    final tperm = tPerm(bytes);
+    final uname = parseTarString(bytes, 265, 32);
+    final gname = parseTarString(bytes, 297, 32);
+    tarList.add((
+      tperm: tperm,
+      uname: uname,
+      gname: gname,
+      size: size,
+      fname: name,
+      type: type,
+      contentStartPos: pos + 512,
+      tarFilePath: path,
+      tarFileIsGz: false,
+    ));
+    pos += 512 + ((size + 511) ~/ 512) * 512;
+  }
+  return tarList;
+}
+
 class _FilePickerScreenState extends State<FilePickerScreen> {
   final String _lang = PlatformDispatcher.instance.locale.languageCode;
   // final String _lang = "en"; // ← force l'anglais pour tester
@@ -381,35 +410,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
       );
       _vScrollController.jumpTo(newOffset);
     });
-  }
-
-  Future<List<TarEntry>> _parseTar(String path) async {
-    final tarList = <TarEntry>[];
-    final bytes = await File(path).readAsBytes();
-    int pos = 0;
-    while (pos + 512 <= bytes.length) {
-      if (bytes[pos] == 0) break;
-      final name = readString(bytes, pos, 100);
-      final sizeStr = readString(bytes, pos + 124, 12);
-      final size = int.parse(sizeStr.trim(), radix: 8);
-      final type = bytes[pos + 156];
-      final tperm = tPerm(bytes);
-      final uname = parseTarString(bytes, 265, 32);
-      final gname = parseTarString(bytes, 297, 32);
-      tarList.add((
-        tperm: tperm,
-        uname: uname,
-        gname: gname,
-        size: size,
-        fname: name,
-        type: type,
-        contentStartPos: pos + 512,
-        tarFilePath: path,
-        tarFileIsGz: false,
-      ));
-      pos += 512 + ((size + 511) ~/ 512) * 512;
-    }
-    return tarList;
   }
 
   Future<void> _filePicked(String path, String name) async {
