@@ -160,6 +160,8 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   final ScrollController _vScrollController = ScrollController();
   final ScrollController _hScrollController = ScrollController();
   late PdfViewerController _pdfController;
+  int _currentPage = 1;
+
   @override
   void initState() {
     super.initState();
@@ -223,6 +225,9 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
             onPressed: () => _pdfController.goToPage(pageNumber: 1),
             child: const Text("«"),
           ),
+          const SizedBox(width: 16),
+          Text("$_currentPage"),
+          const SizedBox(width: 16),
           ElevatedButton(
             onPressed: () {
               final last = _pdfController.pageCount;
@@ -266,6 +271,9 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
             onPressed: () => _pdfController.goToPage(pageNumber: 1),
             child: const Text("«"),
           ),
+          const SizedBox(width: 16),
+          Text("$_currentPage"),
+          const SizedBox(width: 16),
           ElevatedButton(
             onPressed: () {
               final last = _pdfController.pageCount;
@@ -879,7 +887,14 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
             key: ValueKey(_fileName),
             sourceName: _fileName!,
             controller: _pdfController,
-            params: PdfViewerParams(scrollByMouseWheel: 1.0),
+            params: PdfViewerParams(
+              scrollByMouseWheel: 1.0,
+              onPageChanged: (page) {
+                setState(() {
+                  _currentPage = page!;
+                });
+              },
+            ),
           ),
         )
       else if (_fileType == FileType.tar)
