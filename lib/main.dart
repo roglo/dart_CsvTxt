@@ -268,6 +268,57 @@ String tPerm(Uint8List bytes) {
   return "$typeChar$perms";
 }
 
+Future<List<TarEntry>> _parseTarGz(String path) async {
+  final tarList = <TarEntry>[];
+  Uint8List? bytes;
+  int pos = 0;
+  final reader = await GzipReader.open(path);
+  String? pendingLongName;
+  try {
+    while (true) {
+      bytes = await reader.readAt(pos, 512);
+      final ended = bytes[0];
+      if (ended == 0) break;
+      final elemName = parseTarString(bytes, 0, 100);
+      final sizeStr = readString(bytes, 124, 12);
+      final size = int.parse(sizeStr.trim(), radix: 8);
+      final type = bytes[156];
+      final tperm = tPerm(bytes);
+      final uname = parseTarString(bytes, 265, 32);
+      final gname = parseTarString(bytes, 297, 32);
+      final dataBlocks = (size + 511) ~/ 512;
+      if (elemName == '././@LongLink') {
+        final nameBytes = <int>[];
+        for (int i = 0; i < dataBlocks; i++) {
+          final block = await reader.readAt(pos + (i + 1) * 512, 512);
+          nameBytes.addAll(block);
+        }
+        pendingLongName = utf8.decode(
+          nameBytes.sublist(0, nameBytes.indexOf(0)),
+          allowMalformed: true,
+        );
+      }
+      final realName = pendingLongName ?? elemName;
+      pendingLongName = null;
+      tarList.add((
+        tperm: tperm,
+        uname: uname,
+        gname: gname,
+        size: size,
+        fname: realName,
+        type: type,
+        contentStartPos: pos + 512,
+        tarFilePath: path,
+        tarFileIsGz: true,
+      ));
+      pos += 512 + dataBlocks * 512;
+    }
+  } finally {
+    await reader.close();
+  }
+  return tarList;
+}
+
 class _FilePickerScreenState extends State<FilePickerScreen> {
   final String _lang = PlatformDispatcher.instance.locale.languageCode;
   // final String _lang = "en"; // ← force l'anglais pour tester
@@ -330,57 +381,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
       );
       _vScrollController.jumpTo(newOffset);
     });
-  }
-
-  Future<List<TarEntry>> _parseTarGz(String path) async {
-    final tarList = <TarEntry>[];
-    Uint8List? bytes;
-    int pos = 0;
-    final reader = await GzipReader.open(path);
-    String? pendingLongName;
-    try {
-      while (true) {
-        bytes = await reader.readAt(pos, 512);
-        final ended = bytes[0];
-        if (ended == 0) break;
-        final elemName = parseTarString(bytes, 0, 100);
-        final sizeStr = readString(bytes, 124, 12);
-        final size = int.parse(sizeStr.trim(), radix: 8);
-        final type = bytes[156];
-        final tperm = tPerm(bytes);
-        final uname = parseTarString(bytes, 265, 32);
-        final gname = parseTarString(bytes, 297, 32);
-        final dataBlocks = (size + 511) ~/ 512;
-        if (elemName == '././@LongLink') {
-          final nameBytes = <int>[];
-          for (int i = 0; i < dataBlocks; i++) {
-            final block = await reader.readAt(pos + (i + 1) * 512, 512);
-            nameBytes.addAll(block);
-          }
-          pendingLongName = utf8.decode(
-            nameBytes.sublist(0, nameBytes.indexOf(0)),
-            allowMalformed: true,
-          );
-        }
-        final realName = pendingLongName ?? elemName;
-        pendingLongName = null;
-        tarList.add((
-          tperm: tperm,
-          uname: uname,
-          gname: gname,
-          size: size,
-          fname: realName,
-          type: type,
-          contentStartPos: pos + 512,
-          tarFilePath: path,
-          tarFileIsGz: true,
-        ));
-        pos += 512 + dataBlocks * 512;
-      }
-    } finally {
-      await reader.close();
-    }
-    return tarList;
   }
 
   Future<List<TarEntry>> _parseTar(String path) async {
