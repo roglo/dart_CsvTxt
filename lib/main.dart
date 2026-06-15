@@ -538,6 +538,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
               final name = file.split("/").last;
               setState(() {
                 _initialDir = file.substring(0, file.lastIndexOf("/"));
+                _currentPage = 1;
               });
               _filePicked(file, name);
             }
