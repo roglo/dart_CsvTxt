@@ -412,6 +412,24 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     });
   }
 
+  void _setState(
+    FileType ft,
+    String name,
+    Uint8List? bytes,
+    String? fileContent,
+    List<TarEntry> tarList,
+  ) {
+    setState(() {
+      _fileType = ft;
+      _fileName = name;
+      _bytes = bytes;
+      _fileContent = fileContent;
+      _csvLines = [];
+      _tarList = tarList;
+      _errorMessage = null;
+    });
+  }
+
   Future<void> _filePicked(String path, String name) async {
     _fontSize = _initialFontSize;
     if (_vScrollController.hasClients) {
@@ -455,15 +473,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
       } else {
         bytes = await File(path).readAsBytes();
       }
-      setState(() {
-        _fileType = FileType.image;
-        _bytes = bytes;
-        _fileName = name;
-        _fileContent = null;
-        _csvLines = [];
-        _tarList = [];
-        _errorMessage = null;
-      });
+      _setState(FileType.image, name, bytes, null, []);
     } else if (header.startsWith(0, [0x25, 0x50, 0x44, 0x46])) {
       Uint8List? bytes;
       if (isGzip) {
@@ -472,15 +482,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
       } else {
         bytes = await File(path).readAsBytes();
       }
-      setState(() {
-        _fileType = FileType.pdf;
-        _fileName = name;
-        _csvLines = [];
-        _fileContent = null;
-        _bytes = bytes;
-        _tarList = [];
-        _errorMessage = null;
-      });
+      _setState(FileType.pdf, name, bytes, null, []);
     } else if (header.startsWith(257, [0x75, 0x73, 0x74, 0x61, 0x72])) {
       List<TarEntry> tarList = [];
       if (isGzip) {
@@ -491,14 +493,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
       } else {
         tarList = await _parseTar(path);
       }
-      setState(() {
-        _fileType = FileType.tar;
-        _fileName = name;
-        _fileContent = null;
-        _bytes = null;
-        _tarList = tarList;
-        _errorMessage = null;
-      });
+      _setState(FileType.tar, name, null, null, tarList);
     } else {
       Uint8List? bytes;
       if (isGzip) {
@@ -511,15 +506,8 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
       final content = s.isNotEmpty && !s.endsWith("\n") ? "$s\n" : s;
       final extension = name.split(".").last.toLowerCase();
       _modeFixe = (extension == "csv");
-      setState(() {
-        _fileType = _modeFixe ? FileType.csv : FileType.txt;
-        _csvLines = [];
-        _fileName = name;
-        _fileContent = content;
-        _bytes = null;
-        _tarList = [];
-        _errorMessage = null;
-      });
+      final ft = _modeFixe ? FileType.csv : FileType.txt;
+      _setState(ft, name, null, content, []);
     }
   }
 
