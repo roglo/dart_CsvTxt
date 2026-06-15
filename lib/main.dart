@@ -888,6 +888,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
             key: ValueKey(_fileName),
             sourceName: _fileName!,
             controller: _pdfController,
+            initialPageNumber: _currentPage,
             params: PdfViewerParams(
               scrollByMouseWheel: 1.0,
               onPageChanged: (page) {
