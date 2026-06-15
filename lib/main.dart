@@ -416,7 +416,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     FileType ft,
     String name,
     Uint8List? bytes,
-    List<TarEntry> tarList
+    List<TarEntry> tarList,
   ) {
     setState(() {
       _fileType = ft;
