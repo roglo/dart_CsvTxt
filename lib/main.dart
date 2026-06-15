@@ -268,14 +268,14 @@ String tPerm(Uint8List bytes) {
   return "$typeChar$perms";
 }
 
-Future<List<TarEntry>> _parseTarGz(String path) async {
+Future<List<TarEntry>> _parseTarGz(String path, bool Function() running) async {
   final tarList = <TarEntry>[];
   Uint8List? bytes;
   int pos = 0;
   final reader = await GzipReader.open(path);
   String? pendingLongName;
   try {
-    while (true) {
+    while (running()) {
       bytes = await reader.readAt(pos, 512);
       final ended = bytes[0];
       if (ended == 0) break;
@@ -492,7 +492,12 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
       if (isGzip) {
         _setStateLoading(true);
         await Future.delayed(Duration(milliseconds: 200));
-        tarList = await _parseTarGz(path);
+        bool running() {
+          return _loading;
+        }
+
+        ;
+        tarList = await _parseTarGz(path, running);
         _setStateLoading(false);
       } else {
         tarList = await _parseTar(path);
@@ -1027,6 +1032,12 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
               children: [
                 const Center(child: LinearProgressIndicator()),
                 Text("merci de patienter..."),
+                ElevatedButton(
+                  onPressed: () {
+                    _setStateLoading(false);
+                  },
+                  child: const Text("Interrompre"),
+                ),
               ],
             ),
           ),
