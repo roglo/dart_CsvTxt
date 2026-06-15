@@ -492,11 +492,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
       if (isGzip) {
         _setStateLoading(true);
         await Future.delayed(Duration(milliseconds: 200));
-        bool running() {
-          return _loading;
-        }
-
-        ;
+        bool running() { return _loading; }
         tarList = await _parseTarGz(path, running);
         _setStateLoading(false);
       } else {
