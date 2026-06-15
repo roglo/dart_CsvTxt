@@ -421,6 +421,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   ) {
     setState(() {
       _fileType = ft;
+      _modeFixe = (ft == FileType.csv ? true : false);
       _fileName = name;
       _bytes = bytes;
       _fileContent = fileContent;
@@ -509,8 +510,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
       final s = utf8.decode(bytes);
       final content = s.isNotEmpty && !s.endsWith("\n") ? "$s\n" : s;
       final extension = name.split(".").last.toLowerCase();
-      _modeFixe = (extension == "csv");
-      final ft = _modeFixe ? FileType.csv : FileType.txt;
+      final ft = (extension == "csv") ? FileType.csv : FileType.txt;
       _setState(ft, name, null, content, []);
     }
   }
@@ -834,7 +834,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   }
 
   Widget _fixedCsvView(String content) {
-    // Outer SingleChildScrollView for vertical scrolling of the entire list
     if (_csvLines.isEmpty) _csvLines = treatCsv(content, _newVersion);
     final length =
         _csvLines.first.$2.first.fold(0, (a, s) => a + s.length) +
