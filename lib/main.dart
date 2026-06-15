@@ -435,7 +435,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   }
 
   Future<void> _filePicked(String path, String name) async {
-    _fontSize = _initialFontSize;
     if (_vScrollController.hasClients) {
       _vScrollController.jumpTo(0);
     }
@@ -522,6 +521,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     if (result != null && result.files.single.path != null) {
       final path = result.files.single.path!;
       final name = result.files.single.name;
+      _fontSize = _initialFontSize;
       _filePicked(path, name);
       myprint(path);
       return path;
@@ -546,6 +546,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
                 _initialDir = file.substring(0, file.lastIndexOf("/"));
                 _currentPage = 1;
                 _pdfLoadCount++;
+                _fontSize = _initialFontSize;
               });
               _filePicked(file, name);
             }
