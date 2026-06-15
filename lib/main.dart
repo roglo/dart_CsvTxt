@@ -246,6 +246,28 @@ Widget _buildColumnButtonsJump(
   );
 }
 
+String tPerm(Uint8List bytes) {
+  final modeStr = parseTarString(bytes, 100, 8);
+  final mode = int.parse(modeStr.trim(), radix: 8);
+  final typeChar = switch (bytes[156]) {
+    53 => 'd', // '5'
+    50 => 'l', // '2' symlink
+    _ => '-',
+  };
+  final perms = [
+    mode & 0x100 != 0 ? 'r' : '-',
+    mode & 0x080 != 0 ? 'w' : '-',
+    mode & 0x040 != 0 ? 'x' : '-',
+    mode & 0x020 != 0 ? 'r' : '-',
+    mode & 0x010 != 0 ? 'w' : '-',
+    mode & 0x008 != 0 ? 'x' : '-',
+    mode & 0x004 != 0 ? 'r' : '-',
+    mode & 0x002 != 0 ? 'w' : '-',
+    mode & 0x001 != 0 ? 'x' : '-',
+  ].join();
+  return "$typeChar$perms";
+}
+
 class _FilePickerScreenState extends State<FilePickerScreen> {
   final String _lang = PlatformDispatcher.instance.locale.languageCode;
   // final String _lang = "en"; // ← force l'anglais pour tester
@@ -308,28 +330,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
       );
       _vScrollController.jumpTo(newOffset);
     });
-  }
-
-  String tPerm(Uint8List bytes) {
-    final modeStr = parseTarString(bytes, 100, 8);
-    final mode = int.parse(modeStr.trim(), radix: 8);
-    final typeChar = switch (bytes[156]) {
-      53 => 'd', // '5'
-      50 => 'l', // '2' symlink
-      _ => '-',
-    };
-    final perms = [
-      mode & 0x100 != 0 ? 'r' : '-',
-      mode & 0x080 != 0 ? 'w' : '-',
-      mode & 0x040 != 0 ? 'x' : '-',
-      mode & 0x020 != 0 ? 'r' : '-',
-      mode & 0x010 != 0 ? 'w' : '-',
-      mode & 0x008 != 0 ? 'x' : '-',
-      mode & 0x004 != 0 ? 'r' : '-',
-      mode & 0x002 != 0 ? 'w' : '-',
-      mode & 0x001 != 0 ? 'x' : '-',
-    ].join();
-    return "$typeChar$perms";
   }
 
   Future<List<TarEntry>> _parseTarGz(String path) async {
