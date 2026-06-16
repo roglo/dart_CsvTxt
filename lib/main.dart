@@ -268,14 +268,17 @@ String tPerm(Uint8List bytes) {
   return "$typeChar$perms";
 }
 
-Future<List<TarEntry>> _parseTarGz(String path, bool Function() running) async {
+Future<List<TarEntry>> _parseTarGz(
+  String path,
+  bool Function() _getLoading,
+) async {
   final tarList = <TarEntry>[];
   Uint8List? bytes;
   int pos = 0;
   final reader = await GzipReader.open(path);
   String? pendingLongName;
   try {
-    while (running()) {
+    while (_getLoading()) {
       bytes = await reader.readAt(pos, 512);
       final ended = bytes[0];
       if (ended == 0) break;
@@ -355,8 +358,8 @@ Future<void> _filePicked(
   ScrollController _hScrollController,
   void Function(FileType, String, Uint8List?, String?, List<TarEntry>)
   _setState,
-  void Function(bool) _setStateLoading,
-  bool Function() running,
+  void Function(bool) _setLoading,
+  bool Function() _getStateLoading,
 ) async {
   if (_vScrollController.hasClients) {
     _vScrollController.jumpTo(0);
@@ -412,10 +415,10 @@ Future<void> _filePicked(
   } else if (header.startsWith(257, [0x75, 0x73, 0x74, 0x61, 0x72])) {
     List<TarEntry> tarList = [];
     if (isGzip) {
-      _setStateLoading(true);
+      _setLoading(true);
       await Future.delayed(Duration(milliseconds: 200));
-      tarList = await _parseTarGz(path, running);
-      _setStateLoading(false);
+      tarList = await _parseTarGz(path, _getStateLoading);
+      _setLoading(false);
     } else {
       tarList = await _parseTar(path);
     }
@@ -519,11 +522,11 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     });
   }
 
-  void _setStateLoading(bool loading) {
+  void _setLoading(bool loading) {
     setState(() => _loading = loading);
   }
 
-  bool running() {
+  bool _getLoading() {
     return _loading;
   }
 
@@ -539,8 +542,8 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         _vScrollController,
         _hScrollController,
         _setState,
-        _setStateLoading,
-        running,
+        _setLoading,
+        _getLoading,
       );
       myprint(path);
       return path;
@@ -573,8 +576,8 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
                 _vScrollController,
                 _hScrollController,
                 _setState,
-                _setStateLoading,
-                running,
+                _setLoading,
+                _getLoading,
               );
             }
           },
@@ -1057,7 +1060,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
                 Text("merci de patienter..."),
                 ElevatedButton(
                   onPressed: () {
-                    _setStateLoading(false);
+                    _setLoading(false);
                   },
                   child: const Text("Interrompre"),
                 ),
