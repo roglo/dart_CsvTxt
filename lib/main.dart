@@ -359,7 +359,7 @@ Future<void> _filePicked(
   void Function(FileType, String, Uint8List?, String?, List<TarEntry>)
   _setState,
   void Function(bool) _setLoading,
-  bool Function() _getStateLoading,
+  bool Function() _getLoading,
 ) async {
   if (_vScrollController.hasClients) {
     _vScrollController.jumpTo(0);
@@ -417,7 +417,7 @@ Future<void> _filePicked(
     if (isGzip) {
       _setLoading(true);
       await Future.delayed(Duration(milliseconds: 200));
-      tarList = await _parseTarGz(path, _getStateLoading);
+      tarList = await _parseTarGz(path, _getLoading);
       _setLoading(false);
     } else {
       tarList = await _parseTar(path);
@@ -437,6 +437,35 @@ Future<void> _filePicked(
     final ft = (extension == "csv") ? FileType.csv : FileType.txt;
     _setState(ft, name, null, content, []);
   }
+}
+
+
+// ignore: unused_element
+Future<String?> _pickFile(
+  ScrollController _vScrollController,
+  ScrollController _hScrollController,
+  void Function(FileType, String, Uint8List?, String?, List<TarEntry>)
+  _setState,
+  void Function(bool) _setLoading,
+  bool Function() _getLoading,
+) async {
+  final result = await FilePicker.platform.pickFiles();
+  if (result != null && result.files.single.path != null) {
+    final path = result.files.single.path!;
+    final name = result.files.single.name;
+    _filePicked(
+      path,
+      name,
+      _vScrollController,
+      _hScrollController,
+      _setState,
+      _setLoading,
+      _getLoading,
+    );
+    myprint(path);
+    return path;
+  }
+  return null;
 }
 
 class _FilePickerScreenState extends State<FilePickerScreen> {
@@ -528,27 +557,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
 
   bool _getLoading() {
     return _loading;
-  }
-
-  // ignore: unused_element
-  Future<String?> _pickFile() async {
-    final result = await FilePicker.platform.pickFiles();
-    if (result != null && result.files.single.path != null) {
-      final path = result.files.single.path!;
-      final name = result.files.single.name;
-      _filePicked(
-        path,
-        name,
-        _vScrollController,
-        _hScrollController,
-        _setState,
-        _setLoading,
-        _getLoading,
-      );
-      myprint(path);
-      return path;
-    }
-    return null;
   }
 
   Widget _buildButtonsChooseModeRow() {
