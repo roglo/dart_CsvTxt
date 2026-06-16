@@ -559,7 +559,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     return _loading;
   }
 
-  Widget _buildButtonsChooseModeRow() {
+  Widget _buildButtonsChooseFile() {
     return Row(
       children: [
         ElevatedButton(
@@ -995,7 +995,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 40),
-          _buildButtonsChooseModeRow(),
+          _buildButtonsChooseFile(),
           if (_fileName != null &&
               _fileType != FileType.image &&
               _errorMessage == null) ...[
