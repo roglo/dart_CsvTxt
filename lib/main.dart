@@ -467,6 +467,8 @@ Future<String?> _pickFile(
   return null;
 }
 
+String _t(String _lang, String fr, String en) => _lang == "fr" ? fr : en;
+
 class _FilePickerScreenState extends State<FilePickerScreen> {
   final String _lang = PlatformDispatcher.instance.locale.languageCode;
   // final String _lang = "en"; // ← force l'anglais pour tester
@@ -496,7 +498,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     _pdfController = PdfViewerController();
   }
 
-  String _t(String fr, String en) => _lang == "fr" ? fr : en;
   String? _initialDir;
   String? _fileName;
   String? _fileContent;
@@ -579,7 +580,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     return Row(
       children: [
         ElevatedButton(
-          child: Text(_t("Choisir un fichier", "Choose a file")),
+          child: Text(_t(_lang, "Choisir un fichier", "Choose a file")),
           onPressed: () async {
             final String? file = Platform.isLinux
                 // ? await _pickFile()
