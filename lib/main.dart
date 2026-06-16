@@ -532,6 +532,15 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     });
   }
 
+  void _setPickedFileState(String file) {
+    setState(() {
+      _initialDir = file.substring(0, file.lastIndexOf("/"));
+      _currentPage = 1;
+      _pdfLoadCount++;
+      _fontSize = _initialFontSize;
+    });
+  }
+
   void _setState(
     FileType ft,
     String name,
@@ -565,19 +574,14 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         ElevatedButton(
           child: Text(_t("Choisir un fichier", "Choose a file")),
           onPressed: () async {
-            final file = Platform.isLinux
+            final String? file = Platform.isLinux
                 // ? await _pickFile()
                 ? await customPickFile(context, _initialDir)
                 // : await _pickFile();
                 : await customPickFile(context, _initialDir);
             if (file != null) {
               final name = file.split("/").last;
-              setState(() {
-                _initialDir = file.substring(0, file.lastIndexOf("/"));
-                _currentPage = 1;
-                _pdfLoadCount++;
-                _fontSize = _initialFontSize;
-              });
+              _setPickedFileState(file);
               _filePicked(
                 file,
                 name,
