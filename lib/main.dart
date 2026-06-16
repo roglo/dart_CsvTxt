@@ -348,6 +348,94 @@ Future<List<TarEntry>> _parseTar(String path) async {
   return tarList;
 }
 
+Future<void> _filePicked(
+  String path,
+  String name,
+  ScrollController _vScrollController,
+  ScrollController _hScrollController,
+  void Function(FileType, String, Uint8List?, String?, List<TarEntry>)
+  _setState,
+  void Function(bool) _setStateLoading,
+  bool Function() running,
+) async {
+  if (_vScrollController.hasClients) {
+    _vScrollController.jumpTo(0);
+  }
+  if (_hScrollController.hasClients) {
+    _hScrollController.jumpTo(0);
+  }
+  //
+  final chunks = <int>[];
+  await for (final chunk in File(path).openRead()) {
+    chunks.addAll(chunk);
+    if (chunks.length >= 1024) break;
+  }
+  final beginning = Uint8List.fromList(
+    chunks.sublist(0, min(1024, chunks.length)),
+  );
+  Uint8List? header;
+  bool isGzip = false;
+  if (beginning.startsWith(0, [0x1F, 0x8B])) {
+    isGzip = true;
+    final reader = await GzipReader.open(path);
+    try {
+      header = await reader.readAt(0, 512);
+    } finally {
+      await reader.close();
+    }
+  } else {
+    final bytes = await File(path).openRead(0, 512).first;
+    header = Uint8List.fromList(bytes);
+  }
+  bool isGif = header.startsWith(0, [0x47, 0x49, 0x46]);
+  bool isPng = header.startsWith(0, [0x89, 0x50, 0x4E]);
+  bool isJpeg = header.startsWith(0, [0xFF, 0xD8]);
+  final isImage = isGif || isPng || isJpeg;
+  if (isImage) {
+    Uint8List? bytes;
+    if (isGzip) {
+      final zbytes = await File(path).readAsBytes();
+      bytes = Uint8List.fromList(GZipDecoder().decodeBytes(zbytes));
+    } else {
+      bytes = await File(path).readAsBytes();
+    }
+    _setState(FileType.image, name, bytes, null, []);
+  } else if (header.startsWith(0, [0x25, 0x50, 0x44, 0x46])) {
+    Uint8List? bytes;
+    if (isGzip) {
+      final zbytes = await File(path).readAsBytes();
+      bytes = Uint8List.fromList(GZipDecoder().decodeBytes(zbytes));
+    } else {
+      bytes = await File(path).readAsBytes();
+    }
+    _setState(FileType.pdf, name, bytes, null, []);
+  } else if (header.startsWith(257, [0x75, 0x73, 0x74, 0x61, 0x72])) {
+    List<TarEntry> tarList = [];
+    if (isGzip) {
+      _setStateLoading(true);
+      await Future.delayed(Duration(milliseconds: 200));
+      tarList = await _parseTarGz(path, running);
+      _setStateLoading(false);
+    } else {
+      tarList = await _parseTar(path);
+    }
+    _setState(FileType.tar, name, null, null, tarList);
+  } else {
+    Uint8List? bytes;
+    if (isGzip) {
+      final zbytes = await File(path).readAsBytes();
+      bytes = Uint8List.fromList(GZipDecoder().decodeBytes(zbytes));
+    } else {
+      bytes = await File(path).readAsBytes();
+    }
+    final s = utf8.decode(bytes);
+    final content = s.isNotEmpty && !s.endsWith("\n") ? "$s\n" : s;
+    final extension = name.split(".").last.toLowerCase();
+    final ft = (extension == "csv") ? FileType.csv : FileType.txt;
+    _setState(ft, name, null, content, []);
+  }
+}
+
 class _FilePickerScreenState extends State<FilePickerScreen> {
   final String _lang = PlatformDispatcher.instance.locale.languageCode;
   // final String _lang = "en"; // ← force l'anglais pour tester
@@ -435,84 +523,8 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     setState(() => _loading = loading);
   }
 
-  Future<void> _filePicked(String path, String name) async {
-    if (_vScrollController.hasClients) {
-      _vScrollController.jumpTo(0);
-    }
-    if (_hScrollController.hasClients) {
-      _hScrollController.jumpTo(0);
-    }
-    //
-    final chunks = <int>[];
-    await for (final chunk in File(path).openRead()) {
-      chunks.addAll(chunk);
-      if (chunks.length >= 1024) break;
-    }
-    final beginning = Uint8List.fromList(
-      chunks.sublist(0, min(1024, chunks.length)),
-    );
-    Uint8List? header;
-    bool isGzip = false;
-    if (beginning.startsWith(0, [0x1F, 0x8B])) {
-      isGzip = true;
-      final reader = await GzipReader.open(path);
-      try {
-        header = await reader.readAt(0, 512);
-      } finally {
-        await reader.close();
-      }
-    } else {
-      final bytes = await File(path).openRead(0, 512).first;
-      header = Uint8List.fromList(bytes);
-    }
-    bool isGif = header.startsWith(0, [0x47, 0x49, 0x46]);
-    bool isPng = header.startsWith(0, [0x89, 0x50, 0x4E]);
-    bool isJpeg = header.startsWith(0, [0xFF, 0xD8]);
-    final isImage = isGif || isPng || isJpeg;
-    if (isImage) {
-      Uint8List? bytes;
-      if (isGzip) {
-        final zbytes = await File(path).readAsBytes();
-        bytes = Uint8List.fromList(GZipDecoder().decodeBytes(zbytes));
-      } else {
-        bytes = await File(path).readAsBytes();
-      }
-      _setState(FileType.image, name, bytes, null, []);
-    } else if (header.startsWith(0, [0x25, 0x50, 0x44, 0x46])) {
-      Uint8List? bytes;
-      if (isGzip) {
-        final zbytes = await File(path).readAsBytes();
-        bytes = Uint8List.fromList(GZipDecoder().decodeBytes(zbytes));
-      } else {
-        bytes = await File(path).readAsBytes();
-      }
-      _setState(FileType.pdf, name, bytes, null, []);
-    } else if (header.startsWith(257, [0x75, 0x73, 0x74, 0x61, 0x72])) {
-      List<TarEntry> tarList = [];
-      if (isGzip) {
-        _setStateLoading(true);
-        await Future.delayed(Duration(milliseconds: 200));
-        bool running() { return _loading; }
-        tarList = await _parseTarGz(path, running);
-        _setStateLoading(false);
-      } else {
-        tarList = await _parseTar(path);
-      }
-      _setState(FileType.tar, name, null, null, tarList);
-    } else {
-      Uint8List? bytes;
-      if (isGzip) {
-        final zbytes = await File(path).readAsBytes();
-        bytes = Uint8List.fromList(GZipDecoder().decodeBytes(zbytes));
-      } else {
-        bytes = await File(path).readAsBytes();
-      }
-      final s = utf8.decode(bytes);
-      final content = s.isNotEmpty && !s.endsWith("\n") ? "$s\n" : s;
-      final extension = name.split(".").last.toLowerCase();
-      final ft = (extension == "csv") ? FileType.csv : FileType.txt;
-      _setState(ft, name, null, content, []);
-    }
+  bool running() {
+    return _loading;
   }
 
   // ignore: unused_element
@@ -522,7 +534,15 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
       final path = result.files.single.path!;
       final name = result.files.single.name;
       _fontSize = _initialFontSize;
-      _filePicked(path, name);
+      _filePicked(
+        path,
+        name,
+        _vScrollController,
+        _hScrollController,
+        _setState,
+        _setStateLoading,
+        running,
+      );
       myprint(path);
       return path;
     }
@@ -548,7 +568,15 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
                 _pdfLoadCount++;
                 _fontSize = _initialFontSize;
               });
-              _filePicked(file, name);
+              _filePicked(
+                file,
+                name,
+                _vScrollController,
+                _hScrollController,
+                _setState,
+                _setStateLoading,
+                running,
+              );
             }
           },
         ),
