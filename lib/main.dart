@@ -567,6 +567,14 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     return _loading;
   }
 
+  void _switchModeFixe() {
+    setState(() => _modeFixe = !_modeFixe);
+  }
+
+  bool _getModeFixe() {
+    return _modeFixe;
+  }
+
   Widget _buildButtonsChooseFile() {
     return Row(
       children: [
@@ -600,8 +608,8 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
             _errorMessage == null) ...[
           const SizedBox(width: 16),
           ElevatedButton(
-            onPressed: () => setState(() => _modeFixe = !_modeFixe),
-            child: Text(_modeFixe ? "Mode normal" : "Mode fixe"),
+            onPressed: () => _switchModeFixe(),
+            child: Text(_getModeFixe() ? "Mode normal" : "Mode fixe"),
           ),
         ],
       ],
