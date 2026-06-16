@@ -533,7 +533,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     if (result != null && result.files.single.path != null) {
       final path = result.files.single.path!;
       final name = result.files.single.name;
-      _fontSize = _initialFontSize;
       _filePicked(
         path,
         name,
