@@ -469,6 +469,63 @@ Future<String?> _pickFile(
 
 String _t(String _lang, String fr, String en) => _lang == "fr" ? fr : en;
 
+Widget _buildButtonsChooseFile(
+  BuildContext context,
+  String _lang,
+  String? _initialDir,
+  String? _fileName,
+  FileType? _fileType,
+  String? _errorMessage,
+  ScrollController _vScrollController,
+  ScrollController _hScrollController,
+  void Function(String) _setPickedFileState,
+  void Function(FileType, String, Uint8List?, String?, List<TarEntry>)
+  _setState,
+  void Function(bool) _setLoading,
+  bool Function() _getLoading,
+  void Function() _switchModeFixe,
+  bool Function() _getModeFixe,
+) {
+  return Row(
+    children: [
+      ElevatedButton(
+        child: Text(_t(_lang, "Choisir un fichier", "Choose a file")),
+        onPressed: () async {
+          final String? file = Platform.isLinux
+              // ? await _pickFile()
+              ? await customPickFile(context, _initialDir)
+              // : await _pickFile();
+              : await customPickFile(context, _initialDir);
+          if (file != null) {
+            final name = file.split("/").last;
+            _setPickedFileState(file);
+            _filePicked(
+              file,
+              name,
+              _vScrollController,
+              _hScrollController,
+              _setState,
+              _setLoading,
+              _getLoading,
+            );
+          }
+        },
+      ),
+      if (_fileName != null &&
+          _fileType != FileType.image &&
+          _fileType != FileType.pdf &&
+          _fileType != FileType.tar &&
+          _errorMessage == null) ...[
+        const SizedBox(width: 16),
+        ElevatedButton(
+          onPressed: () => _switchModeFixe(),
+          child: Text(_getModeFixe() ? "Mode normal" : "Mode fixe"),
+        ),
+      ],
+    ],
+  );
+}
+
 class _FilePickerScreenState extends State<FilePickerScreen> {
   final String _lang = PlatformDispatcher.instance.locale.languageCode;
   // final String _lang = "en"; // ← force l'anglais pour tester
@@ -574,47 +631,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
 
   bool _getModeFixe() {
     return _modeFixe;
-  }
-
-  Widget _buildButtonsChooseFile() {
-    return Row(
-      children: [
-        ElevatedButton(
-          child: Text(_t(_lang, "Choisir un fichier", "Choose a file")),
-          onPressed: () async {
-            final String? file = Platform.isLinux
-                // ? await _pickFile()
-                ? await customPickFile(context, _initialDir)
-                // : await _pickFile();
-                : await customPickFile(context, _initialDir);
-            if (file != null) {
-              final name = file.split("/").last;
-              _setPickedFileState(file);
-              _filePicked(
-                file,
-                name,
-                _vScrollController,
-                _hScrollController,
-                _setState,
-                _setLoading,
-                _getLoading,
-              );
-            }
-          },
-        ),
-        if (_fileName != null &&
-            _fileType != FileType.image &&
-            _fileType != FileType.pdf &&
-            _fileType != FileType.tar &&
-            _errorMessage == null) ...[
-          const SizedBox(width: 16),
-          ElevatedButton(
-            onPressed: () => _switchModeFixe(),
-            child: Text(_getModeFixe() ? "Mode normal" : "Mode fixe"),
-          ),
-        ],
-      ],
-    );
   }
 
   TextStyle fixedTextStyle({Color color = Colors.black}) {
@@ -918,7 +934,21 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
       child: SingleChildScrollView(
         controller: _hScrollController,
         scrollDirection: Axis.horizontal,
-        child: Text(content, style: TextStyle(fontSize: _fontSize)),
+        child: Text.rich(
+          TextSpan(
+            children: content.split("*").asMap().entries.map((v) {
+              final int i = v.key;
+              final String txt = v.value;
+              return TextSpan(
+                text: txt,
+                style: TextStyle(
+                  fontSize: _fontSize,
+                  fontStyle: (i % 2 == 1) ? FontStyle.italic : FontStyle.normal,
+                ),
+              );
+            }).toList(),
+          ),
+        ),
       ),
     );
   }
@@ -1007,7 +1037,22 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 40),
-          _buildButtonsChooseFile(),
+          _buildButtonsChooseFile(
+            context,
+            _lang,
+            _initialDir,
+            _fileName,
+            _fileType,
+            _errorMessage,
+            _vScrollController,
+            _hScrollController,
+            _setPickedFileState,
+            _setState,
+            _setLoading,
+            _getLoading,
+            _switchModeFixe,
+            _getModeFixe,
+          ),
           if (_fileName != null &&
               _fileType != FileType.image &&
               _errorMessage == null) ...[
