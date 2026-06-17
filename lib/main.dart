@@ -931,7 +931,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   Widget _parseWithItalics(String content) {
     return Text.rich(
       TextSpan(
-        children: content.split("*").asMap().entries.map((v) {
+        children: content.split("_").asMap().entries.map((v) {
           final int i = v.key;
           final String txt = v.value;
           return TextSpan(
@@ -946,13 +946,15 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     );
   }
 
-  Widget _normalView(String content) {
+  Widget _normalView(String fileName, String content) {
     return SingleChildScrollView(
       controller: _vScrollController,
       child: SingleChildScrollView(
         controller: _hScrollController,
         scrollDirection: Axis.horizontal,
-        child: _parseWithItalics(content),
+        child:
+          fileName.endsWith(".txt") ? _parseWithItalics(content) :
+          Text(content, style: TextStyle(fontSize: _fontSize)),
       ),
     );
   }
@@ -1029,7 +1031,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
               ? (_fileType == FileType.csv
                     ? _fixedCsvView(_fileContent!)
                     : _fixedView(_fileContent!))
-              : _normalView(_fileContent!),
+              : _normalView(_fileName!, _fileContent!),
         ),
     ];
   }
