@@ -952,9 +952,9 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
       child: SingleChildScrollView(
         controller: _hScrollController,
         scrollDirection: Axis.horizontal,
-        child:
-          fileName.endsWith(".txt") ? _parseWithItalics(content) :
-          Text(content, style: TextStyle(fontSize: _fontSize)),
+        child: fileName.endsWith(".txt")
+            ? _parseWithItalics(content)
+            : Text(content, style: TextStyle(fontSize: _fontSize)),
       ),
     );
   }
