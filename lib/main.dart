@@ -526,6 +526,15 @@ Widget _buildButtonsChooseFile(
   );
 }
 
+TextStyle _fixedTextStyle(double _fontSize, {Color color = Colors.black}) {
+  return TextStyle(
+    fontFamily: "Courier",
+    fontSize: _fontSize,
+    fontWeight: FontWeight.bold,
+    color: color,
+  );
+}
+
 class _FilePickerScreenState extends State<FilePickerScreen> {
   final String _lang = PlatformDispatcher.instance.locale.languageCode;
   // final String _lang = "en"; // ← force l'anglais pour tester
@@ -633,15 +642,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     return _modeFixe;
   }
 
-  TextStyle fixedTextStyle({Color color = Colors.black}) {
-    return TextStyle(
-      fontFamily: "Courier",
-      fontSize: _fontSize,
-      fontWeight: FontWeight.bold,
-      color: color,
-    );
-  }
-
   List<(String, String)> _csvFormatLine(String def, String line) {
     final List<String> defs = def
         .substring(1, def.length - 1)
@@ -667,7 +667,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
       child: SingleChildScrollView(
         controller: _hScrollController,
         scrollDirection: Axis.horizontal,
-        child: Text(content, style: fixedTextStyle()),
+        child: Text(content, style: _fixedTextStyle(_fontSize)),
       ),
     );
   }
@@ -810,7 +810,10 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
       },
       child: Text(
         txt,
-        style: fixedTextStyle(color: _headersTextColors[index] ?? Colors.blue),
+        style: _fixedTextStyle(
+          _fontSize,
+          color: _headersTextColors[index] ?? Colors.blue,
+        ),
       ),
     );
   }
@@ -828,7 +831,8 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
       },
       child: Text(
         txt,
-        style: fixedTextStyle(
+        style: _fixedTextStyle(
+          _fontSize,
           color: _firstColumnTextColors[index] ?? Colors.blue,
         ),
       ),
@@ -848,7 +852,8 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
       },
       child: Text(
         entry.fname,
-        style: fixedTextStyle(
+        style: _fixedTextStyle(
+          _fontSize,
           color: _tarFileNameTextColors[index] ?? Colors.blue,
         ),
       ),
@@ -861,7 +866,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
       return Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Text("|", style: fixedTextStyle()),
+          Text("|", style: _fixedTextStyle(_fontSize)),
           ...rightList.asMap().entries.map((entry) {
             final int index = entry.key;
             final String txt = entry.value;
@@ -869,7 +874,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 _clickOnCsvHeaderLine(index, txt),
-                Text("|", style: fixedTextStyle()),
+                Text("|", style: _fixedTextStyle(_fontSize)),
               ],
             );
           }),
@@ -890,9 +895,12 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         return Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Text("|", style: fixedTextStyle()),
+            Text("|", style: _fixedTextStyle(_fontSize)),
             _clickOnCsvLine(index, firstLine, currentLine, firstField),
-            Text("|${allOtherFields.join('|')}|", style: fixedTextStyle()),
+            Text(
+              "|${allOtherFields.join('|')}|",
+              style: _fixedTextStyle(_fontSize),
+            ),
           ],
         );
       });
@@ -915,10 +923,10 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(border, style: fixedTextStyle()),
+            Text(border, style: _fixedTextStyle(_fontSize)),
             ...buildFirstLineColumnChildren(),
             ...buildColumnChildren(),
-            Text(border, style: fixedTextStyle()),
+            Text(border, style: _fixedTextStyle(_fontSize)),
             Text(""),
             Text(""),
             Text(""),
@@ -1006,17 +1014,17 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Text(file.tperm, style: fixedTextStyle()),
-                      Text(" ", style: fixedTextStyle()),
-                      Text(file.uname, style: fixedTextStyle()),
-                      Text("/", style: fixedTextStyle()),
-                      Text(file.gname, style: fixedTextStyle()),
-                      Text(" ", style: fixedTextStyle()),
+                      Text(file.tperm, style: _fixedTextStyle(_fontSize)),
+                      Text(" ", style: _fixedTextStyle(_fontSize)),
+                      Text(file.uname, style: _fixedTextStyle(_fontSize)),
+                      Text("/", style: _fixedTextStyle(_fontSize)),
+                      Text(file.gname, style: _fixedTextStyle(_fontSize)),
+                      Text(" ", style: _fixedTextStyle(_fontSize)),
                       Text(
                         file.size.toString().padLeft(8),
-                        style: fixedTextStyle(),
+                        style: _fixedTextStyle(_fontSize),
                       ),
-                      Text(" ", style: fixedTextStyle()),
+                      Text(" ", style: _fixedTextStyle(_fontSize)),
                       _clickOnTarFileName(entry.key, file),
                     ],
                   );
