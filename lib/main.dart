@@ -928,27 +928,31 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     );
   }
 
+  Widget _parseWithItalics(String content) {
+    return Text.rich(
+      TextSpan(
+        children: content.split("*").asMap().entries.map((v) {
+          final int i = v.key;
+          final String txt = v.value;
+          return TextSpan(
+            text: txt,
+            style: TextStyle(
+              fontSize: _fontSize,
+              fontStyle: (i % 2 == 1) ? FontStyle.italic : FontStyle.normal,
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
   Widget _normalView(String content) {
     return SingleChildScrollView(
       controller: _vScrollController,
       child: SingleChildScrollView(
         controller: _hScrollController,
         scrollDirection: Axis.horizontal,
-        child: Text.rich(
-          TextSpan(
-            children: content.split("*").asMap().entries.map((v) {
-              final int i = v.key;
-              final String txt = v.value;
-              return TextSpan(
-                text: txt,
-                style: TextStyle(
-                  fontSize: _fontSize,
-                  fontStyle: (i % 2 == 1) ? FontStyle.italic : FontStyle.normal,
-                ),
-              );
-            }).toList(),
-          ),
-        ),
+        child: _parseWithItalics(content),
       ),
     );
   }
