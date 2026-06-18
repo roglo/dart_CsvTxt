@@ -535,6 +535,41 @@ TextStyle _fixedTextStyle(double _fontSize, {Color color = Colors.black}) {
   );
 }
 
+List<(String, String)> _csvFormatLine(String def, String line) {
+  final List<String> defs = def
+      .substring(1, def.length - 1)
+      .replaceAll(RegExp(r"\s+"), " ")
+      .split("|");
+  final List<String> lines = line
+      .substring(1, line.length - 1)
+      .replaceAll(RegExp(r"\s+"), " ")
+      .split("|");
+  final List<(String, String)> s = defs.asMap().entries.map((entry) {
+    return (
+      entry.value.trimRight(),
+      entry.key < lines.length ? lines[entry.key].trimRight() : "",
+    );
+  }).toList();
+  return s;
+}
+
+Widget _fixedView(
+  String content,
+  double _fontSize,
+  ScrollController _vScrollController,
+  ScrollController _hScrollController,
+) {
+  return SingleChildScrollView(
+    controller: _vScrollController,
+    scrollDirection: Axis.vertical,
+    child: SingleChildScrollView(
+      controller: _hScrollController,
+      scrollDirection: Axis.horizontal,
+      child: Text(content, style: _fixedTextStyle(_fontSize)),
+    ),
+  );
+}
+
 class _FilePickerScreenState extends State<FilePickerScreen> {
   final String _lang = PlatformDispatcher.instance.locale.languageCode;
   // final String _lang = "en"; // ← force l'anglais pour tester
@@ -640,36 +675,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
 
   bool _getModeFixe() {
     return _modeFixe;
-  }
-
-  List<(String, String)> _csvFormatLine(String def, String line) {
-    final List<String> defs = def
-        .substring(1, def.length - 1)
-        .replaceAll(RegExp(r"\s+"), " ")
-        .split("|");
-    final List<String> lines = line
-        .substring(1, line.length - 1)
-        .replaceAll(RegExp(r"\s+"), " ")
-        .split("|");
-    final List<(String, String)> s = defs.asMap().entries.map((entry) {
-      return (
-        entry.value.trimRight(),
-        entry.key < lines.length ? lines[entry.key].trimRight() : "",
-      );
-    }).toList();
-    return s;
-  }
-
-  Widget _fixedView(String content) {
-    return SingleChildScrollView(
-      controller: _vScrollController,
-      scrollDirection: Axis.vertical,
-      child: SingleChildScrollView(
-        controller: _hScrollController,
-        scrollDirection: Axis.horizontal,
-        child: Text(content, style: _fixedTextStyle(_fontSize)),
-      ),
-    );
   }
 
   void _actionClickOnCsvHeaderLine(int index, String txt) {
@@ -1038,7 +1043,12 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
           child: _modeFixe
               ? (_fileType == FileType.csv
                     ? _fixedCsvView(_fileContent!)
-                    : _fixedView(_fileContent!))
+                    : _fixedView(
+                        _fileContent!,
+                        _fontSize,
+                        _vScrollController,
+                        _hScrollController,
+                      ))
               : _normalView(_fileName!, _fileContent!),
         ),
     ];
