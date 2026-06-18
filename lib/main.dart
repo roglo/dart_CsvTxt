@@ -12,6 +12,7 @@ import 'package:archive/archive.dart';
 import "package:file_picker/file_picker.dart";
 import 'package:flutter/foundation.dart';
 import "package:flutter/material.dart";
+import 'package:flutter/services.dart';
 import 'package:pdfrx/pdfrx.dart';
 
 import "picker.dart";
@@ -671,10 +672,30 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   int _currentPage = 1;
   int _pdfLoadCount = 0;
 
+  void _openFile(String file) {
+    final name = file.split("/").last;
+    _setPickedFileState(file);
+    _filePicked(
+      file,
+      name,
+      _vScrollController,
+      _hScrollController,
+      _setState,
+      _setLoading,
+      _getLoading,
+    );
+  }
+
   @override
   void initState() {
     super.initState();
     _pdfController = PdfViewerController();
+    if (widget.initialFile != null) {
+      print('initialFile = ${widget.initialFile}');
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _openFile(widget.initialFile!);
+      });
+    }
   }
 
   @override
@@ -1191,26 +1212,30 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
 }
 
 class FilePickerScreen extends StatefulWidget {
-  const FilePickerScreen({super.key});
+  final String? initialFile;
+  const FilePickerScreen({super.key, this.initialFile});
 
   @override
   State<FilePickerScreen> createState() => _FilePickerScreenState();
 }
 
 class CsvTxt extends StatelessWidget {
-  const CsvTxt({super.key});
-  @override
-  // Widget build(BuildContext context) {
-  //   return MaterialApp(
-  //     themeMode: ThemeMode.dark,
-  //     darkTheme: ThemeData.dark(),
-  //     home: const FilePickerScreen(),
-  //   );
-  // }
+  final String? initialFile;
+  const CsvTxt({super.key, this.initialFile});
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: FilePickerScreen());
+    return MaterialApp(home: FilePickerScreen(initialFile: initialFile));
   }
 }
 
-void main() => runApp(const CsvTxt());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  const channel = MethodChannel('app/intent');
+  String? initialUri;
+  try {
+    initialUri = await channel.invokeMethod<String>('getInitialUri');
+  } catch (_) {}
+
+  runApp(CsvTxt(initialFile: initialUri));
+}
