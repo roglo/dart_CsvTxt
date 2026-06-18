@@ -7,6 +7,9 @@ compile:
 linux:
 	GDK_SCALE=2 flutter run --release -d linux
 
+linux_run:
+	GDK_SCALE=2 build/linux/x64/release/bundle/csvtxt
+
 clean:
 	rm -rf build .dart_tool android/.gradle android/app/src/main/java
 	rm -rf android/.kotlin
