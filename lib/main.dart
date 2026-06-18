@@ -927,21 +927,29 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     return SingleChildScrollView(
       controller: _hScrollController,
       scrollDirection: Axis.horizontal,
-      child: SingleChildScrollView(
-        controller: _vScrollController,
-        scrollDirection: Axis.vertical,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(border, style: _fixedTextStyle(_fontSize)),
-            ...buildFirstLineColumnChildren(),
-            ...buildColumnChildren(),
-            Text(border, style: _fixedTextStyle(_fontSize)),
-            Text(""),
-            Text(""),
-            Text(""),
-          ],
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(border, style: _fixedTextStyle(_fontSize)),
+          ...buildFirstLineColumnChildren(),
+          Text(border, style: _fixedTextStyle(_fontSize)),
+          Expanded(
+            child: SingleChildScrollView(
+              controller: _vScrollController,
+              scrollDirection: Axis.vertical,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ...buildColumnChildren(),
+                  Text(border, style: _fixedTextStyle(_fontSize)),
+                  Text(""),
+                  Text(""),
+                  Text(""),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
