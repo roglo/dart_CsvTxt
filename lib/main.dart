@@ -800,13 +800,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         );
       }
       final content = utf8.decode(bytes);
-      setState(() {
-        _fileType = FileType.txt;
-        _fileName = "$fileName ($tarFileName)";
-        _fileContent = content;
-        _modeFixe = true;
-        _errorMessage = null;
-      });
+      _setState(FileType.txt, "$fileName ($tarFileName)", null, content, []);
     }
   }
 
