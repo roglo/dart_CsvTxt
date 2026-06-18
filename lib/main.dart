@@ -811,9 +811,9 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
           _headersTextColors[index] = Colors.grey[300] ?? Colors.grey;
         });
         Future.delayed(const Duration(milliseconds: 100), () {
-          _headersTextColors[index] = Colors.blue;
           setState(() {
             _csvLines = _actionClickOnCsvHeaderLine(index, txt);
+            _headersTextColors[index] = Colors.blue;
           });
         });
       },
