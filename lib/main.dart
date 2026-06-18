@@ -925,11 +925,11 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         1;
     final border = "-" * length;
     return SingleChildScrollView(
-      controller: _vScrollController,
-      scrollDirection: Axis.vertical,
+      controller: _hScrollController,
+      scrollDirection: Axis.horizontal,
       child: SingleChildScrollView(
-        controller: _hScrollController,
-        scrollDirection: Axis.horizontal,
+        controller: _vScrollController,
+        scrollDirection: Axis.vertical,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
