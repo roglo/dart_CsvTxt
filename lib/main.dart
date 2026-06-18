@@ -354,10 +354,10 @@ Future<List<TarEntry>> _parseTar(String path) async {
 
 Future<void> _filePicked(
   String path,
-  String name,
+  String? name,
   ScrollController _vScrollController,
   ScrollController _hScrollController,
-  void Function(FileType, String, Uint8List?, String?, List<TarEntry>)
+  void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
   _setState,
   void Function(bool) _setLoading,
   bool Function() _getLoading,
@@ -434,7 +434,7 @@ Future<void> _filePicked(
     }
     final s = utf8.decode(bytes);
     final content = s.isNotEmpty && !s.endsWith("\n") ? "$s\n" : s;
-    final extension = name.split(".").last.toLowerCase();
+    final extension = name == null ? "" : name.split(".").last.toLowerCase();
     final ft = (extension == "csv") ? FileType.csv : FileType.txt;
     _setState(ft, name, null, content, []);
   }
@@ -444,7 +444,7 @@ Future<void> _filePicked(
 Future<String?> _pickFile(
   ScrollController _vScrollController,
   ScrollController _hScrollController,
-  void Function(FileType, String, Uint8List?, String?, List<TarEntry>)
+  void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
   _setState,
   void Function(bool) _setLoading,
   bool Function() _getLoading,
@@ -480,7 +480,7 @@ Widget _buildButtonsChooseFile(
   ScrollController _vScrollController,
   ScrollController _hScrollController,
   void Function(String) _setPickedFileState,
-  void Function(FileType, String, Uint8List?, String?, List<TarEntry>)
+  void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
   _setState,
   void Function(bool) _setLoading,
   bool Function() _getLoading,
@@ -673,11 +673,10 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   int _pdfLoadCount = 0;
 
   void _openFile(String file) {
-    final name = file.split("/").last;
     _setPickedFileState(file);
     _filePicked(
       file,
-      name,
+      null,
       _vScrollController,
       _hScrollController,
       _setState,
@@ -691,7 +690,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     super.initState();
     _pdfController = PdfViewerController();
     if (widget.initialFile != null) {
-      print('initialFile = ${widget.initialFile}');
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _openFile(widget.initialFile!);
       });
@@ -755,7 +753,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     });
   }
 
-  void _setStateError(String filename, String msg) {
+  void _setStateError(String? filename, String msg) {
     setState(() {
       _fileType = FileType.txt;
       _fileName = filename;
@@ -767,7 +765,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
 
   void _setState(
     FileType ft,
-    String name,
+    String? name,
     Uint8List? bytes,
     String? fileContent,
     List<TarEntry> tarList,
@@ -1031,8 +1029,10 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         Expanded(
           child: PdfViewer.data(
             _bytes!,
-            key: ValueKey("$_fileName-$_pdfLoadCount"),
-            sourceName: _fileName!,
+            key: ValueKey(
+              _fileName == null ? "1" : "$_fileName-$_pdfLoadCount"
+            ),
+            sourceName: _fileName == null ? "" : _fileName!,
             controller: _pdfController,
             initialPageNumber: _currentPage,
             params: PdfViewerParams(
