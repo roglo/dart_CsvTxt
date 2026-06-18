@@ -677,41 +677,43 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     return _modeFixe;
   }
 
-  void _actionClickOnCsvHeaderLine(int index, String txt) {
-    setState(() {
-      bool isNumber = true;
-      for (int i = 1; i < _csvLines.length - 1; i++) {
-        if (double.tryParse(_csvLines[i].$1[index]) == null) {
-          isNumber = false;
-          break;
-        }
+  List<(List<String>, List<List<String>>)> _actionClickOnCsvHeaderLine(
+    int index,
+    String txt,
+  ) {
+    bool isNumber = true;
+    for (int i = 1; i < _csvLines.length - 1; i++) {
+      if (double.tryParse(_csvLines[i].$1[index]) == null) {
+        isNumber = false;
+        break;
       }
-      // add the index to make the sort stable
-      final csvLinesIndexed = _csvLines.asMap().entries.map((entry) {
-        return (entry.key, entry.value);
-      }).toList();
+    }
+    // add the index to make the sort stable
+    final csvLinesIndexed = _csvLines.asMap().entries.map((entry) {
+      return (entry.key, entry.value);
+    }).toList();
 
-      bool isAlreadySorted = true;
-      for (int i = 1; i < _csvLines.length - 1; i++) {
-        if (compareElements(
-              csvLinesIndexed[i],
-              csvLinesIndexed[i + 1],
-              isNumber,
-              index,
-            ) >
-            0) {
-          isAlreadySorted = false;
-          break;
-        }
+    bool isAlreadySorted = true;
+    for (int i = 1; i < _csvLines.length - 1; i++) {
+      if (compareElements(
+            csvLinesIndexed[i],
+            csvLinesIndexed[i + 1],
+            isNumber,
+            index,
+          ) >
+          0) {
+        isAlreadySorted = false;
+        break;
       }
-      final firstElement = _csvLines.first;
-      final sublist = csvLinesIndexed.sublist(1);
-      sublist.sort((a, b) {
-        final comparison = compareElements(a, b, isNumber, index);
-        return isAlreadySorted ? -comparison : comparison;
-      });
-      _csvLines = [firstElement, ...sublist.map((kv) => kv.$2)];
+    }
+    final firstElement = _csvLines.first;
+    final sublist = csvLinesIndexed.sublist(1);
+    sublist.sort((a, b) {
+      final comparison = compareElements(a, b, isNumber, index);
+      return isAlreadySorted ? -comparison : comparison;
     });
+    final r = [firstElement, ...sublist.map((kv) => kv.$2)];
+    return r;
   }
 
   void _actionClickOnCsvLine(String def, String line) {
@@ -810,7 +812,9 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         });
         Future.delayed(const Duration(milliseconds: 100), () {
           _headersTextColors[index] = Colors.blue;
-          _actionClickOnCsvHeaderLine(index, txt);
+          setState(() {
+            _csvLines = _actionClickOnCsvHeaderLine(index, txt);
+          });
         });
       },
       child: Text(
