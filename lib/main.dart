@@ -734,6 +734,16 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     });
   }
 
+  void _setStateError(String filename, String msg) {
+    setState(() {
+      _fileType = FileType.txt;
+      _fileName = filename;
+      _fileContent = null;
+      _bytes = null;
+      _errorMessage = msg;
+    });
+  }
+
   void _setState(
     FileType ft,
     String name,
@@ -775,13 +785,10 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     _hScrollController.jumpTo(0);
     if (entry.type == 53) {
       final fileName = entry.fname;
-      setState(() {
-        _fileType = FileType.txt;
-        _fileName = "$fileName ($tarFileName)";
-        _fileContent = null;
-        _bytes = null;
-        _errorMessage = "C\'est un répertoire, pas un fichier";
-      });
+      _setStateError(
+        "$fileName ($tarFileName)",
+        "C\'est un répertoire, pas un fichier",
+      );
     } else {
       final String fileName = entry.fname.split("/").last;
       Uint8List? bytes;
