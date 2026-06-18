@@ -610,6 +610,58 @@ List<(List<String>, List<List<String>>)> _actionClickOnCsvHeaderLine(
   return r;
 }
 
+void _actionClickOnCsvLine(
+  BuildContext context,
+  double _fontSize,
+  String def,
+  String line,
+) {
+  final List<(String, String)> s = _csvFormatLine(def, line);
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text("Ligne sélectionnée"),
+      content: SingleChildScrollView(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.7,
+          ),
+          child: Text.rich(
+            TextSpan(
+              children: s
+                  .map(
+                    (line) => TextSpan(
+                      text: line.$1,
+                      style: TextStyle(
+                        fontSize: _fontSize,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      children: [
+                        TextSpan(
+                          text: ": ${line.$2}\n",
+                          style: TextStyle(
+                            fontSize: _fontSize,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text("Fermer"),
+        ),
+      ],
+    ),
+  );
+}
+
 class _FilePickerScreenState extends State<FilePickerScreen> {
   final String _lang = PlatformDispatcher.instance.locale.languageCode;
   // final String _lang = "en"; // ← force l'anglais pour tester
@@ -717,53 +769,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     return _modeFixe;
   }
 
-  void _actionClickOnCsvLine(String def, String line) {
-    final List<(String, String)> s = _csvFormatLine(def, line);
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text("Ligne sélectionnée"),
-        content: SingleChildScrollView(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.7,
-            ),
-            child: Text.rich(
-              TextSpan(
-                children: s
-                    .map(
-                      (line) => TextSpan(
-                        text: line.$1,
-                        style: TextStyle(
-                          fontSize: _fontSize,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        children: [
-                          TextSpan(
-                            text: ": ${line.$2}\n",
-                            style: TextStyle(
-                              fontSize: _fontSize,
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                    .toList(),
-              ),
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text("Fermer"),
-          ),
-        ],
-      ),
-    );
-  }
-
   Future<void> _actionClickOnTarFileName(TarEntry entry) async {
     final String tarFileName = entry.tarFilePath.split("/").last;
     _vScrollController.jumpTo(0);
@@ -775,7 +780,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         _fileName = "$fileName ($tarFileName)";
         _fileContent = null;
         _bytes = null;
-        _errorMessage = "C'est un répertoire, pas un fichier";
+        _errorMessage = "C\'est un répertoire, pas un fichier";
       });
     } else {
       final String fileName = entry.fname.split("/").last;
@@ -836,7 +841,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         });
         Future.delayed(const Duration(milliseconds: 300), () {
           setState(() => _firstColumnTextColors[index] = Colors.blue);
-          _actionClickOnCsvLine(def, line);
+          _actionClickOnCsvLine(context, _fontSize, def, line);
         });
       },
       child: Text(
