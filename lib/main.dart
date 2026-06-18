@@ -671,6 +671,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   late PdfViewerController _pdfController;
   int _currentPage = 1;
   int _pdfLoadCount = 0;
+  bool _dirFromButton = true;
 
   void _openFile(String file) {
     _setPickedFileState(file);
@@ -691,6 +692,9 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     _pdfController = PdfViewerController();
     if (widget.initialFile != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() {
+          _dirFromButton = false;
+        });
         _openFile(widget.initialFile!);
       });
     }
@@ -1030,7 +1034,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
           child: PdfViewer.data(
             _bytes!,
             key: ValueKey(
-              _fileName == null ? "1" : "$_fileName-$_pdfLoadCount"
+              _fileName == null ? "1" : "$_fileName-$_pdfLoadCount",
             ),
             sourceName: _fileName == null ? "" : _fileName!,
             controller: _pdfController,
@@ -1101,22 +1105,23 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 40),
-          _buildButtonsChooseFile(
-            context,
-            _lang,
-            _initialDir,
-            _fileName,
-            _fileType,
-            _errorMessage,
-            _vScrollController,
-            _hScrollController,
-            _setPickedFileState,
-            _setState,
-            _setLoading,
-            _getLoading,
-            _switchModeFixe,
-            _getModeFixe,
-          ),
+          if (_dirFromButton)
+            _buildButtonsChooseFile(
+              context,
+              _lang,
+              _initialDir,
+              _fileName,
+              _fileType,
+              _errorMessage,
+              _vScrollController,
+              _hScrollController,
+              _setPickedFileState,
+              _setState,
+              _setLoading,
+              _getLoading,
+              _switchModeFixe,
+              _getModeFixe,
+            ),
           if (_fileName != null &&
               _fileType != FileType.image &&
               _errorMessage == null) ...[
