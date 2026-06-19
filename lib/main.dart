@@ -987,18 +987,18 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   Widget _parseWithItalics(String content) {
     return Text.rich(
       TextSpan(
-        children: content.split("_").asMap().entries.expand((v) {
+        children: content.split("*").asMap().entries.expand((v) {
           final int i = v.key;
           final String txt = v.value;
-          return txt.split("*").asMap().entries.map((w) {
+          return txt.split("_").asMap().entries.map((w) {
             final int j = w.key;
             final String txt2 = w.value;
             return TextSpan(
               text: txt2,
               style: TextStyle(
                 fontSize: _fontSize,
-                fontWeight: (j % 2 == 1) ? FontWeight.bold : FontWeight.normal,
-                fontStyle: (i % 2 == 1) ? FontStyle.italic : FontStyle.normal,
+                fontWeight: (i % 2 == 1) ? FontWeight.bold : FontWeight.normal,
+                fontStyle: (j % 2 == 1) ? FontStyle.italic : FontStyle.normal,
               ),
             );
           });
