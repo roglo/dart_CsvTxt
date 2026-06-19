@@ -692,6 +692,45 @@ void _openFile(
   );
 }
 
+Future<void> _actionClickOnTarFileName(
+  TarEntry entry,
+  ScrollController _vScrollController,
+  ScrollController _hScrollController,
+  void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
+  _setState,
+  void Function(String?, String) _setStateError,
+) async {
+  final String tarFileName = entry.tarFilePath.split("/").last;
+  _vScrollController.jumpTo(0);
+  _hScrollController.jumpTo(0);
+  if (entry.type == 53) {
+    final fileName = entry.fname;
+    _setStateError(
+      "$fileName ($tarFileName)",
+      "C\'est un répertoire, pas un fichier",
+    );
+  } else {
+    final String fileName = entry.fname.split("/").last;
+    Uint8List? bytes;
+    if (entry.tarFileIsGz) {
+      final reader = await GzipReader.open(entry.tarFilePath);
+      try {
+        bytes = await reader.readAt(entry.contentStartPos, entry.size);
+      } finally {
+        await reader.close();
+      }
+    } else {
+      bytes = await readFilePart(
+        entry.tarFilePath,
+        entry.contentStartPos,
+        entry.size,
+      );
+    }
+    final content = utf8.decode(bytes);
+    _setState(FileType.txt, "$fileName ($tarFileName)", null, content, []);
+  }
+}
+
 class _FilePickerScreenState extends State<FilePickerScreen> {
   final String _lang = PlatformDispatcher.instance.locale.languageCode;
   // final String _lang = "en"; // ← force l'anglais pour tester
@@ -826,38 +865,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     return _modeFixe;
   }
 
-  Future<void> _actionClickOnTarFileName(TarEntry entry) async {
-    final String tarFileName = entry.tarFilePath.split("/").last;
-    _vScrollController.jumpTo(0);
-    _hScrollController.jumpTo(0);
-    if (entry.type == 53) {
-      final fileName = entry.fname;
-      _setStateError(
-        "$fileName ($tarFileName)",
-        "C\'est un répertoire, pas un fichier",
-      );
-    } else {
-      final String fileName = entry.fname.split("/").last;
-      Uint8List? bytes;
-      if (entry.tarFileIsGz) {
-        final reader = await GzipReader.open(entry.tarFilePath);
-        try {
-          bytes = await reader.readAt(entry.contentStartPos, entry.size);
-        } finally {
-          await reader.close();
-        }
-      } else {
-        bytes = await readFilePart(
-          entry.tarFilePath,
-          entry.contentStartPos,
-          entry.size,
-        );
-      }
-      final content = utf8.decode(bytes);
-      _setState(FileType.txt, "$fileName ($tarFileName)", null, content, []);
-    }
-  }
-
   Widget _clickOnCsvHeaderLine(int index, String txt) {
     return GestureDetector(
       onTap: () {
@@ -910,7 +917,13 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         });
         Future.delayed(const Duration(milliseconds: 100), () {
           _tarFileNameTextColors[index] = Colors.blue;
-          _actionClickOnTarFileName(entry);
+          _actionClickOnTarFileName(
+            entry,
+            _vScrollController,
+            _hScrollController,
+            _setState,
+            _setStateError,
+          );
         });
       },
       child: Text(
