@@ -663,6 +663,29 @@ void _actionClickOnCsvLine(
   );
 }
 
+void _openFile(
+  String file,
+  ScrollController _vScrollController,
+  ScrollController _hScrollController,
+  void Function(String) _setPickedFileState,
+  void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
+  _setState,
+  void Function(bool) _setLoading,
+  bool Function() _getLoading,
+) {
+  final name = file.split("/").last;
+  _setPickedFileState(file);
+  _filePicked(
+    file,
+    name,
+    _vScrollController,
+    _hScrollController,
+    _setState,
+    _setLoading,
+    _getLoading,
+  );
+}
+
 class _FilePickerScreenState extends State<FilePickerScreen> {
   final String _lang = PlatformDispatcher.instance.locale.languageCode;
   // final String _lang = "en"; // ← force l'anglais pour tester
@@ -673,18 +696,13 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   int _pdfLoadCount = 0;
   bool _dirFromButton = true;
 
-  void _openFile(String file) {
-    final name = file.split("/").last;
-    _setPickedFileState(file);
-    _filePicked(
-      file,
-      name,
-      _vScrollController,
-      _hScrollController,
-      _setState,
-      _setLoading,
-      _getLoading,
-    );
+  void _setPickedFileState(String file) {
+    setState(() {
+      _initialDir = file.substring(0, file.lastIndexOf("/"));
+      _currentPage = 1;
+      _pdfLoadCount++;
+      _fontSize = _initialFontSize;
+    });
   }
 
   @override
@@ -696,7 +714,15 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         setState(() {
           _dirFromButton = false;
         });
-        _openFile(widget.initialFile!);
+        _openFile(
+          widget.initialFile!,
+          _vScrollController,
+          _hScrollController,
+          _setPickedFileState,
+          _setState,
+          _setLoading,
+          _getLoading,
+        );
       });
     }
   }
@@ -746,15 +772,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         _vScrollController.position.maxScrollExtent,
       );
       _vScrollController.jumpTo(newOffset);
-    });
-  }
-
-  void _setPickedFileState(String file) {
-    setState(() {
-      _initialDir = file.substring(0, file.lastIndexOf("/"));
-      _currentPage = 1;
-      _pdfLoadCount++;
-      _fontSize = _initialFontSize;
     });
   }
 
