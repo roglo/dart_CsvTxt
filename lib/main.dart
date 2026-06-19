@@ -731,6 +731,61 @@ Future<void> _actionClickOnTarFileName(
   }
 }
 
+List<Widget> _buildFirstLineColumnChildren(
+  List<(List<String>, List<List<String>>)> _csvLines,
+  double _fontSize,
+  Widget Function(int, String) _clickOnCsvHeaderLine,
+) {
+  final (leftList, rightLists) = _csvLines.first;
+  return rightLists.map((rightList) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Text("|", style: _fixedTextStyle(_fontSize)),
+        ...rightList.asMap().entries.map((entry) {
+          final int index = entry.key;
+          final String txt = entry.value;
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              _clickOnCsvHeaderLine(index, txt),
+              Text("|", style: _fixedTextStyle(_fontSize)),
+            ],
+          );
+        }),
+      ],
+    );
+  }).toList();
+}
+
+List<Widget> _buildColumnChildren(
+  List<(List<String>, List<List<String>>)> _csvLines,
+  double _fontSize,
+  Widget Function(int, String, String, String) _clickOnCsvLine,
+) {
+  final String firstLine = "|${_csvLines.first.$1.join('|')}|";
+  return _csvLines.sublist(1).asMap().entries.expand((entry) {
+    final index = entry.key;
+    final (leftList, rightLists) = entry.value;
+    return rightLists.map((rightList) {
+      final firstField = rightList.first;
+      final allOtherFields = rightList.sublist(1);
+      final currentLine = "|${leftList.join('|')}|";
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Text("|", style: _fixedTextStyle(_fontSize)),
+          _clickOnCsvLine(index, firstLine, currentLine, firstField),
+          Text(
+            "|${allOtherFields.join('|')}|",
+            style: _fixedTextStyle(_fontSize),
+          ),
+        ],
+      );
+    });
+  }).toList();
+}
+
 class _FilePickerScreenState extends State<FilePickerScreen> {
   final String _lang = PlatformDispatcher.instance.locale.languageCode;
   // final String _lang = "en"; // ← force l'anglais pour tester
@@ -936,53 +991,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     );
   }
 
-  List<Widget> buildFirstLineColumnChildren() {
-    final (leftList, rightLists) = _csvLines.first;
-    return rightLists.map((rightList) {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Text("|", style: _fixedTextStyle(_fontSize)),
-          ...rightList.asMap().entries.map((entry) {
-            final int index = entry.key;
-            final String txt = entry.value;
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                _clickOnCsvHeaderLine(index, txt),
-                Text("|", style: _fixedTextStyle(_fontSize)),
-              ],
-            );
-          }),
-        ],
-      );
-    }).toList();
-  }
-
-  List<Widget> buildColumnChildren() {
-    final String firstLine = "|${_csvLines.first.$1.join('|')}|";
-    return _csvLines.sublist(1).asMap().entries.expand((entry) {
-      final index = entry.key;
-      final (leftList, rightLists) = entry.value;
-      return rightLists.map((rightList) {
-        final firstField = rightList.first;
-        final allOtherFields = rightList.sublist(1);
-        final currentLine = "|${leftList.join('|')}|";
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Text("|", style: _fixedTextStyle(_fontSize)),
-            _clickOnCsvLine(index, firstLine, currentLine, firstField),
-            Text(
-              "|${allOtherFields.join('|')}|",
-              style: _fixedTextStyle(_fontSize),
-            ),
-          ],
-        );
-      });
-    }).toList();
-  }
-
   Widget _fixedCsvView(String content) {
     if (_csvLines.isEmpty) _csvLines = treatCsv(content, _newVersion);
     final length =
@@ -997,7 +1005,11 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(border, style: _fixedTextStyle(_fontSize)),
-          ...buildFirstLineColumnChildren(),
+          ..._buildFirstLineColumnChildren(
+            _csvLines,
+            _fontSize,
+            _clickOnCsvHeaderLine,
+          ),
           Text(border, style: _fixedTextStyle(_fontSize)),
           Expanded(
             child: SingleChildScrollView(
@@ -1006,7 +1018,11 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ...buildColumnChildren(),
+                  ..._buildColumnChildren(
+                    _csvLines,
+                    _fontSize,
+                    _clickOnCsvLine,
+                  ),
                   Text(border, style: _fixedTextStyle(_fontSize)),
                   Text(""),
                   Text(""),
