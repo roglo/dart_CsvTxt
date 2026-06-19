@@ -1122,7 +1122,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
               _switchModeFixe,
               _getModeFixe,
             ),
-          if (_fileName != null &&
+          if ((!_dirFromButton || _fileName != null) &&
               _fileType != FileType.image &&
               _errorMessage == null) ...[
             const SizedBox(width: 16),
@@ -1164,7 +1164,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ..._buildContent(),
-          if (_fileName != null &&
+          if ((!_dirFromButton || _fileName != null) &&
               _fileType != FileType.image &&
               _errorMessage == null) ...[
             const SizedBox(height: 16),
