@@ -674,10 +674,11 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   bool _dirFromButton = true;
 
   void _openFile(String file) {
+    final name = file.split("/").last;
     _setPickedFileState(file);
     _filePicked(
       file,
-      null,
+      name,
       _vScrollController,
       _hScrollController,
       _setState,
@@ -1001,13 +1002,13 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     );
   }
 
-  Widget _normalView(String fileName, String content) {
+  Widget _normalView(String? fileName, String content) {
     return SingleChildScrollView(
       controller: _vScrollController,
       child: SingleChildScrollView(
         controller: _hScrollController,
         scrollDirection: Axis.horizontal,
-        child: fileName.endsWith(".txt")
+        child: fileName != null && fileName.endsWith(".txt")
             ? _parseWithItalics(content)
             : Text(content, style: TextStyle(fontSize: _fontSize)),
       ),
@@ -1093,7 +1094,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
                         _vScrollController,
                         _hScrollController,
                       ))
-              : _normalView(_fileName!, _fileContent!),
+              : _normalView(_fileName, _fileContent!),
         ),
     ];
   }

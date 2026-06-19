@@ -18,11 +18,20 @@ class MainActivity : FlutterActivity() {
                 result.success(uri.path)
             } else {
                 // content:// → copie dans un fichier temporaire
-                val tmpFile = java.io.File(cacheDir, "opened.pdf")
+                val fileName =
+                  contentResolver.query(
+                    uri, null, null, null, null
+                  )?.use { cursor ->
+                  val nameIndex = cursor.getColumnIndex(
+                    android.provider.OpenableColumns.DISPLAY_NAME
+                  )
+                  cursor.moveToFirst()
+                  cursor.getString(nameIndex)
+                } ?: "opened_file"
+
+                val tmpFile = java.io.File(cacheDir, fileName)
                 contentResolver.openInputStream(uri)?.use { input ->
-                    tmpFile.outputStream().use {
-                      output -> input.copyTo(output)
-                    }
+                  tmpFile.outputStream().use { output -> input.copyTo(output) }
                 }
                 result.success(tmpFile.absolutePath)
             }
