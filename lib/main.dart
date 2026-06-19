@@ -139,12 +139,6 @@ typedef TarEntry = ({
   bool tarFileIsGz,
 });
 
-typedef state = ({
-  String lang,
-  ScrollController vScrollController,
-  ScrollController hScrollController,
-});
-
 Future<Uint8List> readFilePart(String filePath, int pos, int size) async {
   final file = File(filePath);
   final raf = await file.open(mode: FileMode.read);
@@ -793,12 +787,10 @@ List<Widget> _buildColumnChildren(
 }
 
 class _FilePickerScreenState extends State<FilePickerScreen> {
+  final String _lang = PlatformDispatcher.instance.locale.languageCode;
   // final String _lang = "en"; // ← force l'anglais pour tester
-  final st = ((
-    lang: PlatformDispatcher.instance.locale.languageCode,
-    vScrollController: ScrollController(),
-    hScrollController: ScrollController(),
-  ));
+  final ScrollController _vScrollController = ScrollController();
+  final ScrollController _hScrollController = ScrollController();
   late PdfViewerController _pdfController;
   int _currentPage = 1;
   int _pdfLoadCount = 0;
@@ -824,8 +816,8 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         });
         _openFile(
           widget.initialFile!,
-          st.vScrollController,
-          st.hScrollController,
+          _vScrollController,
+          _hScrollController,
           _setPickedFileState,
           _setState,
           _setLoading,
@@ -837,8 +829,8 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
 
   @override
   void dispose() {
-    st.vScrollController.dispose();
-    st.hScrollController.dispose();
+    _vScrollController.dispose();
+    _hScrollController.dispose();
     //    _pdfController.dispose();
     super.dispose();
   }
@@ -867,7 +859,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
 
   void _changeFontSize(double newFontSize) {
     final double oldFontSize = _fontSize;
-    final double oldOffset = st.vScrollController.offset;
+    final double oldOffset = _vScrollController.offset;
 
     setState(() {
       _fontSize = newFontSize.clamp(8.0, 40.0);
@@ -877,9 +869,9 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
       final double ratio = _fontSize / oldFontSize;
       final double newOffset = (oldOffset * ratio).clamp(
         0.0,
-        st.vScrollController.position.maxScrollExtent,
+        _vScrollController.position.maxScrollExtent,
       );
-      st.vScrollController.jumpTo(newOffset);
+      _vScrollController.jumpTo(newOffset);
     });
   }
 
@@ -982,8 +974,8 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
           _tarFileNameTextColors[index] = Colors.blue;
           _actionClickOnTarFileName(
             entry,
-            st.vScrollController,
-            st.hScrollController,
+            _vScrollController,
+            _hScrollController,
             _setState,
             _setStateError,
           );
@@ -1007,7 +999,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         1;
     final border = "-" * length;
     return SingleChildScrollView(
-      controller: st.hScrollController,
+      controller: _hScrollController,
       scrollDirection: Axis.horizontal,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1021,7 +1013,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
           Text(border, style: _fixedTextStyle(_fontSize)),
           Expanded(
             child: SingleChildScrollView(
-              controller: st.vScrollController,
+              controller: _vScrollController,
               scrollDirection: Axis.vertical,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1069,9 +1061,9 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
 
   Widget _normalView(String? fileName, String content) {
     return SingleChildScrollView(
-      controller: st.vScrollController,
+      controller: _vScrollController,
       child: SingleChildScrollView(
-        controller: st.hScrollController,
+        controller: _hScrollController,
         scrollDirection: Axis.horizontal,
         child: fileName != null && fileName.endsWith(".txt")
             ? _parseWithItalics(content)
@@ -1118,9 +1110,9 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
       else if (_fileType == FileType.tar)
         Expanded(
           child: SingleChildScrollView(
-            controller: st.vScrollController,
+            controller: _vScrollController,
             child: SingleChildScrollView(
-              controller: st.hScrollController,
+              controller: _hScrollController,
               scrollDirection: Axis.horizontal,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1156,8 +1148,8 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
                     : _fixedView(
                         _fileContent!,
                         _fontSize,
-                        st.vScrollController,
-                        st.hScrollController,
+                        _vScrollController,
+                        _hScrollController,
                       ))
               : _normalView(_fileName, _fileContent!),
         ),
@@ -1174,13 +1166,13 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
           if (_dirFromButton)
             _buildButtonsChooseFile(
               context,
-              st.lang,
+              _lang,
               _initialDir,
               _fileName,
               _fileType,
               _errorMessage,
-              st.vScrollController,
-              st.hScrollController,
+              _vScrollController,
+              _hScrollController,
               _setPickedFileState,
               _setState,
               _setLoading,
@@ -1196,7 +1188,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
               _fileType,
               _currentPage,
               _fontSize,
-              st.vScrollController,
+              _vScrollController,
               _pdfController,
               _changeFontSize,
             ),
@@ -1237,7 +1229,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
             _buildColumnButtonsJump(
               _fileType,
               _currentPage,
-              st.vScrollController,
+              _vScrollController,
               _pdfController,
             ),
           ],
