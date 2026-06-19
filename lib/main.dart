@@ -495,8 +495,14 @@ Widget _buildButtonsChooseFile(
           final String? file = Platform.isLinux
               // ? await _pickFile()
               ? await customPickFile(context, _initialDir)
-              // : await _pickFile();
-              : await customPickFile(context, _initialDir);
+              : await _pickFile(
+                  _vScrollController,
+                  _hScrollController,
+                  _setState,
+                  _setLoading,
+                  _getLoading,
+                );
+          // : await customPickFile(context, _initialDir);
           if (file != null) {
             final name = file.split("/").last;
             _setPickedFileState(file);
