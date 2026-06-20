@@ -734,7 +734,9 @@ Future<void> _actionClickOnTarFileName(
 List<Widget> _buildFirstLineColumnChildren(
   List<(List<String>, List<List<String>>)> _csvLines,
   double _fontSize,
-  Widget Function(int, String, double) _clickOnCsvHeaderLine,
+  Widget Function(int, String, double, void Function(int, Color))
+  _clickOnCsvHeaderLine,
+  void Function(int, Color) _setHeaderTextColor,
 ) {
   final (leftList, rightLists) = _csvLines.first;
   return rightLists.map((rightList) {
@@ -748,7 +750,7 @@ List<Widget> _buildFirstLineColumnChildren(
           return Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              _clickOnCsvHeaderLine(index, txt, _fontSize),
+              _clickOnCsvHeaderLine(index, txt, _fontSize, _setHeaderTextColor),
               Text("|", style: _fixedTextStyle(_fontSize)),
             ],
           );
@@ -924,14 +926,19 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     setState(() => _csvLines = _newCsvLines);
   }
 
-  void _setHeaderTextColor(index, color) {
+  void _setHeaderTextColor(int index, Color color) {
     setState(() => _headersTextColors[index] = color);
+  }
+
+  Color? _getHeaderTextColor(int index) {
+    return _headersTextColors[index];
   }
 
   Widget _clickOnCsvHeaderLine(
     int index,
     String txt,
     double _fontSize,
+    void Function(int, Color) _setHeaderTextColor,
   ) {
     return GestureDetector(
       onTap: () {
@@ -945,7 +952,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         txt,
         style: _fixedTextStyle(
           _fontSize,
-          color: _headersTextColors[index] ?? Colors.blue,
+          color: _getHeaderTextColor(index) ?? Colors.blue,
         ),
       ),
     );
@@ -1017,6 +1024,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
             _csvLines,
             _fontSize,
             _clickOnCsvHeaderLine,
+            _setHeaderTextColor,
           ),
           Text(border, style: _fixedTextStyle(_fontSize)),
           Expanded(
