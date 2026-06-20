@@ -577,8 +577,8 @@ Widget _fixedView(
   );
 }
 
-List<(List<String>, List<List<String>>)> _actionClickOnCsvHeaderLine(
-  List<(List<String>, List<List<String>>)> _csvLines,
+CsvLines _actionClickOnCsvHeaderLine(
+  CsvLines _csvLines,
   int index,
   String txt,
 ) {
@@ -732,7 +732,7 @@ Future<void> _actionClickOnTarFileName(
 }
 
 List<Widget> _buildFirstLineColumnChildren(
-  List<(List<String>, List<List<String>>)> _csvLines,
+  CsvLines _csvLines,
   double _fontSize,
   Widget Function(int, String, double, void Function(int, Color))
   _clickOnCsvHeaderLine,
@@ -761,7 +761,7 @@ List<Widget> _buildFirstLineColumnChildren(
 }
 
 List<Widget> _buildColumnChildren(
-  List<(List<String>, List<List<String>>)> _csvLines,
+  CsvLines _csvLines,
   double _fontSize,
   Widget Function(int, String, String, String) _clickOnCsvLine,
 ) {
@@ -846,7 +846,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   String? _initialDir;
   String? _fileName;
   String? _fileContent;
-  List<(List<String>, List<List<String>>)> _csvLines = [];
+  CsvLines _csvLines = [];
   FileType? _fileType;
   Uint8List? _bytes;
   List<TarEntry> _tarList = [];

@@ -406,11 +406,10 @@ List<int> computeFieldSizes2(List<List<String>> lines) {
   return loop(fieldSizes, line, [], [], false);
 }
 
+typedef CsvLines = List<(List<String>, List<List<String>>)>;
+
 // Fonction adaptée pour gérer les lignes longues
-List<(List<String>, List<List<String>>)> foldLongLines(
-  List<int> fieldSizes,
-  List<List<String>> lines,
-) {
+CsvLines foldLongLines(List<int> fieldSizes, List<List<String>> lines) {
   return lines.map((line) {
     List<List<String>> loop(List<String> currentLine) {
       final result = getCutLineAndExtra(fieldSizes, currentLine);
@@ -477,10 +476,7 @@ String trimRightKeepNewlines(String s) {
   return trimmed;
 }
 
-List<(List<String>, List<List<String>>)> completeListBySpaces(
-  List<int> fieldsSizes,
-  List<(List<String>, List<List<String>>)> flines,
-) {
+CsvLines completeListBySpaces(List<int> fieldsSizes, CsvLines flines) {
   return flines.map((linesGroup) {
     final (initialLine, linesGroup2) = linesGroup;
     final r = linesGroup2.map((line) {
@@ -519,7 +515,7 @@ List<String> completeBySpaces(List<int> fsl, List<String> sl) {
   return completeBySpaces(fsl, sl);
 }
 
-List<(List<String>, List<List<String>>)> formattedCsv(
+CsvLines formattedCsv(
   String content,
   String sep,
   int nbOccOfSep,
@@ -538,10 +534,7 @@ List<(List<String>, List<List<String>>)> formattedCsv(
 // Treat a csv file by searching its separator and displaying
 // the file correctly aligned
 
-List<(List<String>, List<List<String>>)> treatCsv(
-  String content,
-  bool newVersion,
-) {
+CsvLines treatCsv(String content, bool newVersion) {
   final test = ",;|\t:";
   final rs = findSeparator(test, content);
   final sep = getGoodSeparator(rs);
