@@ -980,14 +980,20 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     return _headersTextColors[index];
   }
 
+  void _setFirstColumnTextColor(int index, Color color) {
+    setState(() => _firstColumnTextColors[index] = color);
+  }
+
+  Color? _getFirstColumnTextColor(int index) {
+    return _firstColumnTextColors[index];
+  }
+
   Widget _clickOnCsvLine(int index, String def, String line, String txt) {
     return GestureDetector(
       onTap: () {
-        setState(() {
-          _firstColumnTextColors[index] = Colors.grey[300] ?? Colors.grey;
-        });
+        _setFirstColumnTextColor(index, Colors.grey[300] ?? Colors.grey);
         Future.delayed(const Duration(milliseconds: 300), () {
-          setState(() => _firstColumnTextColors[index] = Colors.blue);
+          _setFirstColumnTextColor(index, Colors.blue);
           _actionClickOnCsvLine(context, _fontSize, def, line);
         });
       },
@@ -995,7 +1001,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         txt,
         style: _fixedTextStyle(
           _fontSize,
-          color: _firstColumnTextColors[index] ?? Colors.blue,
+          color: _getFirstColumnTextColor(index) ?? Colors.blue,
         ),
       ),
     );
