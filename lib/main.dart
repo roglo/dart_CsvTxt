@@ -734,7 +734,7 @@ Future<void> _actionClickOnTarFileName(
 List<Widget> _buildFirstLineColumnChildren(
   List<(List<String>, List<List<String>>)> _csvLines,
   double _fontSize,
-  Widget Function(int, String) _clickOnCsvHeaderLine,
+  Widget Function(int, String, double) _clickOnCsvHeaderLine,
 ) {
   final (leftList, rightLists) = _csvLines.first;
   return rightLists.map((rightList) {
@@ -748,7 +748,7 @@ List<Widget> _buildFirstLineColumnChildren(
           return Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              _clickOnCsvHeaderLine(index, txt),
+              _clickOnCsvHeaderLine(index, txt, _fontSize),
               Text("|", style: _fixedTextStyle(_fontSize)),
             ],
           );
@@ -928,7 +928,11 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     setState(() => _headersTextColors[index] = color);
   }
 
-  Widget _clickOnCsvHeaderLine(int index, String txt) {
+  Widget _clickOnCsvHeaderLine(
+    int index,
+    String txt,
+    double _fontSize,
+  ) {
     return GestureDetector(
       onTap: () {
         _setHeaderTextColor(index, Colors.grey[300] ?? Colors.grey);
