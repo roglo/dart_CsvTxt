@@ -807,6 +807,33 @@ List<Widget> _buildColumnChildren(
   }).toList();
 }
 
+Widget _clickOnCsvHeaderLine(
+  int index,
+  String txt,
+  double _fontSize,
+  List<CsvLine> _csvLines,
+  void Function(List<CsvLine>) _setCsvLines,
+  void Function(int, Color) _setHeaderTextColor,
+  Color? Function(int) _getHeaderTextColor,
+) {
+  return GestureDetector(
+    onTap: () {
+      _setHeaderTextColor(index, Colors.grey[300] ?? Colors.grey);
+      Future.delayed(const Duration(milliseconds: 100), () {
+        _setCsvLines(_actionClickOnCsvHeaderLine(_csvLines, index, txt));
+        _setHeaderTextColor(index, Colors.blue);
+      });
+    },
+    child: Text(
+      txt,
+      style: _fixedTextStyle(
+        _fontSize,
+        color: _getHeaderTextColor(index) ?? Colors.blue,
+      ),
+    ),
+  );
+}
+
 class _FilePickerScreenState extends State<FilePickerScreen> {
   final String _lang = PlatformDispatcher.instance.locale.languageCode;
   // final String _lang = "en"; // ← force l'anglais pour tester
@@ -951,33 +978,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
 
   Color? _getHeaderTextColor(int index) {
     return _headersTextColors[index];
-  }
-
-  Widget _clickOnCsvHeaderLine(
-    int index,
-    String txt,
-    double _fontSize,
-    List<CsvLine> _csvLines,
-    void Function(List<CsvLine>) _setCsvLines,
-    void Function(int, Color) _setHeaderTextColor,
-    Color? Function(int) _getHeaderTextColor,
-  ) {
-    return GestureDetector(
-      onTap: () {
-        _setHeaderTextColor(index, Colors.grey[300] ?? Colors.grey);
-        Future.delayed(const Duration(milliseconds: 100), () {
-          _setCsvLines(_actionClickOnCsvHeaderLine(_csvLines, index, txt));
-          _setHeaderTextColor(index, Colors.blue);
-        });
-      },
-      child: Text(
-        txt,
-        style: _fixedTextStyle(
-          _fontSize,
-          color: _getHeaderTextColor(index) ?? Colors.blue,
-        ),
-      ),
-    );
   }
 
   Widget _clickOnCsvLine(int index, String def, String line, String txt) {
