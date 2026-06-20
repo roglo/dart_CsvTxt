@@ -34,10 +34,11 @@ String normalizeString(String input) {
   // Replace common accented characters with their base equivalents
   return input
       .toLowerCase()
-      .replaceAll(RegExp(r'[àâäãå]'), 'a')
+      .replaceAll(RegExp(r'[áàâäãå]'), 'a')
       .replaceAll(RegExp(r'[éèêë]'), 'e')
       .replaceAll(RegExp(r'[îï]'), 'i')
       .replaceAll(RegExp(r'[ôöõø]'), 'o')
+      .replaceAll(RegExp(r'[œ]'), 'oe')
       .replaceAll(RegExp(r'[ùûü]'), 'u')
       .replaceAll(RegExp(r'[ç]'), 'c');
 }
