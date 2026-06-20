@@ -43,8 +43,8 @@ String normalizeString(String input) {
 }
 
 int compareElements(
-  (int, (List<String>, List<List<String>>)) a,
-  (int, (List<String>, List<List<String>>)) b,
+  (int, CsvLine) a,
+  (int, CsvLine) b,
   bool isNumber,
   int index,
 ) {
@@ -577,8 +577,8 @@ Widget _fixedView(
   );
 }
 
-CsvLines _actionClickOnCsvHeaderLine(
-  CsvLines _csvLines,
+List<CsvLine> _actionClickOnCsvHeaderLine(
+  List<CsvLine> _csvLines,
   int index,
   String txt,
 ) {
@@ -732,7 +732,7 @@ Future<void> _actionClickOnTarFileName(
 }
 
 List<Widget> _buildFirstLineColumnChildren(
-  CsvLines _csvLines,
+  List<CsvLine> _csvLines,
   double _fontSize,
   Widget Function(int, String, double, void Function(int, Color))
   _clickOnCsvHeaderLine,
@@ -761,7 +761,7 @@ List<Widget> _buildFirstLineColumnChildren(
 }
 
 List<Widget> _buildColumnChildren(
-  CsvLines _csvLines,
+  List<CsvLine> _csvLines,
   double _fontSize,
   Widget Function(int, String, String, String) _clickOnCsvLine,
 ) {
@@ -846,7 +846,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   String? _initialDir;
   String? _fileName;
   String? _fileContent;
-  CsvLines _csvLines = [];
+  List<CsvLine> _csvLines = [];
   FileType? _fileType;
   Uint8List? _bytes;
   List<TarEntry> _tarList = [];
@@ -922,7 +922,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     return _modeFixe;
   }
 
-  void _setCsvLines(_newCsvLines) {
+  void _setCsvLines(List<CsvLine> _newCsvLines) {
     setState(() => _csvLines = _newCsvLines);
   }
 
