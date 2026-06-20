@@ -733,12 +733,15 @@ Future<void> _actionClickOnTarFileName(
 }
 
 List<Widget> _buildFirstLineColumnChildren(
-  List<CsvLine> _csvLines,
   double _fontSize,
+  List<CsvLine> _csvLines,
+  void Function(List<CsvLine>) _setCsvLines,
   Widget Function(
     int,
     String,
     double,
+    List<CsvLine>,
+    void Function(List<CsvLine>),
     void Function(int, Color),
     Color? Function(int),
   )
@@ -762,6 +765,8 @@ List<Widget> _buildFirstLineColumnChildren(
                 index,
                 txt,
                 _fontSize,
+                _csvLines,
+                _setCsvLines,
                 _setHeaderTextColor,
                 _getHeaderTextColor,
               ),
@@ -952,6 +957,8 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     int index,
     String txt,
     double _fontSize,
+    List<CsvLine> _csvLines,
+    void Function(List<CsvLine>) _setCsvLines,
     void Function(int, Color) _setHeaderTextColor,
     Color? Function(int) _getHeaderTextColor,
   ) {
@@ -1036,8 +1043,9 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         children: [
           Text(border, style: _fixedTextStyle(_fontSize)),
           ..._buildFirstLineColumnChildren(
-            _csvLines,
             _fontSize,
+            _csvLines,
+            _setCsvLines,
             _clickOnCsvHeaderLine,
             _setHeaderTextColor,
             _getHeaderTextColor,
