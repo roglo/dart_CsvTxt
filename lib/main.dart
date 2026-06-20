@@ -920,17 +920,21 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     return _modeFixe;
   }
 
+  void _setCsvLines(_newCsvLines) {
+    setState(() => _csvLines = _newCsvLines);
+  }
+
+  void _setHeaderTextColor(index, color) {
+    setState(() => _headersTextColors[index] = color);
+  }
+
   Widget _clickOnCsvHeaderLine(int index, String txt) {
     return GestureDetector(
       onTap: () {
-        setState(() {
-          _headersTextColors[index] = Colors.grey[300] ?? Colors.grey;
-        });
+        _setHeaderTextColor(index, Colors.grey[300] ?? Colors.grey);
         Future.delayed(const Duration(milliseconds: 100), () {
-          setState(() {
-            _csvLines = _actionClickOnCsvHeaderLine(_csvLines, index, txt);
-            _headersTextColors[index] = Colors.blue;
-          });
+          _setCsvLines(_actionClickOnCsvHeaderLine(_csvLines, index, txt));
+          _setHeaderTextColor(index, Colors.blue);
         });
       },
       child: Text(
