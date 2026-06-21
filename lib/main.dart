@@ -899,67 +899,67 @@ Widget _clickOnTarFileName(
   );
 }
 
-Widget _fixedCsvView(
-  BuildContext context,
-  String content,
-  double _fontSize,
-  ScrollController _vScrollController,
-  ScrollController _hScrollController,
-  bool _newVersion,
-  List<CsvLine> _csvLines,
-  void Function(List<CsvLine>) _setCsvLines,
-  void Function(int, Color) _setHeaderTextColor,
-  Color? Function(int) _getHeaderTextColor,
-  void Function(int, Color) _setFirstColumnTextColor,
-  Color? Function(int) _getFirstColumnTextColor,
-) {
-  if (_csvLines.isEmpty) _setCsvLines(treatCsv(content, _newVersion));
-  final length =
-      _csvLines.first.$2.first.fold(0, (a, s) => a + s.length) +
-      _csvLines.first.$2.first.length +
-      1;
-  final border = "-" * length;
-  return SingleChildScrollView(
-    controller: _hScrollController,
-    scrollDirection: Axis.horizontal,
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(border, style: _fixedTextStyle(_fontSize)),
-        ..._buildFirstLineColumnChildren(
-          _fontSize,
-          _csvLines,
-          _setCsvLines,
-          _setHeaderTextColor,
-          _getHeaderTextColor,
-        ),
-        Text(border, style: _fixedTextStyle(_fontSize)),
-        Expanded(
-          child: SingleChildScrollView(
-            controller: _vScrollController,
-            scrollDirection: Axis.vertical,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ..._buildColumnChildren(
-                  _csvLines,
-                  _fontSize,
-                  context,
-                  _setFirstColumnTextColor,
-                  _getFirstColumnTextColor,
-                ),
-                Text(border, style: _fixedTextStyle(_fontSize)),
-                Text(""),
-                Text(""),
-                Text(""),
-              ],
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
-}
+// Widget _fixedCsvView(
+//   BuildContext context,
+//   String content,
+//   double _fontSize,
+//   ScrollController _vScrollController,
+//   ScrollController _hScrollController,
+//   bool _newVersion,
+//   List<CsvLine> _csvLines,
+//   void Function(List<CsvLine>) _setCsvLines,
+//   void Function(int, Color) _setHeaderTextColor,
+//   Color? Function(int) _getHeaderTextColor,
+//   void Function(int, Color) _setFirstColumnTextColor,
+//   Color? Function(int) _getFirstColumnTextColor,
+// ) {
+//   if (_csvLines.isEmpty) _setCsvLines(treatCsv(content, _newVersion));
+//   final length =
+//       _csvLines.first.$2.first.fold(0, (a, s) => a + s.length) +
+//       _csvLines.first.$2.first.length +
+//       1;
+//   final border = "-" * length;
+//   return SingleChildScrollView(
+//     controller: _hScrollController,
+//     scrollDirection: Axis.horizontal,
+//     child: Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         Text(border, style: _fixedTextStyle(_fontSize)),
+//         ..._buildFirstLineColumnChildren(
+//           _fontSize,
+//           _csvLines,
+//           _setCsvLines,
+//           _setHeaderTextColor,
+//           _getHeaderTextColor,
+//         ),
+//         Text(border, style: _fixedTextStyle(_fontSize)),
+//         Expanded(
+//           child: SingleChildScrollView(
+//             controller: _vScrollController,
+//             scrollDirection: Axis.vertical,
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 ..._buildColumnChildren(
+//                   _csvLines,
+//                   _fontSize,
+//                   context,
+//                   _setFirstColumnTextColor,
+//                   _getFirstColumnTextColor,
+//                 ),
+//                 Text(border, style: _fixedTextStyle(_fontSize)),
+//                 Text(""),
+//                 Text(""),
+//                 Text(""),
+//               ],
+//             ),
+//           ),
+//         ),
+//       ],
+//     ),
+//   );
+// }
 
 class _FilePickerScreenState extends State<FilePickerScreen> {
   final String _lang = PlatformDispatcher.instance.locale.languageCode;
@@ -1122,7 +1122,13 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     return _tarFileNameTextColors[index];
   }
 
-  Widget _fixedCsvView(String content) {
+  Widget _fixedCsvView(
+    BuildContext context,
+    String content,
+    double _fontSize,
+    ScrollController _vScrollController,
+    ScrollController _hScrollController,
+  ) {
     if (_csvLines.isEmpty) _csvLines = treatCsv(content, _newVersion);
     final length =
         _csvLines.first.$2.first.fold(0, (a, s) => a + s.length) +
@@ -1289,7 +1295,13 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         Expanded(
           child: _modeFixe
               ? (_fileType == FileType.csv
-                    ? _fixedCsvView(_fileContent!)
+                    ? _fixedCsvView(
+                        context,
+                        _fileContent!,
+                        _fontSize,
+                        _vScrollController,
+                        _hScrollController,
+                      )
                     : _fixedView(
                         _fileContent!,
                         _fontSize,
