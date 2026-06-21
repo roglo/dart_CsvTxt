@@ -732,20 +732,37 @@ Future<void> _actionClickOnTarFileName(
   }
 }
 
+Widget _clickOnCsvHeaderLine(
+  int index,
+  String txt,
+  double _fontSize,
+  List<CsvLine> _csvLines,
+  void Function(List<CsvLine>) _setCsvLines,
+  void Function(int, Color) _setHeaderTextColor,
+  Color? Function(int) _getHeaderTextColor,
+) {
+  return GestureDetector(
+    onTap: () {
+      _setHeaderTextColor(index, Colors.grey[300] ?? Colors.grey);
+      Future.delayed(const Duration(milliseconds: 100), () {
+        _setCsvLines(_actionClickOnCsvHeaderLine(_csvLines, index, txt));
+        _setHeaderTextColor(index, Colors.blue);
+      });
+    },
+    child: Text(
+      txt,
+      style: _fixedTextStyle(
+        _fontSize,
+        color: _getHeaderTextColor(index) ?? Colors.blue,
+      ),
+    ),
+  );
+}
+
 List<Widget> _buildFirstLineColumnChildren(
   double _fontSize,
   List<CsvLine> _csvLines,
   void Function(List<CsvLine>) _setCsvLines,
-  Widget Function(
-    int,
-    String,
-    double,
-    List<CsvLine>,
-    void Function(List<CsvLine>),
-    void Function(int, Color),
-    Color? Function(int),
-  )
-  _clickOnCsvHeaderLine,
   void Function(int, Color) _setHeaderTextColor,
   Color? Function(int) _getHeaderTextColor,
 ) {
@@ -844,33 +861,6 @@ List<Widget> _buildColumnChildren(
       );
     });
   }).toList();
-}
-
-Widget _clickOnCsvHeaderLine(
-  int index,
-  String txt,
-  double _fontSize,
-  List<CsvLine> _csvLines,
-  void Function(List<CsvLine>) _setCsvLines,
-  void Function(int, Color) _setHeaderTextColor,
-  Color? Function(int) _getHeaderTextColor,
-) {
-  return GestureDetector(
-    onTap: () {
-      _setHeaderTextColor(index, Colors.grey[300] ?? Colors.grey);
-      Future.delayed(const Duration(milliseconds: 100), () {
-        _setCsvLines(_actionClickOnCsvHeaderLine(_csvLines, index, txt));
-        _setHeaderTextColor(index, Colors.blue);
-      });
-    },
-    child: Text(
-      txt,
-      style: _fixedTextStyle(
-        _fontSize,
-        color: _getHeaderTextColor(index) ?? Colors.blue,
-      ),
-    ),
-  );
 }
 
 class _FilePickerScreenState extends State<FilePickerScreen> {
@@ -1072,7 +1062,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
             _fontSize,
             _csvLines,
             _setCsvLines,
-            _clickOnCsvHeaderLine,
             _setHeaderTextColor,
             _getHeaderTextColor,
           ),
