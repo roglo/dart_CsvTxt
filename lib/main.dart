@@ -1071,33 +1071,13 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     return _tarFileNameTextColors[index];
   }
 
-  int _getCurrentPage() {
-    return _currentPage;
-  }
-
-  FileType? _getFileType() {
-    return _fileType;
-  }
-
-  double _getFontSize() {
-    return _fontSize;
-  }
-
-  bool _getLoading() {
-    return _loading;
-  }
-
-  ScrollController _getVScrollController() {
-    return _vScrollController;
-  }
-
-  ScrollController _getHScrollController() {
-    return _hScrollController;
-  }
-
-  PdfViewerController _getPdfController() {
-    return _pdfController;
-  }
+  int _getCurrentPage() => _currentPage;
+  FileType? _getFileType() => _fileType;
+  double _getFontSize() => _fontSize;
+  bool _getLoading() => _loading;
+  ScrollController _getVScrollController() => _vScrollController;
+  ScrollController _getHScrollController() => _hScrollController;
+  PdfViewerController _getPdfController() => _pdfController;
 
   void _setFontSize(double newFontSize) {
     final double oldFontSize = _fontSize;
