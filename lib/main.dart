@@ -1061,8 +1061,12 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     return _tarFileNameTextColors[index];
   }
 
-  Widget _fixedCsvView(String content) {
-    if (_csvLines.isEmpty) _csvLines = treatCsv(content, _newVersion);
+  Widget _fixedCsvView(
+    String content,
+    List<CsvLine> _csvLines,
+    double _fontSize,
+  ) {
+    if (_csvLines.isEmpty) _setCsvLines(treatCsv(content, _newVersion));
     final length =
         _csvLines.first.$2.first.fold(0, (a, s) => a + s.length) +
         _csvLines.first.$2.first.length +
@@ -1228,7 +1232,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         Expanded(
           child: _modeFixe
               ? (_fileType == FileType.csv
-                    ? _fixedCsvView(_fileContent!)
+                    ? _fixedCsvView(_fileContent!, _csvLines, _fontSize)
                     : _fixedView(
                         _fileContent!,
                         _fontSize,
