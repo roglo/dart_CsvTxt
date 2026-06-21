@@ -160,16 +160,18 @@ typedef States = ({
   int Function() getCurrentPage,
   FileType? Function() getFileType,
   double Function() getFontSize,
+  ScrollController Function() getVScrollController,
+  PdfViewerController Function() getPdfController,
 });
 
 Widget _buildRowButtonSizeAndJump(
   States _st,
-  ScrollController _vScrollController,
-  PdfViewerController _pdfController,
   void Function(double) _changeFontSize,
 ) {
-  final FileType? _fileType = _st.getFileType ();
-  final double _fontSize = _st.getFontSize ();
+  final FileType? _fileType = _st.getFileType();
+  final double _fontSize = _st.getFontSize();
+  final ScrollController _vScrollController = _st.getVScrollController();
+  final PdfViewerController _pdfController = _st.getPdfController();
   return Row(
     children: [
       if (_fileType == FileType.pdf) ...[
@@ -1137,11 +1139,15 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   int _getCurrentPage() { return _currentPage; }
   FileType? _getFileType() { return _fileType; }
   double _getFontSize() { return _fontSize; }
+  ScrollController _getVScrollController() { return _vScrollController; }
+  PdfViewerController _getPdfController() { return _pdfController; }
 
   late States _st = (
     getCurrentPage: _getCurrentPage,
     getFileType: _getFileType,
     getFontSize: _getFontSize,
+    getVScrollController: _getVScrollController,
+    getPdfController: _getPdfController,
   );
 
   Widget _parseWithItalics(String content) {
@@ -1317,8 +1323,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
             const SizedBox(width: 16),
             _buildRowButtonSizeAndJump(
               _st,
-              _vScrollController,
-              _pdfController,
               _changeFontSize,
             ),
           ],
