@@ -986,12 +986,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         setState(() {
           _dirFromButton = false;
         });
-        _openFile(
-          _st,
-          widget.initialFile!,
-          _setPickedFileState,
-          _setState,
-        );
+        _openFile(_st, widget.initialFile!, _setPickedFileState, _setState);
       });
     }
   }
