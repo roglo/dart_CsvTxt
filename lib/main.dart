@@ -167,6 +167,7 @@ typedef States = ({
 });
 
 Widget _buildRowButtonSizeAndJump(States _st) {
+  final int _currentPage = _st.getCurrentPage();
   final FileType? _fileType = _st.getFileType();
   final double _fontSize = _st.getFontSize();
   final ScrollController _vScrollController = _st.getVScrollController();
@@ -226,12 +227,11 @@ Widget _buildRowButtonSizeAndJump(States _st) {
   );
 }
 
-Widget _buildColumnButtonsJump(
-  FileType? _fileType,
-  int _currentPage,
-  ScrollController _vScrollController,
-  PdfViewerController _pdfController,
-) {
+Widget _buildColumnButtonsJump(States _st) {
+  final FileType? _fileType = _st.getFileType();
+  final int _currentPage = _st.getCurrentPage();
+  final ScrollController _vScrollController = _st.getVScrollController();
+  final PdfViewerController _pdfController = _st.getPdfController();
   return Column(
     children: [
       if (_fileType == FileType.pdf) ...[
@@ -1382,12 +1382,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
               _fileType != FileType.image &&
               _errorMessage == null) ...[
             const SizedBox(height: 16),
-            _buildColumnButtonsJump(
-              _fileType,
-              _currentPage,
-              _vScrollController,
-              _pdfController,
-            ),
+            _buildColumnButtonsJump(_st),
           ],
         ],
       );
