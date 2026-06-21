@@ -1073,10 +1073,10 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     bool _newVersion,
     void Function(List<CsvLine>) _setCsvLines,
     List<CsvLine> Function() _getCsvLines,
-    // void Function(int, Color) _setHeaderTextColor,
-    // Color? Function(int) _getHeaderTextColor,
-    // void Function(int, Color) _setFirstColumnTextColor,
-    // Color? Function(int) _getFirstColumnTextColor,
+    void Function(int, Color) _setHeaderTextColor,
+    Color? Function(int) _getHeaderTextColor,
+    void Function(int, Color) _setFirstColumnTextColor,
+    Color? Function(int) _getFirstColumnTextColor,
   ) {
     List<CsvLine> _csvLines = _getCsvLines();
     if (_csvLines.isEmpty) _setCsvLines(treatCsv(content, _newVersion));
@@ -1255,10 +1255,10 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
                         _newVersion,
                         _setCsvLines,
                         _getCsvLines,
-                        // _setHeaderTextColor,
-                        // _getHeaderTextColor,
-                        // _setFirstColumnTextColor,
-                        // _getFirstColumnTextColor,
+                        _setHeaderTextColor,
+                        _getHeaderTextColor,
+                        _setFirstColumnTextColor,
+                        _getFirstColumnTextColor,
                       )
                     : _fixedView(
                         _fileContent!,
