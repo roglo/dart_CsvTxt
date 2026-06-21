@@ -863,6 +863,42 @@ List<Widget> _buildColumnChildren(
   }).toList();
 }
 
+Widget _clickOnTarFileName(
+  int index,
+  TarEntry entry,
+  double _fontSize,
+  ScrollController _vScrollController,
+  ScrollController _hScrollController,
+  void Function(int, Color) _setTarFileNameTextColor,
+  Color? Function(int) _getTarFileNameTextColor,
+  void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
+  _setState,
+  void Function(String?, String) _setStateError,
+) {
+  return GestureDetector(
+    onTap: () {
+      _setTarFileNameTextColor(index, Colors.grey[300] ?? Colors.grey);
+      Future.delayed(const Duration(milliseconds: 100), () {
+        _setTarFileNameTextColor(index, Colors.blue);
+        _actionClickOnTarFileName(
+          entry,
+          _vScrollController,
+          _hScrollController,
+          _setState,
+          _setStateError,
+        );
+      });
+    },
+    child: Text(
+      entry.fname,
+      style: _fixedTextStyle(
+        _fontSize,
+        color: _getTarFileNameTextColor(index) ?? Colors.blue,
+      ),
+    ),
+  );
+}
+
 class _FilePickerScreenState extends State<FilePickerScreen> {
   final String _lang = PlatformDispatcher.instance.locale.languageCode;
   // final String _lang = "en"; // ← force l'anglais pour tester
@@ -1025,31 +1061,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     return _tarFileNameTextColors[index];
   }
 
-  Widget _clickOnTarFileName(int index, TarEntry entry) {
-    return GestureDetector(
-      onTap: () {
-        _setTarFileNameTextColor(index, Colors.grey[300] ?? Colors.grey);
-        Future.delayed(const Duration(milliseconds: 100), () {
-          _setTarFileNameTextColor(index, Colors.blue);
-          _actionClickOnTarFileName(
-            entry,
-            _vScrollController,
-            _hScrollController,
-            _setState,
-            _setStateError,
-          );
-        });
-      },
-      child: Text(
-        entry.fname,
-        style: _fixedTextStyle(
-          _fontSize,
-          color: _getTarFileNameTextColor(index) ?? Colors.blue,
-        ),
-      ),
-    );
-  }
-
   Widget _fixedCsvView(String content) {
     if (_csvLines.isEmpty) _csvLines = treatCsv(content, _newVersion);
     final length =
@@ -1195,7 +1206,17 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
                         style: _fixedTextStyle(_fontSize),
                       ),
                       Text(" ", style: _fixedTextStyle(_fontSize)),
-                      _clickOnTarFileName(entry.key, file),
+                      _clickOnTarFileName(
+                        entry.key,
+                        file,
+                        _fontSize,
+                        _vScrollController,
+                        _hScrollController,
+                        _setTarFileNameTextColor,
+                        _getTarFileNameTextColor,
+                        _setState,
+                        _setStateError,
+                      ),
                     ],
                   );
                 }).toList(),
