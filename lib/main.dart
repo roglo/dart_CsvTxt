@@ -160,6 +160,7 @@ typedef States = ({
   int Function() getCurrentPage,
   FileType? Function() getFileType,
   double Function() getFontSize,
+  bool Function() getLoading,
   ScrollController Function() getVScrollController,
   ScrollController Function() getHScrollController,
   PdfViewerController Function() getPdfController,
@@ -288,11 +289,9 @@ String tPerm(Uint8List bytes) {
   return "$typeChar$perms";
 }
 
-Future<List<TarEntry>> _parseTarGz(
-  String path,
-  bool Function() _getLoading,
-) async {
+Future<List<TarEntry>> _parseTarGz(States _st, String path) async {
   final tarList = <TarEntry>[];
+  final _getLoading = _st.getLoading;
   Uint8List? bytes;
   int pos = 0;
   final reader = await GzipReader.open(path);
@@ -438,7 +437,7 @@ Future<void> _filePicked(
     if (isGzip) {
       _setLoading(true);
       await Future.delayed(Duration(milliseconds: 200));
-      tarList = await _parseTarGz(path, _getLoading);
+      tarList = await _parseTarGz(_st, path);
       _setLoading(false);
     } else {
       tarList = await _parseTar(path);
@@ -1053,10 +1052,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     setState(() => _loading = loading);
   }
 
-  bool _getLoading() {
-    return _loading;
-  }
-
   void _switchModeFixe() {
     setState(() => _modeFixe = !_modeFixe);
   }
@@ -1109,6 +1104,10 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     return _fontSize;
   }
 
+  bool _getLoading() {
+    return _loading;
+  }
+
   ScrollController _getVScrollController() {
     return _vScrollController;
   }
@@ -1144,6 +1143,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     getCurrentPage: _getCurrentPage,
     getFileType: _getFileType,
     getFontSize: _getFontSize,
+    getLoading: _getLoading,
     getVScrollController: _getVScrollController,
     getHScrollController: _getHScrollController,
     getPdfController: _getPdfController,
