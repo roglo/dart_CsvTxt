@@ -156,9 +156,13 @@ Future<Uint8List> readFilePart(String filePath, int pos, int size) async {
   }
 }
 
+typedef States = ({
+  int Function() getCurrentPage,
+});
+
 Widget _buildRowButtonSizeAndJump(
+  States _st,
   FileType? _fileType,
-  int _currentPage,
   double _fontSize,
   ScrollController _vScrollController,
   PdfViewerController _pdfController,
@@ -172,7 +176,7 @@ Widget _buildRowButtonSizeAndJump(
           child: const Text("«"),
         ),
         const SizedBox(width: 16),
-        Text("$_currentPage"),
+        Text("${_st.getCurrentPage()}"),
         const SizedBox(width: 16),
         ElevatedButton(
           onPressed: () {
@@ -1128,6 +1132,12 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     return _tarFileNameTextColors[index];
   }
 
+  int _getCurrentPage() {
+    return _currentPage;
+  }
+
+  late States _st = (getCurrentPage: _getCurrentPage);
+
   Widget _parseWithItalics(String content) {
     return Text.rich(
       TextSpan(
@@ -1300,8 +1310,8 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
               _errorMessage == null) ...[
             const SizedBox(width: 16),
             _buildRowButtonSizeAndJump(
+              _st,
               _fileType,
-              _currentPage,
               _fontSize,
               _vScrollController,
               _pdfController,
