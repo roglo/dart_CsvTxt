@@ -170,7 +170,6 @@ typedef States = ({
 });
 
 Widget _buildRowButtonSizeAndJump(States _st) {
-  final int _currentPage = _st.getCurrentPage();
   final FileType? _fileType = _st.getFileType();
   final double _fontSize = _st.getFontSize();
   final ScrollController _vScrollController = _st.getVScrollController();
@@ -378,7 +377,6 @@ Future<void> _filePicked(
   void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
   _setState,
 ) async {
-  final _getLoading = _st.getLoading;
   final ScrollController _vScrollController = _st.getVScrollController();
   final ScrollController _hScrollController = _st.getHScrollController();
   final _setLoading = _st.setLoading;
