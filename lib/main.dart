@@ -1122,6 +1122,55 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     return _tarFileNameTextColors[index];
   }
 
+  Widget _fixedCsvView(String content) {
+    if (_csvLines.isEmpty) _csvLines = treatCsv(content, _newVersion);
+    final length =
+        _csvLines.first.$2.first.fold(0, (a, s) => a + s.length) +
+        _csvLines.first.$2.first.length +
+        1;
+    final border = "-" * length;
+    return SingleChildScrollView(
+      controller: _hScrollController,
+      scrollDirection: Axis.horizontal,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(border, style: _fixedTextStyle(_fontSize)),
+          ..._buildFirstLineColumnChildren(
+            _fontSize,
+            _csvLines,
+            _setCsvLines,
+            _setHeaderTextColor,
+            _getHeaderTextColor,
+          ),
+          Text(border, style: _fixedTextStyle(_fontSize)),
+          Expanded(
+            child: SingleChildScrollView(
+              controller: _vScrollController,
+              scrollDirection: Axis.vertical,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ..._buildColumnChildren(
+                    _csvLines,
+                    _fontSize,
+                    context,
+                    _setFirstColumnTextColor,
+                    _getFirstColumnTextColor,
+                  ),
+                  Text(border, style: _fixedTextStyle(_fontSize)),
+                  Text(""),
+                  Text(""),
+                  Text(""),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _parseWithItalics(String content) {
     return Text.rich(
       TextSpan(
@@ -1240,20 +1289,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         Expanded(
           child: _modeFixe
               ? (_fileType == FileType.csv
-                    ? _fixedCsvView(
-                        context,
-                        _fileContent!,
-                        _fontSize,
-                        _vScrollController,
-                        _hScrollController,
-                        _newVersion,
-                        _csvLines,
-                        _setCsvLines,
-                        _setHeaderTextColor,
-                        _getHeaderTextColor,
-                        _setFirstColumnTextColor,
-                        _getFirstColumnTextColor,
-                      )
+                    ? _fixedCsvView(_fileContent!)
                     : _fixedView(
                         _fileContent!,
                         _fontSize,
