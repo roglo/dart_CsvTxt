@@ -1063,10 +1063,15 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
 
   Widget _fixedCsvView(
     String content,
-    List<CsvLine> _csvLines,
     double _fontSize,
     ScrollController _vScrollController,
     ScrollController _hScrollController,
+    List<CsvLine> _csvLines,
+    void Function(List<CsvLine>) _setCsvLines,
+    void Function(int, Color) _setHeaderTextColor,
+    Color? Function(int) _getHeaderTextColor,
+    void Function(int, Color) _setFirstColumnTextColor,
+    Color? Function(int) _getFirstColumnTextColor,
   ) {
     if (_csvLines.isEmpty) _setCsvLines(treatCsv(content, _newVersion));
     final length =
@@ -1236,10 +1241,15 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
               ? (_fileType == FileType.csv
                     ? _fixedCsvView(
                         _fileContent!,
-                        _csvLines,
                         _fontSize,
                         _vScrollController,
                         _hScrollController,
+                        _csvLines,
+                        _setCsvLines,
+                        _setHeaderTextColor,
+                        _getHeaderTextColor,
+                        _setFirstColumnTextColor,
+                        _getFirstColumnTextColor,
                       )
                     : _fixedView(
                         _fileContent!,
