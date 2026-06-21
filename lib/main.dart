@@ -1094,13 +1094,8 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     });
   }
 
-  void _setLoading(bool loading) {
-    _loading = loading;
-  }
-
-  void _sync() {
-    setState(() {});
-  }
+  void _setLoading(bool loading) => _loading = loading;
+  void _sync() => setState(() {});
 
   late States _st = (
     getCurrentPage: _getCurrentPage,
