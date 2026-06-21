@@ -782,7 +782,20 @@ List<Widget> _buildFirstLineColumnChildren(
 List<Widget> _buildColumnChildren(
   List<CsvLine> _csvLines,
   double _fontSize,
-  Widget Function(int, String, String, String) _clickOnCsvLine,
+  BuildContext context,
+  void Function(int, Color) _setFirstColumnTextColor,
+  Color? Function(int) _getFirstColumnTextColor,
+  Widget Function(
+    int,
+    String,
+    String,
+    String,
+    double,
+    BuildContext,
+    void Function(int, Color),
+    Color? Function(int),
+  )
+  _clickOnCsvLine,
 ) {
   final String firstLine = "|${_csvLines.first.$1.join('|')}|";
   return _csvLines.sublist(1).asMap().entries.expand((entry) {
@@ -796,7 +809,16 @@ List<Widget> _buildColumnChildren(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Text("|", style: _fixedTextStyle(_fontSize)),
-          _clickOnCsvLine(index, firstLine, currentLine, firstField),
+          _clickOnCsvLine(
+            index,
+            firstLine,
+            currentLine,
+            firstField,
+            _fontSize,
+            context,
+            _setFirstColumnTextColor,
+            _getFirstColumnTextColor,
+          ),
           Text(
             "|${allOtherFields.join('|')}|",
             style: _fixedTextStyle(_fontSize),
@@ -829,6 +851,34 @@ Widget _clickOnCsvHeaderLine(
       style: _fixedTextStyle(
         _fontSize,
         color: _getHeaderTextColor(index) ?? Colors.blue,
+      ),
+    ),
+  );
+}
+
+Widget _clickOnCsvLine(
+  int index,
+  String def,
+  String line,
+  String txt,
+  double _fontSize,
+  BuildContext context,
+  void Function(int, Color) _setFirstColumnTextColor,
+  Color? Function(int) _getFirstColumnTextColor,
+) {
+  return GestureDetector(
+    onTap: () {
+      _setFirstColumnTextColor(index, Colors.grey[300] ?? Colors.grey);
+      Future.delayed(const Duration(milliseconds: 300), () {
+        _setFirstColumnTextColor(index, Colors.blue);
+        _actionClickOnCsvLine(context, _fontSize, def, line);
+      });
+    },
+    child: Text(
+      txt,
+      style: _fixedTextStyle(
+        _fontSize,
+        color: _getFirstColumnTextColor(index) ?? Colors.blue,
       ),
     ),
   );
@@ -988,25 +1038,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     return _firstColumnTextColors[index];
   }
 
-  Widget _clickOnCsvLine(int index, String def, String line, String txt) {
-    return GestureDetector(
-      onTap: () {
-        _setFirstColumnTextColor(index, Colors.grey[300] ?? Colors.grey);
-        Future.delayed(const Duration(milliseconds: 300), () {
-          _setFirstColumnTextColor(index, Colors.blue);
-          _actionClickOnCsvLine(context, _fontSize, def, line);
-        });
-      },
-      child: Text(
-        txt,
-        style: _fixedTextStyle(
-          _fontSize,
-          color: _getFirstColumnTextColor(index) ?? Colors.blue,
-        ),
-      ),
-    );
-  }
-
   Widget _clickOnTarFileName(int index, TarEntry entry) {
     return GestureDetector(
       onTap: () {
@@ -1067,6 +1098,9 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
                   ..._buildColumnChildren(
                     _csvLines,
                     _fontSize,
+                    context,
+                    _setFirstColumnTextColor,
+                    _getFirstColumnTextColor,
                     _clickOnCsvLine,
                   ),
                   Text(border, style: _fixedTextStyle(_fontSize)),
