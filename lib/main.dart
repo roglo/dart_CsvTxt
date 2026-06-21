@@ -162,16 +162,16 @@ typedef States = ({
   double Function() getFontSize,
   ScrollController Function() getVScrollController,
   PdfViewerController Function() getPdfController,
+  void Function(double) setFontSize,
+  void Function() set,
 });
 
-Widget _buildRowButtonSizeAndJump(
-  States _st,
-  void Function(double) _changeFontSize,
-) {
+Widget _buildRowButtonSizeAndJump(States _st) {
   final FileType? _fileType = _st.getFileType();
   final double _fontSize = _st.getFontSize();
   final ScrollController _vScrollController = _st.getVScrollController();
   final PdfViewerController _pdfController = _st.getPdfController();
+  final _setFontSize = _st.setFontSize;
   return Row(
     children: [
       if (_fileType == FileType.pdf) ...[
@@ -191,15 +191,24 @@ Widget _buildRowButtonSizeAndJump(
         ),
       ] else ...[
         ElevatedButton(
-          onPressed: () => _changeFontSize(_fontSize - 1),
+          onPressed: () {
+            _setFontSize(_fontSize - 1);
+            _st.set();
+          },
           child: const Text("A-"),
         ),
         ElevatedButton(
-          onPressed: () => _changeFontSize(_initialFontSize),
+          onPressed: () {
+            _setFontSize(_initialFontSize);
+            _st.set();
+          },
           child: const Text("A"),
         ),
         ElevatedButton(
-          onPressed: () => _changeFontSize(_fontSize + 1),
+          onPressed: () {
+            _setFontSize(_fontSize + 1);
+            _st.set();
+          },
           child: const Text("A+"),
         ),
         ElevatedButton(
@@ -1041,24 +1050,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     _pdfController = PdfViewerController();
   }
 
-  void _changeFontSize(double newFontSize) {
-    final double oldFontSize = _fontSize;
-    final double oldOffset = _vScrollController.offset;
-
-    setState(() {
-      _fontSize = newFontSize.clamp(8.0, 40.0);
-    });
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final double ratio = _fontSize / oldFontSize;
-      final double newOffset = (oldOffset * ratio).clamp(
-        0.0,
-        _vScrollController.position.maxScrollExtent,
-      );
-      _vScrollController.jumpTo(newOffset);
-    });
-  }
-
   void _setStateError(String? filename, String msg) {
     setState(() {
       _fileType = FileType.txt;
@@ -1136,11 +1127,44 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     return _tarFileNameTextColors[index];
   }
 
-  int _getCurrentPage() { return _currentPage; }
-  FileType? _getFileType() { return _fileType; }
-  double _getFontSize() { return _fontSize; }
-  ScrollController _getVScrollController() { return _vScrollController; }
-  PdfViewerController _getPdfController() { return _pdfController; }
+  int _getCurrentPage() {
+    return _currentPage;
+  }
+
+  FileType? _getFileType() {
+    return _fileType;
+  }
+
+  double _getFontSize() {
+    return _fontSize;
+  }
+
+  ScrollController _getVScrollController() {
+    return _vScrollController;
+  }
+
+  PdfViewerController _getPdfController() {
+    return _pdfController;
+  }
+
+  void _setFontSize(double newFontSize) {
+    final double oldFontSize = _fontSize;
+    final double oldOffset = _vScrollController.offset;
+    _fontSize = newFontSize.clamp(8.0, 40.0);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final double ratio = _fontSize / oldFontSize;
+      final double newOffset = (oldOffset * ratio).clamp(
+        0.0,
+        _vScrollController.position.maxScrollExtent,
+      );
+      _vScrollController.jumpTo(newOffset);
+    });
+  }
+
+  void _set() {
+    setState(() {});
+  }
 
   late States _st = (
     getCurrentPage: _getCurrentPage,
@@ -1148,6 +1172,8 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     getFontSize: _getFontSize,
     getVScrollController: _getVScrollController,
     getPdfController: _getPdfController,
+    setFontSize: _setFontSize,
+    set: _set,
   );
 
   Widget _parseWithItalics(String content) {
@@ -1321,10 +1347,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
               _fileType != FileType.image &&
               _errorMessage == null) ...[
             const SizedBox(width: 16),
-            _buildRowButtonSizeAndJump(
-              _st,
-              _changeFontSize,
-            ),
+            _buildRowButtonSizeAndJump(_st),
           ],
           const SizedBox(height: 16),
           if (_fileName != null)
