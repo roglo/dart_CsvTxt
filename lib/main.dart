@@ -1017,14 +1017,20 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     return _firstColumnTextColors[index];
   }
 
+  void _setTarFileNameTextColor(int index, Color color) {
+    setState(() => _tarFileNameTextColors[index] = color);
+  }
+
+  Color? _getTarFileNameTextColor(int index) {
+    return _tarFileNameTextColors[index];
+  }
+
   Widget _clickOnTarFileName(int index, TarEntry entry) {
     return GestureDetector(
       onTap: () {
-        setState(() {
-          _tarFileNameTextColors[index] = Colors.grey[300] ?? Colors.grey;
-        });
+        _setTarFileNameTextColor(index, Colors.grey[300] ?? Colors.grey);
         Future.delayed(const Duration(milliseconds: 100), () {
-          _tarFileNameTextColors[index] = Colors.blue;
+          _setTarFileNameTextColor(index, Colors.blue);
           _actionClickOnTarFileName(
             entry,
             _vScrollController,
@@ -1038,7 +1044,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         entry.fname,
         style: _fixedTextStyle(
           _fontSize,
-          color: _tarFileNameTextColors[index] ?? Colors.blue,
+          color: _getTarFileNameTextColor(index) ?? Colors.blue,
         ),
       ),
     );
