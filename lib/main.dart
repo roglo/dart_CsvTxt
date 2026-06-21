@@ -165,7 +165,7 @@ typedef States = ({
   ScrollController Function() getHScrollController,
   PdfViewerController Function() getPdfController,
   void Function(double) setFontSize,
-  void Function() set,
+  void Function() sync,
 });
 
 Widget _buildRowButtonSizeAndJump(States _st) {
@@ -196,21 +196,21 @@ Widget _buildRowButtonSizeAndJump(States _st) {
         ElevatedButton(
           onPressed: () {
             _setFontSize(_fontSize - 1);
-            _st.set();
+            _st.sync();
           },
           child: const Text("A-"),
         ),
         ElevatedButton(
           onPressed: () {
             _setFontSize(_initialFontSize);
-            _st.set();
+            _st.sync();
           },
           child: const Text("A"),
         ),
         ElevatedButton(
           onPressed: () {
             _setFontSize(_fontSize + 1);
-            _st.set();
+            _st.sync();
           },
           child: const Text("A+"),
         ),
@@ -377,8 +377,8 @@ Future<void> _filePicked(
   void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
   _setState,
   void Function(bool) _setLoading,
-  bool Function() _getLoading,
 ) async {
+  final _getLoading = _st.getLoading;
   final ScrollController _vScrollController = _st.getVScrollController();
   final ScrollController _hScrollController = _st.getHScrollController();
   if (_vScrollController.hasClients) {
@@ -465,13 +465,12 @@ Future<String?> _pickFile(
   void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
   _setState,
   void Function(bool) _setLoading,
-  bool Function() _getLoading,
 ) async {
   final result = await FilePicker.platform.pickFiles();
   if (result != null && result.files.single.path != null) {
     final path = result.files.single.path!;
     final name = result.files.single.name;
-    _filePicked(_st, path, name, _setState, _setLoading, _getLoading);
+    _filePicked(_st, path, name, _setState, _setLoading);
     myprint(path);
     return path;
   }
@@ -488,13 +487,10 @@ Widget _buildButtonsChooseFile(
   String? _fileName,
   FileType? _fileType,
   String? _errorMessage,
-  ScrollController _vScrollController,
-  ScrollController _hScrollController,
   void Function(String) _setPickedFileState,
   void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
   _setState,
   void Function(bool) _setLoading,
-  bool Function() _getLoading,
   void Function() _switchModeFixe,
   bool Function() _getModeFixe,
 ) {
@@ -506,12 +502,12 @@ Widget _buildButtonsChooseFile(
           final String? file = Platform.isLinux
               // ? await _pickFile()
               ? await customPickFile(context, _initialDir)
-              : await _pickFile(_st, _setState, _setLoading, _getLoading);
+              : await _pickFile(_st, _setState, _setLoading);
           // : await customPickFile(context, _initialDir);
           if (file != null) {
             final name = file.split("/").last;
             _setPickedFileState(file);
-            _filePicked(_st, file, name, _setState, _setLoading, _getLoading);
+            _filePicked(_st, file, name, _setState, _setLoading);
           }
         },
       ),
@@ -673,11 +669,10 @@ void _openFile(
   void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
   _setState,
   void Function(bool) _setLoading,
-  bool Function() _getLoading,
 ) {
   final name = file.split("/").last;
   _setPickedFileState(file);
-  _filePicked(_st, file, name, _setState, _setLoading, _getLoading);
+  _filePicked(_st, file, name, _setState, _setLoading);
 }
 
 Future<void> _actionClickOnTarFileName(
@@ -999,7 +994,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
           _setPickedFileState,
           _setState,
           _setLoading,
-          _getLoading,
         );
       });
     }
@@ -1135,7 +1129,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     });
   }
 
-  void _set() {
+  void _sync() {
     setState(() {});
   }
 
@@ -1148,7 +1142,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     getHScrollController: _getHScrollController,
     getPdfController: _getPdfController,
     setFontSize: _setFontSize,
-    set: _set,
+    sync: _sync,
   );
 
   Widget _parseWithItalics(String content) {
@@ -1310,12 +1304,9 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
               _fileName,
               _fileType,
               _errorMessage,
-              _vScrollController,
-              _hScrollController,
               _setPickedFileState,
               _setState,
               _setLoading,
-              _getLoading,
               _switchModeFixe,
               _getModeFixe,
             ),
