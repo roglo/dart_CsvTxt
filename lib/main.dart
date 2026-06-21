@@ -1022,16 +1022,15 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     String? fileContent,
     List<TarEntry> tarList,
   ) {
-    setState(() {
-      _fileType = ft;
-      _modeFixe = (ft == FileType.csv ? true : false);
-      _fileName = name;
-      _bytes = bytes;
-      _fileContent = fileContent;
-      _csvLines = [];
-      _tarList = tarList;
-      _errorMessage = null;
-    });
+    _fileType = ft;
+    _modeFixe = (ft == FileType.csv ? true : false);
+    _fileName = name;
+    _bytes = bytes;
+    _fileContent = fileContent;
+    _csvLines = [];
+    _tarList = tarList;
+    _errorMessage = null;
+    setState(() {});
   }
 
   void _switchModeFixe() {
