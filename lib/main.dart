@@ -1065,6 +1065,8 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     String content,
     List<CsvLine> _csvLines,
     double _fontSize,
+    ScrollController _vScrollController,
+    ScrollController _hScrollController,
   ) {
     if (_csvLines.isEmpty) _setCsvLines(treatCsv(content, _newVersion));
     final length =
@@ -1232,7 +1234,13 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         Expanded(
           child: _modeFixe
               ? (_fileType == FileType.csv
-                    ? _fixedCsvView(_fileContent!, _csvLines, _fontSize)
+                    ? _fixedCsvView(
+                        _fileContent!,
+                        _csvLines,
+                        _fontSize,
+                        _vScrollController,
+                        _hScrollController,
+                      )
                     : _fixedView(
                         _fileContent!,
                         _fontSize,
