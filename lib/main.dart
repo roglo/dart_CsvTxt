@@ -970,6 +970,21 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   int _currentPage = 1;
   int _pdfLoadCount = 0;
   bool _dirFromButton = true;
+  String? _initialDir;
+  String? _fileName;
+  String? _fileContent;
+  List<CsvLine> _csvLines = [];
+  FileType? _fileType;
+  Uint8List? _bytes;
+  List<TarEntry> _tarList = [];
+  String? _errorMessage;
+  bool _loading = false;
+  bool _newVersion = true;
+  bool _modeFixe = false;
+  double _fontSize = _initialFontSize;
+  final Map<int, Color> _headersTextColors = {};
+  final Map<int, Color> _firstColumnTextColors = {};
+  final Map<int, Color> _tarFileNameTextColors = {};
 
   void _setPickedFileState(String file) {
     setState(() {
@@ -1015,22 +1030,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     super.didChangeDependencies();
     _pdfController = PdfViewerController();
   }
-
-  String? _initialDir;
-  String? _fileName;
-  String? _fileContent;
-  List<CsvLine> _csvLines = [];
-  FileType? _fileType;
-  Uint8List? _bytes;
-  List<TarEntry> _tarList = [];
-  String? _errorMessage;
-  bool _loading = false;
-  bool _newVersion = true;
-  bool _modeFixe = false;
-  double _fontSize = _initialFontSize;
-  final Map<int, Color> _headersTextColors = {};
-  final Map<int, Color> _firstColumnTextColors = {};
-  final Map<int, Color> _tarFileNameTextColors = {};
 
   void _changeFontSize(double newFontSize) {
     final double oldFontSize = _fontSize;
