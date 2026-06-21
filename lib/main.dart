@@ -158,16 +158,17 @@ Future<Uint8List> readFilePart(String filePath, int pos, int size) async {
 
 typedef States = ({
   int Function() getCurrentPage,
+  FileType? Function() getFileType,
 });
 
 Widget _buildRowButtonSizeAndJump(
   States _st,
-  FileType? _fileType,
   double _fontSize,
   ScrollController _vScrollController,
   PdfViewerController _pdfController,
   void Function(double) _changeFontSize,
 ) {
+  final FileType? _fileType = _st.getFileType ();
   return Row(
     children: [
       if (_fileType == FileType.pdf) ...[
@@ -1132,11 +1133,13 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     return _tarFileNameTextColors[index];
   }
 
-  int _getCurrentPage() {
-    return _currentPage;
-  }
+  int _getCurrentPage() { return _currentPage; }
+  FileType? _getFileType() { return _fileType; }
 
-  late States _st = (getCurrentPage: _getCurrentPage);
+  late States _st = (
+    getCurrentPage: _getCurrentPage,
+    getFileType: _getFileType,
+  );
 
   Widget _parseWithItalics(String content) {
     return Text.rich(
@@ -1311,7 +1314,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
             const SizedBox(width: 16),
             _buildRowButtonSizeAndJump(
               _st,
-              _fileType,
               _fontSize,
               _vScrollController,
               _pdfController,
