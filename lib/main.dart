@@ -1036,6 +1036,10 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     setState(() => _csvLines = _newCsvLines);
   }
 
+  List<CsvLine> _getCsvLines() {
+    return _csvLines;
+  }
+
   void _setHeaderTextColor(int index, Color color) {
     setState(() => _headersTextColors[index] = color);
   }
@@ -1074,7 +1078,9 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     // void Function(int, Color) _setFirstColumnTextColor,
     // Color? Function(int) _getFirstColumnTextColor,
   ) {
+    List<CsvLine> _csvLines = _getCsvLines();
     if (_csvLines.isEmpty) _setCsvLines(treatCsv(content, _newVersion));
+    _csvLines = _getCsvLines();
     final length =
         _csvLines.first.$2.first.fold(0, (a, s) => a + s.length) +
         _csvLines.first.$2.first.length +
