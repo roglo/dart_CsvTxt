@@ -161,6 +161,7 @@ typedef States = ({
   String Function() getLang,
   String? Function() getInitialDir,
   String? Function() getFileName,
+  String? Function() getFileContent,
   Uint8List? Function() getBytes,
   int Function() getCurrentPage,
   FileType? Function() getFileType,
@@ -972,7 +973,6 @@ Widget _normalView(States _st, String? fileName, String content) {
 
 List<Widget> _buildContent(
   States _st,
-  String? _fileContent,
   bool _modeFixe,
   bool _newVersion,
   int _pdfLoadCount,
@@ -990,6 +990,7 @@ List<Widget> _buildContent(
   void Function(String?, String) _setStateError,
 ) {
   final BuildContext context = _st.getContext();
+  final String? _fileContent = _st.getFileContent();
   final Uint8List? _bytes = _st.getBytes();
   final FileType? _fileType = _st.getFileType();
   final String? _fileName = _st.getFileName();
@@ -1222,6 +1223,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   String _getLang() => _lang;
   String? _getInitialDir() => _initialDir;
   String? _getFileName() => _fileName;
+  String? _getFileContent() => _fileContent;
   Uint8List? _getBytes() => _bytes;
   int _getCurrentPage() => _currentPage;
   FileType? _getFileType() => _fileType;
@@ -1255,6 +1257,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     getLang: _getLang,
     getInitialDir: _getInitialDir,
     getFileName: _getFileName,
+    getFileContent: _getFileContent,
     getBytes: _getBytes,
     getCurrentPage: _getCurrentPage,
     getFileType: _getFileType,
@@ -1304,7 +1307,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
           const SizedBox(height: 8),
           ..._buildContent(
             _st,
-            _fileContent,
             _modeFixe,
             _newVersion,
             _pdfLoadCount,
@@ -1338,7 +1340,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         children: [
           ..._buildContent(
             _st,
-            _fileContent,
             _modeFixe,
             _newVersion,
             _pdfLoadCount,
