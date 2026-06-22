@@ -871,11 +871,7 @@ Widget _clickOnTarFileName(
 
 Widget _fixedCsvView(
   States _st,
-  BuildContext context,
   String content,
-  double _fontSize,
-  ScrollController _vScrollController,
-  ScrollController _hScrollController,
   bool _newVersion,
   void Function(List<CsvLine>) _setCsvLines,
   List<CsvLine> Function() _getCsvLines,
@@ -885,6 +881,9 @@ Widget _fixedCsvView(
   Color? Function(int) _getFirstColumnTextColor,
 ) {
   List<CsvLine> _csvLines = _getCsvLines();
+  final double _fontSize = _st.getFontSize();
+  final ScrollController _vScrollController = _st.getVScrollController();
+  final ScrollController _hScrollController = _st.getHScrollController();
   if (_csvLines.isEmpty) _setCsvLines(treatCsv(content, _newVersion));
   _csvLines = _getCsvLines();
   final length =
@@ -1228,11 +1227,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
               ? (_fileType == FileType.csv
                     ? _fixedCsvView(
                         _st,
-                        context,
                         _fileContent!,
-                        _fontSize,
-                        _vScrollController,
-                        _hScrollController,
                         _newVersion,
                         _setCsvLines,
                         _getCsvLines,
