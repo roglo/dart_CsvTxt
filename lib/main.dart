@@ -804,11 +804,11 @@ Widget _clickOnCsvLine(
 List<Widget> _buildColumnChildren(
   States _st,
   List<CsvLine> _csvLines,
-  double _fontSize,
-  BuildContext context,
   void Function(int, Color) _setFirstColumnTextColor,
   Color? Function(int) _getFirstColumnTextColor,
 ) {
+  final BuildContext context = _st.getContext();
+  final double _fontSize = _st.getFontSize();
   final String firstLine = "|${_csvLines.first.$1.join('|')}|";
   return _csvLines.sublist(1).asMap().entries.expand((entry) {
     final index = entry.key;
@@ -924,8 +924,6 @@ Widget _fixedCsvView(
                 ..._buildColumnChildren(
                   _st,
                   _csvLines,
-                  _fontSize,
-                  context,
                   _setFirstColumnTextColor,
                   _getFirstColumnTextColor,
                 ),
