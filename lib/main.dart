@@ -163,6 +163,7 @@ typedef States = ({
   String? Function() getFileName,
   String? Function() getFileContent,
   Uint8List? Function() getBytes,
+  List<TarEntry> Function() getTarList,
   int Function() getCurrentPage,
   FileType? Function() getFileType,
   double Function() getFontSize,
@@ -975,7 +976,6 @@ Widget _normalView(States _st, String? fileName, String content) {
 
 List<Widget> _buildContent(
   States _st,
-  List<TarEntry> _tarList,
   List<CsvLine> Function() _getCsvLines,
   Color? Function(int) _getHeaderTextColor,
   Color? Function(int) _getFirstColumnTextColor,
@@ -1037,7 +1037,7 @@ List<Widget> _buildContent(
             scrollDirection: Axis.horizontal,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: _tarList.asMap().entries.map((entry) {
+              children: _st.getTarList().asMap().entries.map((entry) {
                 final file = entry.value;
                 return Row(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -1219,6 +1219,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   String? _getFileName() => _fileName;
   String? _getFileContent() => _fileContent;
   Uint8List? _getBytes() => _bytes;
+  List<TarEntry> _getTarList() => _tarList;
   int _getCurrentPage() => _currentPage;
   FileType? _getFileType() => _fileType;
   double _getFontSize() => _fontSize;
@@ -1256,6 +1257,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     getFileName: _getFileName,
     getFileContent: _getFileContent,
     getBytes: _getBytes,
+    getTarList: _getTarList,
     getCurrentPage: _getCurrentPage,
     getFileType: _getFileType,
     getFontSize: _getFontSize,
@@ -1307,7 +1309,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
           const SizedBox(height: 8),
           ..._buildContent(
             _st,
-            _tarList,
             _getCsvLines,
             _getHeaderTextColor,
             _getFirstColumnTextColor,
@@ -1337,7 +1338,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         children: [
           ..._buildContent(
             _st,
-            _tarList,
             _getCsvLines,
             _getHeaderTextColor,
             _getFirstColumnTextColor,
