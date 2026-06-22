@@ -816,13 +816,7 @@ List<Widget> _buildColumnChildren(States _st) {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Text("|", style: _fixedTextStyle(_fontSize)),
-          _clickOnCsvLine(
-            _st,
-            index,
-            firstLine,
-            currentLine,
-            firstField,
-          ),
+          _clickOnCsvLine(_st, index, firstLine, currentLine, firstField),
           Text(
             "|${allOtherFields.join('|')}|",
             style: _fixedTextStyle(_fontSize),
@@ -1037,9 +1031,7 @@ List<Widget> _buildContent(
     else if (_fileContent != null)
       Expanded(
         child: _st.getModeFixe()
-            ? (_fileType == FileType.csv
-                  ? _fixedCsvView(_st)
-                  : _fixedView(_st))
+            ? (_fileType == FileType.csv ? _fixedCsvView(_st) : _fixedView(_st))
             : _normalView(_st, _fileName),
       ),
   ];
