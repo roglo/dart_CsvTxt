@@ -169,6 +169,7 @@ typedef States = ({
   bool Function() getModeFixe,
   bool Function() getNewVersion,
   bool Function() getLoading,
+  int Function() getPdfLoadCount,
   ScrollController Function() getVScrollController,
   ScrollController Function() getHScrollController,
   PdfViewerController Function() getPdfController,
@@ -974,7 +975,6 @@ Widget _normalView(States _st, String? fileName, String content) {
 
 List<Widget> _buildContent(
   States _st,
-  int _pdfLoadCount,
   List<TarEntry> _tarList,
   List<CsvLine> Function() _getCsvLines,
   Color? Function(int) _getHeaderTextColor,
@@ -995,6 +995,7 @@ List<Widget> _buildContent(
   final String? _fileName = _st.getFileName();
   final double _fontSize = _st.getFontSize();
   final int _currentPage = _st.getCurrentPage();
+  final int _pdfLoadCount = _st.getPdfLoadCount();
   final PdfViewerController _pdfController = _st.getPdfController();
   return [
     if (_fileType == FileType.image)
@@ -1224,6 +1225,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   bool _getModeFixe() => _modeFixe;
   bool _getNewVersion() => _newVersion;
   bool _getLoading() => _loading;
+  int _getPdfLoadCount() => _pdfLoadCount;
   ScrollController _getVScrollController() => _vScrollController;
   ScrollController _getHScrollController() => _hScrollController;
   PdfViewerController _getPdfController() => _pdfController;
@@ -1260,6 +1262,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     getModeFixe: _getModeFixe,
     getNewVersion: _getNewVersion,
     getLoading: _getLoading,
+    getPdfLoadCount: _getPdfLoadCount,
     getVScrollController: _getVScrollController,
     getHScrollController: _getHScrollController,
     getPdfController: _getPdfController,
@@ -1304,7 +1307,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
           const SizedBox(height: 8),
           ..._buildContent(
             _st,
-            _pdfLoadCount,
             _tarList,
             _getCsvLines,
             _getHeaderTextColor,
@@ -1335,7 +1337,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         children: [
           ..._buildContent(
             _st,
-            _pdfLoadCount,
             _tarList,
             _getCsvLines,
             _getHeaderTextColor,
