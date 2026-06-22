@@ -181,6 +181,8 @@ typedef States = ({
   void Function(List<CsvLine>) setCsvLines,
   void Function(double) setFontSize,
   void Function(bool) setLoading,
+  void Function(int, Color) setTextColorList1,
+  void Function(int, Color) setTextColorList2,
   void Function() sync,
 });
 
@@ -723,6 +725,7 @@ Future<void> _actionClickOnTarFileName(
 }
 
 Widget _clickOnCsvHeaderLine(
+  States _st,
   int index,
   String txt,
   double _fontSize,
@@ -734,9 +737,11 @@ Widget _clickOnCsvHeaderLine(
   return GestureDetector(
     onTap: () {
       _setTextColorList1(index, Colors.grey[300] ?? Colors.grey);
+      _st.sync();
       Future.delayed(const Duration(milliseconds: 100), () {
         _setCsvLines(_actionClickOnCsvHeaderLine(_csvLines, index, txt));
         _setTextColorList1(index, Colors.blue);
+        _st.sync();
       });
     },
     child: Text(
@@ -750,6 +755,7 @@ Widget _clickOnCsvHeaderLine(
 }
 
 List<Widget> _buildFirstLineColumnChildren(
+  States _st,
   double _fontSize,
   List<CsvLine> _csvLines,
   Color? Function(int) _getTextColorList1,
@@ -769,6 +775,7 @@ List<Widget> _buildFirstLineColumnChildren(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               _clickOnCsvHeaderLine(
+                _st,
                 index,
                 txt,
                 _fontSize,
@@ -798,8 +805,10 @@ Widget _clickOnCsvLine(
   return GestureDetector(
     onTap: () {
       _setTextColorList2(index, Colors.grey[300] ?? Colors.grey);
+      _st.sync();
       Future.delayed(const Duration(milliseconds: 300), () {
         _setTextColorList2(index, Colors.blue);
+        _st.sync();
         _actionClickOnCsvLine(_st, def, line);
       });
     },
@@ -862,8 +871,10 @@ Widget _clickOnTarFileName(
   return GestureDetector(
     onTap: () {
       _setTextColorList1(index, Colors.grey[300] ?? Colors.grey);
+      _st.sync();
       Future.delayed(const Duration(milliseconds: 100), () {
         _setTextColorList1(index, Colors.blue);
+        _st.sync();
         _actionClickOnTarFileName(_st, entry, _setState, _setStateError);
       });
     },
@@ -904,6 +915,7 @@ Widget _fixedCsvView(
       children: [
         Text(border, style: _fixedTextStyle(_fontSize)),
         ..._buildFirstLineColumnChildren(
+          _st,
           _fontSize,
           _csvLines,
           _st.getTextColorList1,
@@ -1161,14 +1173,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     setState(() => _modeFixe = !_modeFixe);
   }
 
-  void _setTextColorList1(int index, Color color) {
-    setState(() => _textColorsList1[index] = color);
-  }
-
-  void _setTextColorList2(int index, Color color) {
-    setState(() => _textColorsList2[index] = color);
-  }
-
   BuildContext _getContext() => context;
   String _getLang() => _lang;
   String? _getInitialDir() => _initialDir;
@@ -1209,6 +1213,10 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   }
 
   void _setLoading(bool loading) => _loading = loading;
+  void _setTextColorList1(int index, Color color) =>
+    _textColorsList1[index] = color;
+  void _setTextColorList2(int index, Color color) =>
+    _textColorsList2[index] = color;
   void _sync() => setState(() {});
 
   late States _st = (
@@ -1236,6 +1244,8 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     setCurrentPage: _setCurrentPage,
     setFontSize: _setFontSize,
     setLoading: _setLoading,
+    setTextColorList1: _setTextColorList1,
+    setTextColorList2: _setTextColorList2,
     sync: _sync,
   );
 
