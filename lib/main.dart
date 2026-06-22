@@ -178,6 +178,7 @@ typedef States = ({
   Color? Function(int) getTextColorList1,
   Color? Function(int) getTextColorList2,
   void Function(int) setCurrentPage,
+  void Function(List<CsvLine>) setCsvLines,
   void Function(double) setFontSize,
   void Function(bool) setLoading,
   void Function() sync,
@@ -877,7 +878,6 @@ Widget _clickOnTarFileName(
 
 Widget _fixedCsvView(
   States _st,
-  void Function(List<CsvLine>) _setCsvLines,
   void Function(int, Color) _setTextColorList1,
   void Function(int, Color) _setTextColorList2,
 ) {
@@ -885,8 +885,10 @@ Widget _fixedCsvView(
   final double _fontSize = _st.getFontSize();
   final ScrollController _vScrollController = _st.getVScrollController();
   final ScrollController _hScrollController = _st.getHScrollController();
-  if (_csvLines.isEmpty)
-    _setCsvLines(treatCsv(_st.getFileContent()!, _st.getNewVersion()));
+  if (_csvLines.isEmpty) {
+    _st.setCsvLines(treatCsv(_st.getFileContent()!, _st.getNewVersion()));
+    _st.sync();
+  }
   _csvLines = _st.getCsvLines();
   final length =
       _csvLines.first.$2.first.fold(0, (a, s) => a + s.length) +
@@ -904,7 +906,7 @@ Widget _fixedCsvView(
           _fontSize,
           _csvLines,
           _st.getTextColorList1,
-          _setCsvLines,
+          _st.setCsvLines,
           _setTextColorList1,
         ),
         Text(border, style: _fixedTextStyle(_fontSize)),
@@ -967,7 +969,6 @@ Widget _normalView(States _st, String? fileName, String content) {
 
 List<Widget> _buildContent(
   States _st,
-  void Function(List<CsvLine>) _setCsvLines,
   void Function(int, Color) _setTextColorList1,
   void Function(int, Color) _setTextColorList2,
   void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
@@ -1060,7 +1061,6 @@ List<Widget> _buildContent(
             ? (_fileType == FileType.csv
                   ? _fixedCsvView(
                       _st,
-                      _setCsvLines,
                       _setTextColorList1,
                       _setTextColorList2,
                     )
@@ -1162,10 +1162,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     setState(() => _modeFixe = !_modeFixe);
   }
 
-  void _setCsvLines(List<CsvLine> _newCsvLines) {
-    setState(() => _csvLines = _newCsvLines);
-  }
-
   void _setTextColorList1(int index, Color color) {
     setState(() => _textColorsList1[index] = color);
   }
@@ -1195,6 +1191,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   Color? _getTextColorList1(int i) => _textColorsList1[i];
   Color? _getTextColorList2(int i) => _textColorsList2[i];
 
+  void _setCsvLines(List<CsvLine> _newCsvLines) => _csvLines = _newCsvLines;
   void _setCurrentPage(int page) => _currentPage = page;
 
   void _setFontSize(double newFontSize) {
@@ -1236,6 +1233,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     getPdfController: _getPdfController,
     getTextColorList1: _getTextColorList1,
     getTextColorList2: _getTextColorList2,
+    setCsvLines: _setCsvLines,
     setCurrentPage: _setCurrentPage,
     setFontSize: _setFontSize,
     setLoading: _setLoading,
@@ -1277,7 +1275,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
           const SizedBox(height: 8),
           ..._buildContent(
             _st,
-            _setCsvLines,
             _setTextColorList1,
             _setTextColorList2,
             _setState,
@@ -1301,7 +1298,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         children: [
           ..._buildContent(
             _st,
-            _setCsvLines,
             _setTextColorList1,
             _setTextColorList2,
             _setState,
