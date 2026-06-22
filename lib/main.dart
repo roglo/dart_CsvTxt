@@ -778,9 +778,9 @@ Widget _clickOnCsvLine(
   String def,
   String line,
   String txt,
-  void Function(int, Color) _setTextColorList2,
 ) {
   final double _fontSize = _st.getFontSize();
+  final _setTextColorList2 = _st.setTextColorList2;
   return GestureDetector(
     onTap: () {
       _setTextColorList2(index, Colors.grey[300] ?? Colors.grey);
@@ -801,10 +801,7 @@ Widget _clickOnCsvLine(
   );
 }
 
-List<Widget> _buildColumnChildren(
-  States _st,
-  void Function(int, Color) _setTextColorList2,
-) {
+List<Widget> _buildColumnChildren(States _st) {
   final double _fontSize = _st.getFontSize();
   final List<CsvLine> _csvLines = _st.getCsvLines();
   final String firstLine = "|${_csvLines.first.$1.join('|')}|";
@@ -825,7 +822,6 @@ List<Widget> _buildColumnChildren(
             firstLine,
             currentLine,
             firstField,
-            _setTextColorList2,
           ),
           Text(
             "|${allOtherFields.join('|')}|",
@@ -867,11 +863,7 @@ Widget _clickOnTarFileName(
   );
 }
 
-Widget _fixedCsvView(
-  States _st,
-  void Function(int, Color) _setTextColorList1,
-  void Function(int, Color) _setTextColorList2,
-) {
+Widget _fixedCsvView(States _st) {
   List<CsvLine> _csvLines = _st.getCsvLines();
   final double _fontSize = _st.getFontSize();
   final ScrollController _vScrollController = _st.getVScrollController();
@@ -902,7 +894,7 @@ Widget _fixedCsvView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ..._buildColumnChildren(_st, _setTextColorList2),
+                ..._buildColumnChildren(_st),
                 Text(border, style: _fixedTextStyle(_fontSize)),
                 Text(""),
                 Text(""),
@@ -1046,7 +1038,7 @@ List<Widget> _buildContent(
       Expanded(
         child: _st.getModeFixe()
             ? (_fileType == FileType.csv
-                  ? _fixedCsvView(_st, _setTextColorList1, _setTextColorList2)
+                  ? _fixedCsvView(_st)
                   : _fixedView(_st))
             : _normalView(_st, _fileName),
       ),
