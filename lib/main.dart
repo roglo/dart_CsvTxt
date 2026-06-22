@@ -500,15 +500,15 @@ Widget _buildButtonsChooseFile(
       ElevatedButton(
         child: Text(_t(_lang, "Choisir un fichier", "Choose a file")),
         onPressed: () async {
-          final String? file = Platform.isLinux
+          final String? path = Platform.isLinux
               // ? await _pickFile()
               ? await customPickFile(context, _initialDir)
               : await _pickFile(_st, _setState);
           // : await customPickFile(context, _initialDir);
-          if (file != null) {
-            final name = file.split("/").last;
-            _setPickedFileState(file);
-            _filePicked(_st, file, name, _setState);
+          if (path != null) {
+            final name = path.split("/").last;
+            _setPickedFileState(path);
+            _filePicked(_st, path, name, _setState);
           }
         },
       ),
@@ -841,17 +841,18 @@ List<Widget> _buildColumnChildren(
 }
 
 Widget _clickOnTarFileName(
+  States _st,
   int index,
   TarEntry entry,
-  double _fontSize,
-  ScrollController _vScrollController,
-  ScrollController _hScrollController,
   void Function(int, Color) _setTarFileNameTextColor,
   Color? Function(int) _getTarFileNameTextColor,
   void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
   _setState,
   void Function(String?, String) _setStateError,
 ) {
+  final double _fontSize = _st.getFontSize();
+  final ScrollController _vScrollController = _st.getVScrollController();
+  final ScrollController _hScrollController = _st.getHScrollController();
   return GestureDetector(
     onTap: () {
       _setTarFileNameTextColor(index, Colors.grey[300] ?? Colors.grey);
@@ -1214,11 +1215,9 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
                       ),
                       Text(" ", style: _fixedTextStyle(_fontSize)),
                       _clickOnTarFileName(
+                        _st,
                         entry.key,
                         file,
-                        _fontSize,
-                        _vScrollController,
-                        _hScrollController,
                         _setTarFileNameTextColor,
                         _getTarFileNameTextColor,
                         _setState,
