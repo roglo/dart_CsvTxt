@@ -565,7 +565,8 @@ List<(String, String)> _csvFormatLine(String def, String line) {
   return s;
 }
 
-Widget _fixedView(States _st, String content) {
+Widget _fixedView(States _st) {
+  final String _content = _st.getFileContent()!;
   final double _fontSize = _st.getFontSize();
   final ScrollController _vScrollController = _st.getVScrollController();
   final ScrollController _hScrollController = _st.getHScrollController();
@@ -575,7 +576,7 @@ Widget _fixedView(States _st, String content) {
     child: SingleChildScrollView(
       controller: _hScrollController,
       scrollDirection: Axis.horizontal,
-      child: Text(content, style: _fixedTextStyle(_fontSize)),
+      child: Text(_content, style: _fixedTextStyle(_fontSize)),
     ),
   );
 }
@@ -931,7 +932,8 @@ Widget _fixedCsvView(
   );
 }
 
-Widget _parseWithItalics(States _st, String content) {
+Widget _parseWithItalics(States _st) {
+  final String content = _st.getFileContent()!;
   return Text.rich(
     TextSpan(
       children: content.split("*").asMap().entries.expand((v) {
@@ -954,14 +956,15 @@ Widget _parseWithItalics(States _st, String content) {
   );
 }
 
-Widget _normalView(States _st, String? fileName, String content) {
+Widget _normalView(States _st, String? fileName) {
+  final String content = _st.getFileContent()!;
   return SingleChildScrollView(
     controller: _st.getVScrollController(),
     child: SingleChildScrollView(
       controller: _st.getHScrollController(),
       scrollDirection: Axis.horizontal,
       child: fileName != null && fileName.endsWith(".txt")
-          ? _parseWithItalics(_st, content)
+          ? _parseWithItalics(_st)
           : Text(content, style: TextStyle(fontSize: _st.getFontSize())),
     ),
   );
@@ -1059,13 +1062,9 @@ List<Widget> _buildContent(
       Expanded(
         child: _st.getModeFixe()
             ? (_fileType == FileType.csv
-                  ? _fixedCsvView(
-                      _st,
-                      _setTextColorList1,
-                      _setTextColorList2,
-                    )
-                  : _fixedView(_st, _fileContent))
-            : _normalView(_st, _fileName, _fileContent),
+                  ? _fixedCsvView(_st, _setTextColorList1, _setTextColorList2)
+                  : _fixedView(_st))
+            : _normalView(_st, _fileName),
       ),
   ];
 }
