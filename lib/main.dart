@@ -932,6 +932,29 @@ Widget _fixedCsvView(
   );
 }
 
+Widget _parseWithItalics(States _st, String content) {
+  return Text.rich(
+    TextSpan(
+      children: content.split("*").asMap().entries.expand((v) {
+        final int i = v.key;
+        final String txt = v.value;
+        return txt.split("_").asMap().entries.map((w) {
+          final int j = w.key;
+          final String txt2 = w.value;
+          return TextSpan(
+            text: txt2,
+            style: TextStyle(
+              fontSize: _st.getFontSize(),
+              fontWeight: (i % 2 == 1) ? FontWeight.bold : FontWeight.normal,
+              fontStyle: (j % 2 == 1) ? FontStyle.italic : FontStyle.normal,
+            ),
+          );
+        });
+      }).toList(),
+    ),
+  );
+}
+
 class _FilePickerScreenState extends State<FilePickerScreen> {
   final String _lang = PlatformDispatcher.instance.locale.languageCode;
   // final String _lang = "en"; // ← force l'anglais pour tester
@@ -1109,29 +1132,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     sync: _sync,
   );
 
-  Widget _parseWithItalics(String content) {
-    return Text.rich(
-      TextSpan(
-        children: content.split("*").asMap().entries.expand((v) {
-          final int i = v.key;
-          final String txt = v.value;
-          return txt.split("_").asMap().entries.map((w) {
-            final int j = w.key;
-            final String txt2 = w.value;
-            return TextSpan(
-              text: txt2,
-              style: TextStyle(
-                fontSize: _fontSize,
-                fontWeight: (i % 2 == 1) ? FontWeight.bold : FontWeight.normal,
-                fontStyle: (j % 2 == 1) ? FontStyle.italic : FontStyle.normal,
-              ),
-            );
-          });
-        }).toList(),
-      ),
-    );
-  }
-
   Widget _normalView(String? fileName, String content) {
     return SingleChildScrollView(
       controller: _vScrollController,
@@ -1139,7 +1139,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         controller: _hScrollController,
         scrollDirection: Axis.horizontal,
         child: fileName != null && fileName.endsWith(".txt")
-            ? _parseWithItalics(content)
+            ? _parseWithItalics(_st, content)
             : Text(content, style: TextStyle(fontSize: _fontSize)),
       ),
     );
