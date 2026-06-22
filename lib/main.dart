@@ -724,16 +724,10 @@ Future<void> _actionClickOnTarFileName(
   }
 }
 
-Widget _clickOnCsvHeaderLine(
-  States _st,
-  int index,
-  String txt,
-  double _fontSize,
-  List<CsvLine> _csvLines,
-  Color? Function(int) _getTextColorList1,
-  void Function(List<CsvLine>) _setCsvLines,
-  void Function(int, Color) _setTextColorList1,
-) {
+Widget _clickOnCsvHeaderLine(States _st, int index, String txt) {
+  final List<CsvLine> _csvLines = _st.getCsvLines();
+  final _setCsvLines = _st.setCsvLines;
+  final _setTextColorList1 = _st.setTextColorList1;
   return GestureDetector(
     onTap: () {
       _setTextColorList1(index, Colors.grey[300] ?? Colors.grey);
@@ -747,44 +741,29 @@ Widget _clickOnCsvHeaderLine(
     child: Text(
       txt,
       style: _fixedTextStyle(
-        _fontSize,
-        color: _getTextColorList1(index) ?? Colors.blue,
+        _st.getFontSize(),
+        color: _st.getTextColorList1(index) ?? Colors.blue,
       ),
     ),
   );
 }
 
-List<Widget> _buildFirstLineColumnChildren(
-  States _st,
-  double _fontSize,
-  List<CsvLine> _csvLines,
-  Color? Function(int) _getTextColorList1,
-  void Function(List<CsvLine>) _setCsvLines,
-  void Function(int, Color) _setTextColorList1,
-) {
+List<Widget> _buildFirstLineColumnChildren(States _st) {
+  final List<CsvLine> _csvLines = _st.getCsvLines();
   final (leftList, rightLists) = _csvLines.first;
   return rightLists.map((rightList) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Text("|", style: _fixedTextStyle(_fontSize)),
+        Text("|", style: _fixedTextStyle(_st.getFontSize())),
         ...rightList.asMap().entries.map((entry) {
           final int index = entry.key;
           final String txt = entry.value;
           return Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              _clickOnCsvHeaderLine(
-                _st,
-                index,
-                txt,
-                _fontSize,
-                _csvLines,
-                _getTextColorList1,
-                _setCsvLines,
-                _setTextColorList1,
-              ),
-              Text("|", style: _fixedTextStyle(_fontSize)),
+              _clickOnCsvHeaderLine(_st, index, txt),
+              Text("|", style: _fixedTextStyle(_st.getFontSize())),
             ],
           );
         }),
@@ -914,14 +893,7 @@ Widget _fixedCsvView(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(border, style: _fixedTextStyle(_fontSize)),
-        ..._buildFirstLineColumnChildren(
-          _st,
-          _fontSize,
-          _csvLines,
-          _st.getTextColorList1,
-          _st.setCsvLines,
-          _setTextColorList1,
-        ),
+        ..._buildFirstLineColumnChildren(_st),
         Text(border, style: _fixedTextStyle(_fontSize)),
         Expanded(
           child: SingleChildScrollView(
