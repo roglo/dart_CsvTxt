@@ -166,6 +166,8 @@ typedef States = ({
   int Function() getCurrentPage,
   FileType? Function() getFileType,
   double Function() getFontSize,
+  bool Function() getModeFixe,
+  bool Function() getNewVersion,
   bool Function() getLoading,
   ScrollController Function() getVScrollController,
   ScrollController Function() getHScrollController,
@@ -875,7 +877,6 @@ Widget _clickOnTarFileName(
 Widget _fixedCsvView(
   States _st,
   String content,
-  bool _newVersion,
   void Function(List<CsvLine>) _setCsvLines,
   List<CsvLine> Function() _getCsvLines,
   void Function(int, Color) _setHeaderTextColor,
@@ -887,7 +888,7 @@ Widget _fixedCsvView(
   final double _fontSize = _st.getFontSize();
   final ScrollController _vScrollController = _st.getVScrollController();
   final ScrollController _hScrollController = _st.getHScrollController();
-  if (_csvLines.isEmpty) _setCsvLines(treatCsv(content, _newVersion));
+  if (_csvLines.isEmpty) _setCsvLines(treatCsv(content, _st.getNewVersion()));
   _csvLines = _getCsvLines();
   final length =
       _csvLines.first.$2.first.fold(0, (a, s) => a + s.length) +
@@ -973,8 +974,6 @@ Widget _normalView(States _st, String? fileName, String content) {
 
 List<Widget> _buildContent(
   States _st,
-  bool _modeFixe,
-  bool _newVersion,
   int _pdfLoadCount,
   List<TarEntry> _tarList,
   List<CsvLine> Function() _getCsvLines,
@@ -1071,12 +1070,11 @@ List<Widget> _buildContent(
       )
     else if (_fileContent != null)
       Expanded(
-        child: _modeFixe
+        child: _st.getModeFixe()
             ? (_fileType == FileType.csv
                   ? _fixedCsvView(
                       _st,
                       _fileContent,
-                      _newVersion,
                       _setCsvLines,
                       _getCsvLines,
                       _setHeaderTextColor,
@@ -1183,10 +1181,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     setState(() => _modeFixe = !_modeFixe);
   }
 
-  bool _getModeFixe() {
-    return _modeFixe;
-  }
-
   void _setCsvLines(List<CsvLine> _newCsvLines) {
     setState(() => _csvLines = _newCsvLines);
   }
@@ -1228,6 +1222,8 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   int _getCurrentPage() => _currentPage;
   FileType? _getFileType() => _fileType;
   double _getFontSize() => _fontSize;
+  bool _getModeFixe() => _modeFixe;
+  bool _getNewVersion() => _newVersion;
   bool _getLoading() => _loading;
   ScrollController _getVScrollController() => _vScrollController;
   ScrollController _getHScrollController() => _hScrollController;
@@ -1262,6 +1258,8 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     getCurrentPage: _getCurrentPage,
     getFileType: _getFileType,
     getFontSize: _getFontSize,
+    getModeFixe: _getModeFixe,
+    getNewVersion: _getNewVersion,
     getLoading: _getLoading,
     getVScrollController: _getVScrollController,
     getHScrollController: _getHScrollController,
@@ -1307,8 +1305,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
           const SizedBox(height: 8),
           ..._buildContent(
             _st,
-            _modeFixe,
-            _newVersion,
             _pdfLoadCount,
             _tarList,
             _getCsvLines,
@@ -1340,8 +1336,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         children: [
           ..._buildContent(
             _st,
-            _modeFixe,
-            _newVersion,
             _pdfLoadCount,
             _tarList,
             _getCsvLines,
