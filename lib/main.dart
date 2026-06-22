@@ -164,6 +164,7 @@ typedef States = ({
   String? Function() getFileContent,
   Uint8List? Function() getBytes,
   List<TarEntry> Function() getTarList,
+  List<CsvLine> Function() getCsvLines,
   int Function() getCurrentPage,
   FileType? Function() getFileType,
   double Function() getFontSize,
@@ -811,11 +812,11 @@ Widget _clickOnCsvLine(
 
 List<Widget> _buildColumnChildren(
   States _st,
-  List<CsvLine> _csvLines,
   void Function(int, Color) _setFirstColumnTextColor,
   Color? Function(int) _getFirstColumnTextColor,
 ) {
   final double _fontSize = _st.getFontSize();
+  final List<CsvLine> _csvLines = _st.getCsvLines();
   final String firstLine = "|${_csvLines.first.$1.join('|')}|";
   return _csvLines.sublist(1).asMap().entries.expand((entry) {
     final index = entry.key;
@@ -879,19 +880,18 @@ Widget _clickOnTarFileName(
 Widget _fixedCsvView(
   States _st,
   void Function(List<CsvLine>) _setCsvLines,
-  List<CsvLine> Function() _getCsvLines,
   void Function(int, Color) _setHeaderTextColor,
   Color? Function(int) _getHeaderTextColor,
   void Function(int, Color) _setFirstColumnTextColor,
   Color? Function(int) _getFirstColumnTextColor,
 ) {
-  List<CsvLine> _csvLines = _getCsvLines();
+  List<CsvLine> _csvLines = _st.getCsvLines();
   final double _fontSize = _st.getFontSize();
   final ScrollController _vScrollController = _st.getVScrollController();
   final ScrollController _hScrollController = _st.getHScrollController();
   if (_csvLines.isEmpty)
     _setCsvLines(treatCsv(_st.getFileContent()!, _st.getNewVersion()));
-  _csvLines = _getCsvLines();
+  _csvLines = _st.getCsvLines();
   final length =
       _csvLines.first.$2.first.fold(0, (a, s) => a + s.length) +
       _csvLines.first.$2.first.length +
@@ -921,7 +921,6 @@ Widget _fixedCsvView(
               children: [
                 ..._buildColumnChildren(
                   _st,
-                  _csvLines,
                   _setFirstColumnTextColor,
                   _getFirstColumnTextColor,
                 ),
@@ -976,7 +975,6 @@ Widget _normalView(States _st, String? fileName, String content) {
 
 List<Widget> _buildContent(
   States _st,
-  List<CsvLine> Function() _getCsvLines,
   Color? Function(int) _getHeaderTextColor,
   Color? Function(int) _getFirstColumnTextColor,
   Color? Function(int) _getTarFileNameTextColor,
@@ -1076,7 +1074,6 @@ List<Widget> _buildContent(
                   ? _fixedCsvView(
                       _st,
                       _setCsvLines,
-                      _getCsvLines,
                       _setHeaderTextColor,
                       _getHeaderTextColor,
                       _setFirstColumnTextColor,
@@ -1185,10 +1182,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     setState(() => _csvLines = _newCsvLines);
   }
 
-  List<CsvLine> _getCsvLines() {
-    return _csvLines;
-  }
-
   void _setHeaderTextColor(int index, Color color) {
     setState(() => _headersTextColors[index] = color);
   }
@@ -1220,6 +1213,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   String? _getFileContent() => _fileContent;
   Uint8List? _getBytes() => _bytes;
   List<TarEntry> _getTarList() => _tarList;
+  List<CsvLine> _getCsvLines() => _csvLines;
   int _getCurrentPage() => _currentPage;
   FileType? _getFileType() => _fileType;
   double _getFontSize() => _fontSize;
@@ -1258,6 +1252,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     getFileContent: _getFileContent,
     getBytes: _getBytes,
     getTarList: _getTarList,
+    getCsvLines: _getCsvLines,
     getCurrentPage: _getCurrentPage,
     getFileType: _getFileType,
     getFontSize: _getFontSize,
@@ -1309,7 +1304,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
           const SizedBox(height: 8),
           ..._buildContent(
             _st,
-            _getCsvLines,
             _getHeaderTextColor,
             _getFirstColumnTextColor,
             _getTarFileNameTextColor,
@@ -1338,7 +1332,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         children: [
           ..._buildContent(
             _st,
-            _getCsvLines,
             _getHeaderTextColor,
             _getFirstColumnTextColor,
             _getTarFileNameTextColor,
