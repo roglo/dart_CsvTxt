@@ -183,6 +183,7 @@ typedef States = ({
   void Function(bool) setLoading,
   void Function(int, Color) setTextColorList1,
   void Function(int, Color) setTextColorList2,
+  void Function() switchNewVersion,
   void Function() sync,
 });
 
@@ -953,8 +954,6 @@ List<Widget> _buildContent(
   final int _currentPage = _st.getCurrentPage();
   final int _pdfLoadCount = _st.getPdfLoadCount();
   final PdfViewerController _pdfController = _st.getPdfController();
-  final _setTextColorList1 = _st.setTextColorList1;
-  final _setTextColorList2 = _st.setTextColorList2;
   return [
     if (_fileType == FileType.image)
       ConstrainedBox(
@@ -1032,6 +1031,81 @@ List<Widget> _buildContent(
             : _normalView(_st, _fileName),
       ),
   ];
+}
+
+Widget _buildNormal(
+  States _st,
+  bool _dirFromButton,
+  String? _errorMessage,
+  void Function(String) _setPickedFileState,
+  void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
+  _setState,
+  void Function(String?, String) _setStateError,
+  void Function() _switchModeFixe,
+) {
+  final FileType? _fileType = _st.getFileType();
+  final String? _fileName = _st.getFileName();
+  if (Platform.isLinux ||
+      MediaQuery.of(_st.getContext()).orientation == Orientation.portrait) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 40),
+        if (_dirFromButton)
+          _buildButtonsChooseFile(
+            _st,
+            _errorMessage,
+            _setPickedFileState,
+            _setState,
+            _switchModeFixe,
+          ),
+        if ((!_dirFromButton || _fileName != null) &&
+            _fileType != FileType.image &&
+            _errorMessage == null) ...[
+          const SizedBox(width: 16),
+          _buildRowButtonSizeAndJump(_st),
+        ],
+        const SizedBox(height: 16),
+        if (_fileName != null)
+          Text(
+            "Fichier : $_fileName",
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+        const SizedBox(height: 8),
+        if (_errorMessage != null)
+          Text(_errorMessage, style: const TextStyle(color: Colors.red)),
+
+        const SizedBox(height: 8),
+        ..._buildContent(_st, _setState, _setStateError),
+        if (_st.getFileContent() != null &&
+            _fileType == FileType.csv &&
+            _st.getModeFixe())
+          ElevatedButton(
+            onPressed: () {
+              _st.switchNewVersion();
+              _st.setCsvLines([]);
+              _st.sync();
+            },
+            child: Text(
+              _st.getNewVersion() ? "Une ligne par entrée" : "Colonnes courtes",
+            ),
+          ),
+      ],
+    );
+  } else {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ..._buildContent(_st, _setState, _setStateError),
+        if ((!_dirFromButton || _fileName != null) &&
+            _fileType != FileType.image &&
+            _errorMessage == null) ...[
+          const SizedBox(height: 16),
+          _buildColumnButtonsJump(_st),
+        ],
+      ],
+    );
+  }
 }
 
 class _FilePickerScreenState extends State<FilePickerScreen> {
@@ -1170,6 +1244,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
       _textColorsList1[index] = color;
   void _setTextColorList2(int index, Color color) =>
       _textColorsList2[index] = color;
+  void _switchNewVersion() => _newVersion = !_newVersion;
   void _sync() => setState(() {});
 
   late States _st = (
@@ -1199,69 +1274,9 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     setLoading: _setLoading,
     setTextColorList1: _setTextColorList1,
     setTextColorList2: _setTextColorList2,
+    switchNewVersion: _switchNewVersion,
     sync: _sync,
   );
-
-  Widget _buildNormal() {
-    if (Platform.isLinux ||
-        MediaQuery.of(context).orientation == Orientation.portrait) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 40),
-          if (_dirFromButton)
-            _buildButtonsChooseFile(
-              _st,
-              _errorMessage,
-              _setPickedFileState,
-              _setState,
-              _switchModeFixe,
-            ),
-          if ((!_dirFromButton || _fileName != null) &&
-              _fileType != FileType.image &&
-              _errorMessage == null) ...[
-            const SizedBox(width: 16),
-            _buildRowButtonSizeAndJump(_st),
-          ],
-          const SizedBox(height: 16),
-          if (_fileName != null)
-            Text(
-              "Fichier : $_fileName",
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-          const SizedBox(height: 8),
-          if (_errorMessage != null)
-            Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
-
-          const SizedBox(height: 8),
-          ..._buildContent(_st, _setState, _setStateError),
-          if (_fileContent != null && _fileType == FileType.csv && _modeFixe)
-            ElevatedButton(
-              onPressed: () => setState(() {
-                _newVersion = !_newVersion;
-                _csvLines = [];
-              }),
-              child: Text(
-                _newVersion ? "Une ligne par entrée" : "Colonnes courtes",
-              ),
-            ),
-        ],
-      );
-    } else {
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ..._buildContent(_st, _setState, _setStateError),
-          if ((!_dirFromButton || _fileName != null) &&
-              _fileType != FileType.image &&
-              _errorMessage == null) ...[
-            const SizedBox(height: 16),
-            _buildColumnButtonsJump(_st),
-          ],
-        ],
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -1291,7 +1306,15 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(16),
-            child: _buildNormal(),
+            child: _buildNormal(
+              _st,
+              _dirFromButton,
+              _errorMessage,
+              _setPickedFileState,
+              _setState,
+              _setStateError,
+              _switchModeFixe,
+            ),
           ),
         ),
       );
