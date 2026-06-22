@@ -554,12 +554,10 @@ List<(String, String)> _csvFormatLine(String def, String line) {
   return s;
 }
 
-Widget _fixedView(
-  String content,
-  double _fontSize,
-  ScrollController _vScrollController,
-  ScrollController _hScrollController,
-) {
+Widget _fixedView(States _st, String content) {
+  final double _fontSize = _st.getFontSize();
+  final ScrollController _vScrollController = _st.getVScrollController();
+  final ScrollController _hScrollController = _st.getHScrollController();
   return SingleChildScrollView(
     controller: _vScrollController,
     scrollDirection: Axis.vertical,
@@ -1254,12 +1252,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
                         _setFirstColumnTextColor,
                         _getFirstColumnTextColor,
                       )
-                    : _fixedView(
-                        _fileContent!,
-                        _fontSize,
-                        _vScrollController,
-                        _hScrollController,
-                      ))
+                    : _fixedView(_st, _fileContent!))
               : _normalView(_fileName, _fileContent!),
         ),
     ];
