@@ -915,10 +915,7 @@ Widget _fixedCsvView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ..._buildColumnChildren(
-                  _st,
-                  _setTextColorList2,
-                ),
+                ..._buildColumnChildren(_st, _setTextColorList2),
                 Text(border, style: _fixedTextStyle(_fontSize)),
                 Text(""),
                 Text(""),
