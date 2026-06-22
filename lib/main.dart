@@ -158,6 +158,7 @@ Future<Uint8List> readFilePart(String filePath, int pos, int size) async {
 
 typedef States = ({
   BuildContext Function() getContext,
+  String Function() getLang,
   int Function() getCurrentPage,
   FileType? Function() getFileType,
   double Function() getFontSize,
@@ -480,7 +481,6 @@ String _t(String _lang, String fr, String en) => _lang == "fr" ? fr : en;
 
 Widget _buildButtonsChooseFile(
   States _st,
-  String _lang,
   String? _initialDir,
   String? _fileName,
   String? _errorMessage,
@@ -491,6 +491,7 @@ Widget _buildButtonsChooseFile(
   bool Function() _getModeFixe,
 ) {
   final BuildContext context = _st.getContext();
+  final String _lang = _st.getLang();
   final FileType? _fileType = _st.getFileType();
   return Row(
     children: [
@@ -1073,6 +1074,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   }
 
   BuildContext _getContext() => context;
+  String _getLang() => _lang;
   int _getCurrentPage() => _currentPage;
   FileType? _getFileType() => _fileType;
   double _getFontSize() => _fontSize;
@@ -1101,6 +1103,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
 
   late States _st = (
     getContext: _getContext,
+    getLang: _getLang,
     getCurrentPage: _getCurrentPage,
     getFileType: _getFileType,
     getFontSize: _getFontSize,
@@ -1267,7 +1270,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
           if (_dirFromButton)
             _buildButtonsChooseFile(
               _st,
-              _lang,
               _initialDir,
               _fileName,
               _errorMessage,
