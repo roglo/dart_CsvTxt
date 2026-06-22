@@ -671,13 +671,14 @@ void _openFile(
 }
 
 Future<void> _actionClickOnTarFileName(
+  States _st,
   TarEntry entry,
-  ScrollController _vScrollController,
-  ScrollController _hScrollController,
   void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
   _setState,
   void Function(String?, String) _setStateError,
 ) async {
+  final ScrollController _vScrollController = _st.getVScrollController();
+  final ScrollController _hScrollController = _st.getHScrollController();
   final String tarFileName = entry.tarFilePath.split("/").last;
   _vScrollController.jumpTo(0);
   _hScrollController.jumpTo(0);
@@ -807,7 +808,6 @@ List<Widget> _buildColumnChildren(
   void Function(int, Color) _setFirstColumnTextColor,
   Color? Function(int) _getFirstColumnTextColor,
 ) {
-  final BuildContext context = _st.getContext();
   final double _fontSize = _st.getFontSize();
   final String firstLine = "|${_csvLines.first.$1.join('|')}|";
   return _csvLines.sublist(1).asMap().entries.expand((entry) {
@@ -851,20 +851,12 @@ Widget _clickOnTarFileName(
   void Function(String?, String) _setStateError,
 ) {
   final double _fontSize = _st.getFontSize();
-  final ScrollController _vScrollController = _st.getVScrollController();
-  final ScrollController _hScrollController = _st.getHScrollController();
   return GestureDetector(
     onTap: () {
       _setTarFileNameTextColor(index, Colors.grey[300] ?? Colors.grey);
       Future.delayed(const Duration(milliseconds: 100), () {
         _setTarFileNameTextColor(index, Colors.blue);
-        _actionClickOnTarFileName(
-          entry,
-          _vScrollController,
-          _hScrollController,
-          _setState,
-          _setStateError,
-        );
+        _actionClickOnTarFileName(_st, entry, _setState, _setStateError);
       });
     },
     child: Text(
