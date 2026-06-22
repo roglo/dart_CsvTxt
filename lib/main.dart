@@ -159,6 +159,8 @@ Future<Uint8List> readFilePart(String filePath, int pos, int size) async {
 typedef States = ({
   BuildContext Function() getContext,
   String Function() getLang,
+  String? Function() getInitialDir,
+  String? Function() getFileName,
   int Function() getCurrentPage,
   FileType? Function() getFileType,
   double Function() getFontSize,
@@ -481,8 +483,6 @@ String _t(String _lang, String fr, String en) => _lang == "fr" ? fr : en;
 
 Widget _buildButtonsChooseFile(
   States _st,
-  String? _initialDir,
-  String? _fileName,
   String? _errorMessage,
   void Function(String) _setPickedFileState,
   void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
@@ -492,6 +492,8 @@ Widget _buildButtonsChooseFile(
 ) {
   final BuildContext context = _st.getContext();
   final String _lang = _st.getLang();
+  final String? _initialDir = _st.getInitialDir();
+  final String? _fileName = _st.getFileName();
   final FileType? _fileType = _st.getFileType();
   return Row(
     children: [
@@ -783,7 +785,6 @@ Widget _clickOnCsvLine(
   Color? Function(int) _getFirstColumnTextColor,
 ) {
   final double _fontSize = _st.getFontSize();
-  final BuildContext context = _st.getContext();
   return GestureDetector(
     onTap: () {
       _setFirstColumnTextColor(index, Colors.grey[300] ?? Colors.grey);
@@ -1075,6 +1076,8 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
 
   BuildContext _getContext() => context;
   String _getLang() => _lang;
+  String? _getInitialDir() => _initialDir;
+  String? _getFileName() => _fileName;
   int _getCurrentPage() => _currentPage;
   FileType? _getFileType() => _fileType;
   double _getFontSize() => _fontSize;
@@ -1104,6 +1107,8 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   late States _st = (
     getContext: _getContext,
     getLang: _getLang,
+    getInitialDir: _getInitialDir,
+    getFileName: _getFileName,
     getCurrentPage: _getCurrentPage,
     getFileType: _getFileType,
     getFontSize: _getFontSize,
@@ -1270,8 +1275,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
           if (_dirFromButton)
             _buildButtonsChooseFile(
               _st,
-              _initialDir,
-              _fileName,
               _errorMessage,
               _setPickedFileState,
               _setState,
