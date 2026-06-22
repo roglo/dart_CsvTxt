@@ -876,7 +876,6 @@ Widget _clickOnTarFileName(
 
 Widget _fixedCsvView(
   States _st,
-  String content,
   void Function(List<CsvLine>) _setCsvLines,
   List<CsvLine> Function() _getCsvLines,
   void Function(int, Color) _setHeaderTextColor,
@@ -888,7 +887,8 @@ Widget _fixedCsvView(
   final double _fontSize = _st.getFontSize();
   final ScrollController _vScrollController = _st.getVScrollController();
   final ScrollController _hScrollController = _st.getHScrollController();
-  if (_csvLines.isEmpty) _setCsvLines(treatCsv(content, _st.getNewVersion()));
+  if (_csvLines.isEmpty)
+    _setCsvLines(treatCsv(_st.getFileContent()!, _st.getNewVersion()));
   _csvLines = _getCsvLines();
   final length =
       _csvLines.first.$2.first.fold(0, (a, s) => a + s.length) +
@@ -1074,7 +1074,6 @@ List<Widget> _buildContent(
             ? (_fileType == FileType.csv
                   ? _fixedCsvView(
                       _st,
-                      _fileContent,
                       _setCsvLines,
                       _getCsvLines,
                       _setHeaderTextColor,
