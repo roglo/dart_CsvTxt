@@ -501,7 +501,6 @@ Widget _buildButtonsChooseFile(
   void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
   _setState,
   void Function() _switchModeFixe,
-  bool Function() _getModeFixe,
 ) {
   final BuildContext context = _st.getContext();
   final String _lang = _st.getLang();
@@ -533,7 +532,7 @@ Widget _buildButtonsChooseFile(
         const SizedBox(width: 16),
         ElevatedButton(
           onPressed: () => _switchModeFixe(),
-          child: Text(_getModeFixe() ? "Mode normal" : "Mode fixe"),
+          child: Text(_st.getModeFixe() ? "Mode normal" : "Mode fixe"),
         ),
       ],
     ],
@@ -831,7 +830,6 @@ Widget _clickOnTarFileName(
   States _st,
   int index,
   TarEntry entry,
-  void Function(int, Color) _setTextColorList1,
   void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
   _setState,
   void Function(String?, String) _setStateError,
@@ -839,10 +837,10 @@ Widget _clickOnTarFileName(
   final double _fontSize = _st.getFontSize();
   return GestureDetector(
     onTap: () {
-      _setTextColorList1(index, Colors.grey[300] ?? Colors.grey);
+      _st.setTextColorList1(index, Colors.grey[300] ?? Colors.grey);
       _st.sync();
       Future.delayed(const Duration(milliseconds: 100), () {
-        _setTextColorList1(index, Colors.blue);
+        _st.setTextColorList1(index, Colors.blue);
         _st.sync();
         _actionClickOnTarFileName(_st, entry, _setState, _setStateError);
       });
@@ -1017,7 +1015,6 @@ List<Widget> _buildContent(
                       _st,
                       entry.key,
                       file,
-                      _setTextColorList1,
                       _setState,
                       _setStateError,
                     ),
@@ -1219,7 +1216,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
               _setPickedFileState,
               _setState,
               _switchModeFixe,
-              _getModeFixe,
             ),
           if ((!_dirFromButton || _fileName != null) &&
               _fileType != FileType.image &&
