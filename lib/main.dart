@@ -1214,9 +1214,9 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
 
   void _setLoading(bool loading) => _loading = loading;
   void _setTextColorList1(int index, Color color) =>
-    _textColorsList1[index] = color;
+      _textColorsList1[index] = color;
   void _setTextColorList2(int index, Color color) =>
-    _textColorsList2[index] = color;
+      _textColorsList2[index] = color;
   void _sync() => setState(() {});
 
   late States _st = (
