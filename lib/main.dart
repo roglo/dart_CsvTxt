@@ -168,6 +168,7 @@ typedef States = ({
   ScrollController Function() getVScrollController,
   ScrollController Function() getHScrollController,
   PdfViewerController Function() getPdfController,
+  void Function(int) setCurrentPage,
   void Function(double) setFontSize,
   void Function(bool) setLoading,
   void Function() sync,
@@ -715,9 +716,9 @@ Widget _clickOnCsvHeaderLine(
   String txt,
   double _fontSize,
   List<CsvLine> _csvLines,
+  Color? Function(int) _getHeaderTextColor,
   void Function(List<CsvLine>) _setCsvLines,
   void Function(int, Color) _setHeaderTextColor,
-  Color? Function(int) _getHeaderTextColor,
 ) {
   return GestureDetector(
     onTap: () {
@@ -761,9 +762,9 @@ List<Widget> _buildFirstLineColumnChildren(
                 txt,
                 _fontSize,
                 _csvLines,
+                _getHeaderTextColor,
                 _setCsvLines,
                 _setHeaderTextColor,
-                _getHeaderTextColor,
               ),
               Text("|", style: _fixedTextStyle(_fontSize)),
             ],
@@ -844,8 +845,8 @@ Widget _clickOnTarFileName(
   States _st,
   int index,
   TarEntry entry,
-  void Function(int, Color) _setTarFileNameTextColor,
   Color? Function(int) _getTarFileNameTextColor,
+  void Function(int, Color) _setTarFileNameTextColor,
   void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
   _setState,
   void Function(String?, String) _setStateError,
@@ -966,6 +967,125 @@ Widget _normalView(States _st, String? fileName, String content) {
           : Text(content, style: TextStyle(fontSize: _st.getFontSize())),
     ),
   );
+}
+
+List<Widget> _buildContent(
+  States _st,
+  Uint8List? _bytes,
+  String? _fileContent,
+  bool _modeFixe,
+  bool _newVersion,
+  int _pdfLoadCount,
+  List<TarEntry> _tarList,
+  List<CsvLine> Function() _getCsvLines,
+  Color? Function(int) _getHeaderTextColor,
+  Color? Function(int) _getFirstColumnTextColor,
+  Color? Function(int) _getTarFileNameTextColor,
+  void Function(List<CsvLine>) _setCsvLines,
+  void Function(int, Color) _setHeaderTextColor,
+  void Function(int, Color) _setFirstColumnTextColor,
+  void Function(int, Color) _setTarFileNameTextColor,
+  void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
+  _setState,
+  void Function(String?, String) _setStateError,
+) {
+  final BuildContext context = _st.getContext();
+  final FileType? _fileType = _st.getFileType();
+  final String? _fileName = _st.getFileName();
+  final double _fontSize = _st.getFontSize();
+  final int _currentPage = _st.getCurrentPage();
+  final PdfViewerController _pdfController = _st.getPdfController();
+  return [
+    if (_fileType == FileType.image)
+      ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width,
+          maxHeight: MediaQuery.of(context).size.height,
+        ),
+        child: InteractiveViewer(
+          minScale: 0.1,
+          maxScale: 4.0,
+          constrained: true,
+          child: Image.memory(_bytes!, fit: BoxFit.contain),
+        ),
+      )
+    else if (_fileType == FileType.pdf)
+      Expanded(
+        child: PdfViewer.data(
+          _bytes!,
+          key: ValueKey(_fileName == null ? "1" : "$_fileName-$_pdfLoadCount"),
+          sourceName: _fileName == null ? "" : _fileName,
+          controller: _pdfController,
+          initialPageNumber: _currentPage,
+          params: PdfViewerParams(
+            scrollByMouseWheel: 1.0,
+            onPageChanged: (page) {
+              _st.setCurrentPage(page!);
+              _st.sync();
+            },
+          ),
+        ),
+      )
+    else if (_fileType == FileType.tar)
+      Expanded(
+        child: SingleChildScrollView(
+          controller: _st.getVScrollController(),
+          child: SingleChildScrollView(
+            controller: _st.getHScrollController(),
+            scrollDirection: Axis.horizontal,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: _tarList.asMap().entries.map((entry) {
+                final file = entry.value;
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(file.tperm, style: _fixedTextStyle(_fontSize)),
+                    Text(" ", style: _fixedTextStyle(_fontSize)),
+                    Text(file.uname, style: _fixedTextStyle(_fontSize)),
+                    Text("/", style: _fixedTextStyle(_fontSize)),
+                    Text(file.gname, style: _fixedTextStyle(_fontSize)),
+                    Text(" ", style: _fixedTextStyle(_fontSize)),
+                    Text(
+                      file.size.toString().padLeft(8),
+                      style: _fixedTextStyle(_fontSize),
+                    ),
+                    Text(" ", style: _fixedTextStyle(_fontSize)),
+                    _clickOnTarFileName(
+                      _st,
+                      entry.key,
+                      file,
+                      _getTarFileNameTextColor,
+                      _setTarFileNameTextColor,
+                      _setState,
+                      _setStateError,
+                    ),
+                  ],
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      )
+    else if (_fileContent != null)
+      Expanded(
+        child: _modeFixe
+            ? (_fileType == FileType.csv
+                  ? _fixedCsvView(
+                      _st,
+                      _fileContent,
+                      _newVersion,
+                      _setCsvLines,
+                      _getCsvLines,
+                      _setHeaderTextColor,
+                      _getHeaderTextColor,
+                      _setFirstColumnTextColor,
+                      _getFirstColumnTextColor,
+                    )
+                  : _fixedView(_st, _fileContent))
+            : _normalView(_st, _fileName, _fileContent),
+      ),
+  ];
 }
 
 class _FilePickerScreenState extends State<FilePickerScreen> {
@@ -1109,6 +1229,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   ScrollController _getVScrollController() => _vScrollController;
   ScrollController _getHScrollController() => _hScrollController;
   PdfViewerController _getPdfController() => _pdfController;
+  void _setCurrentPage(int page) => _currentPage = page;
 
   void _setFontSize(double newFontSize) {
     final double oldFontSize = _fontSize;
@@ -1140,107 +1261,11 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     getVScrollController: _getVScrollController,
     getHScrollController: _getHScrollController,
     getPdfController: _getPdfController,
+    setCurrentPage: _setCurrentPage,
     setFontSize: _setFontSize,
     setLoading: _setLoading,
     sync: _sync,
   );
-
-  List<Widget> _buildContent() {
-    return [
-      if (_fileType == FileType.image)
-        ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: MediaQuery.of(context).size.width,
-            maxHeight: MediaQuery.of(context).size.height,
-          ),
-          child: InteractiveViewer(
-            minScale: 0.1,
-            maxScale: 4.0,
-            constrained: true,
-            child: Image.memory(_bytes!, fit: BoxFit.contain),
-          ),
-        )
-      else if (_fileType == FileType.pdf)
-        Expanded(
-          child: PdfViewer.data(
-            _bytes!,
-            key: ValueKey(
-              _fileName == null ? "1" : "$_fileName-$_pdfLoadCount",
-            ),
-            sourceName: _fileName == null ? "" : _fileName!,
-            controller: _pdfController,
-            initialPageNumber: _currentPage,
-            params: PdfViewerParams(
-              scrollByMouseWheel: 1.0,
-              onPageChanged: (page) {
-                setState(() {
-                  _currentPage = page!;
-                });
-              },
-            ),
-          ),
-        )
-      else if (_fileType == FileType.tar)
-        Expanded(
-          child: SingleChildScrollView(
-            controller: _vScrollController,
-            child: SingleChildScrollView(
-              controller: _hScrollController,
-              scrollDirection: Axis.horizontal,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: _tarList.asMap().entries.map((entry) {
-                  final file = entry.value;
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text(file.tperm, style: _fixedTextStyle(_fontSize)),
-                      Text(" ", style: _fixedTextStyle(_fontSize)),
-                      Text(file.uname, style: _fixedTextStyle(_fontSize)),
-                      Text("/", style: _fixedTextStyle(_fontSize)),
-                      Text(file.gname, style: _fixedTextStyle(_fontSize)),
-                      Text(" ", style: _fixedTextStyle(_fontSize)),
-                      Text(
-                        file.size.toString().padLeft(8),
-                        style: _fixedTextStyle(_fontSize),
-                      ),
-                      Text(" ", style: _fixedTextStyle(_fontSize)),
-                      _clickOnTarFileName(
-                        _st,
-                        entry.key,
-                        file,
-                        _setTarFileNameTextColor,
-                        _getTarFileNameTextColor,
-                        _setState,
-                        _setStateError,
-                      ),
-                    ],
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
-        )
-      else if (_fileContent != null)
-        Expanded(
-          child: _modeFixe
-              ? (_fileType == FileType.csv
-                    ? _fixedCsvView(
-                        _st,
-                        _fileContent!,
-                        _newVersion,
-                        _setCsvLines,
-                        _getCsvLines,
-                        _setHeaderTextColor,
-                        _getHeaderTextColor,
-                        _setFirstColumnTextColor,
-                        _getFirstColumnTextColor,
-                      )
-                    : _fixedView(_st, _fileContent!))
-              : _normalView(_st, _fileName, _fileContent!),
-        ),
-    ];
-  }
 
   Widget _buildNormal() {
     if (Platform.isLinux ||
@@ -1275,7 +1300,25 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
             Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
 
           const SizedBox(height: 8),
-          ..._buildContent(),
+          ..._buildContent(
+            _st,
+            _bytes,
+            _fileContent,
+            _modeFixe,
+            _newVersion,
+            _pdfLoadCount,
+            _tarList,
+            _getCsvLines,
+            _getHeaderTextColor,
+            _getFirstColumnTextColor,
+            _getTarFileNameTextColor,
+            _setCsvLines,
+            _setHeaderTextColor,
+            _setFirstColumnTextColor,
+            _setTarFileNameTextColor,
+            _setState,
+            _setStateError,
+          ),
           if (_fileContent != null && _fileType == FileType.csv && _modeFixe)
             ElevatedButton(
               onPressed: () => setState(() {
@@ -1292,7 +1335,25 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ..._buildContent(),
+          ..._buildContent(
+            _st,
+            _bytes,
+            _fileContent,
+            _modeFixe,
+            _newVersion,
+            _pdfLoadCount,
+            _tarList,
+            _getCsvLines,
+            _getHeaderTextColor,
+            _getFirstColumnTextColor,
+            _getTarFileNameTextColor,
+            _setCsvLines,
+            _setHeaderTextColor,
+            _setFirstColumnTextColor,
+            _setTarFileNameTextColor,
+            _setState,
+            _setStateError,
+          ),
           if ((!_dirFromButton || _fileName != null) &&
               _fileType != FileType.image &&
               _errorMessage == null) ...[
