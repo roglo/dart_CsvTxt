@@ -955,6 +955,19 @@ Widget _parseWithItalics(States _st, String content) {
   );
 }
 
+Widget _normalView(States _st, String? fileName, String content) {
+  return SingleChildScrollView(
+    controller: _st.getVScrollController(),
+    child: SingleChildScrollView(
+      controller: _st.getHScrollController(),
+      scrollDirection: Axis.horizontal,
+      child: fileName != null && fileName.endsWith(".txt")
+          ? _parseWithItalics(_st, content)
+          : Text(content, style: TextStyle(fontSize: _st.getFontSize())),
+    ),
+  );
+}
+
 class _FilePickerScreenState extends State<FilePickerScreen> {
   final String _lang = PlatformDispatcher.instance.locale.languageCode;
   // final String _lang = "en"; // ← force l'anglais pour tester
@@ -1132,19 +1145,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     sync: _sync,
   );
 
-  Widget _normalView(String? fileName, String content) {
-    return SingleChildScrollView(
-      controller: _vScrollController,
-      child: SingleChildScrollView(
-        controller: _hScrollController,
-        scrollDirection: Axis.horizontal,
-        child: fileName != null && fileName.endsWith(".txt")
-            ? _parseWithItalics(_st, content)
-            : Text(content, style: TextStyle(fontSize: _fontSize)),
-      ),
-    );
-  }
-
   List<Widget> _buildContent() {
     return [
       if (_fileType == FileType.image)
@@ -1237,7 +1237,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
                         _getFirstColumnTextColor,
                       )
                     : _fixedView(_st, _fileContent!))
-              : _normalView(_fileName, _fileContent!),
+              : _normalView(_st, _fileName, _fileContent!),
         ),
     ];
   }
