@@ -157,6 +157,7 @@ Future<Uint8List> readFilePart(String filePath, int pos, int size) async {
 }
 
 typedef States = ({
+  BuildContext Function() getContext,
   int Function() getCurrentPage,
   FileType? Function() getFileType,
   double Function() getFontSize,
@@ -479,7 +480,6 @@ String _t(String _lang, String fr, String en) => _lang == "fr" ? fr : en;
 
 Widget _buildButtonsChooseFile(
   States _st,
-  BuildContext context,
   String _lang,
   String? _initialDir,
   String? _fileName,
@@ -491,6 +491,7 @@ Widget _buildButtonsChooseFile(
   void Function() _switchModeFixe,
   bool Function() _getModeFixe,
 ) {
+  final BuildContext context = _st.getContext();
   return Row(
     children: [
       ElevatedButton(
@@ -607,12 +608,9 @@ List<CsvLine> _actionClickOnCsvHeaderLine(
   return r;
 }
 
-void _actionClickOnCsvLine(
-  BuildContext context,
-  double _fontSize,
-  String def,
-  String line,
-) {
+void _actionClickOnCsvLine(States _st, String def, String line) {
+  final BuildContext context = _st.getContext();
+  final double _fontSize = _st.getFontSize();
   final List<(String, String)> s = _csvFormatLine(def, line);
   showDialog(
     context: context,
@@ -775,21 +773,22 @@ List<Widget> _buildFirstLineColumnChildren(
 }
 
 Widget _clickOnCsvLine(
+  States _st,
   int index,
   String def,
   String line,
   String txt,
-  double _fontSize,
-  BuildContext context,
   void Function(int, Color) _setFirstColumnTextColor,
   Color? Function(int) _getFirstColumnTextColor,
 ) {
+  final double _fontSize = _st.getFontSize();
+  final BuildContext context = _st.getContext();
   return GestureDetector(
     onTap: () {
       _setFirstColumnTextColor(index, Colors.grey[300] ?? Colors.grey);
       Future.delayed(const Duration(milliseconds: 300), () {
         _setFirstColumnTextColor(index, Colors.blue);
-        _actionClickOnCsvLine(context, _fontSize, def, line);
+        _actionClickOnCsvLine(_st, def, line);
       });
     },
     child: Text(
@@ -803,6 +802,7 @@ Widget _clickOnCsvLine(
 }
 
 List<Widget> _buildColumnChildren(
+  States _st,
   List<CsvLine> _csvLines,
   double _fontSize,
   BuildContext context,
@@ -822,12 +822,11 @@ List<Widget> _buildColumnChildren(
         children: [
           Text("|", style: _fixedTextStyle(_fontSize)),
           _clickOnCsvLine(
+            _st,
             index,
             firstLine,
             currentLine,
             firstField,
-            _fontSize,
-            context,
             _setFirstColumnTextColor,
             _getFirstColumnTextColor,
           ),
@@ -878,6 +877,7 @@ Widget _clickOnTarFileName(
 }
 
 Widget _fixedCsvView(
+  States _st,
   BuildContext context,
   String content,
   double _fontSize,
@@ -922,6 +922,7 @@ Widget _fixedCsvView(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ..._buildColumnChildren(
+                  _st,
                   _csvLines,
                   _fontSize,
                   context,
@@ -1071,6 +1072,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     return _tarFileNameTextColors[index];
   }
 
+  BuildContext _getContext() => context;
   int _getCurrentPage() => _currentPage;
   FileType? _getFileType() => _fileType;
   double _getFontSize() => _fontSize;
@@ -1098,6 +1100,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   void _sync() => setState(() {});
 
   late States _st = (
+    getContext: _getContext,
     getCurrentPage: _getCurrentPage,
     getFileType: _getFileType,
     getFontSize: _getFontSize,
@@ -1229,6 +1232,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
           child: _modeFixe
               ? (_fileType == FileType.csv
                     ? _fixedCsvView(
+                        _st,
                         context,
                         _fileContent!,
                         _fontSize,
@@ -1263,7 +1267,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
           if (_dirFromButton)
             _buildButtonsChooseFile(
               _st,
-              context,
               _lang,
               _initialDir,
               _fileName,
