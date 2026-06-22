@@ -161,6 +161,7 @@ typedef States = ({
   String Function() getLang,
   String? Function() getInitialDir,
   String? Function() getFileName,
+  Uint8List? Function() getBytes,
   int Function() getCurrentPage,
   FileType? Function() getFileType,
   double Function() getFontSize,
@@ -971,7 +972,6 @@ Widget _normalView(States _st, String? fileName, String content) {
 
 List<Widget> _buildContent(
   States _st,
-  Uint8List? _bytes,
   String? _fileContent,
   bool _modeFixe,
   bool _newVersion,
@@ -990,6 +990,7 @@ List<Widget> _buildContent(
   void Function(String?, String) _setStateError,
 ) {
   final BuildContext context = _st.getContext();
+  final Uint8List? _bytes = _st.getBytes();
   final FileType? _fileType = _st.getFileType();
   final String? _fileName = _st.getFileName();
   final double _fontSize = _st.getFontSize();
@@ -1221,6 +1222,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   String _getLang() => _lang;
   String? _getInitialDir() => _initialDir;
   String? _getFileName() => _fileName;
+  Uint8List? _getBytes() => _bytes;
   int _getCurrentPage() => _currentPage;
   FileType? _getFileType() => _fileType;
   double _getFontSize() => _fontSize;
@@ -1253,6 +1255,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     getLang: _getLang,
     getInitialDir: _getInitialDir,
     getFileName: _getFileName,
+    getBytes: _getBytes,
     getCurrentPage: _getCurrentPage,
     getFileType: _getFileType,
     getFontSize: _getFontSize,
@@ -1301,7 +1304,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
           const SizedBox(height: 8),
           ..._buildContent(
             _st,
-            _bytes,
             _fileContent,
             _modeFixe,
             _newVersion,
@@ -1336,7 +1338,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         children: [
           ..._buildContent(
             _st,
-            _bytes,
             _fileContent,
             _modeFixe,
             _newVersion,
