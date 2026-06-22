@@ -956,8 +956,6 @@ Widget _normalView(States _st, String? fileName) {
 
 List<Widget> _buildContent(
   States _st,
-  void Function(int, Color) _setTextColorList1,
-  void Function(int, Color) _setTextColorList2,
   void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
   _setState,
   void Function(String?, String) _setStateError,
@@ -971,6 +969,8 @@ List<Widget> _buildContent(
   final int _currentPage = _st.getCurrentPage();
   final int _pdfLoadCount = _st.getPdfLoadCount();
   final PdfViewerController _pdfController = _st.getPdfController();
+  final _setTextColorList1 = _st.setTextColorList1;
+  final _setTextColorList2 = _st.setTextColorList2;
   return [
     if (_fileType == FileType.image)
       ConstrainedBox(
@@ -1254,13 +1254,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
             Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
 
           const SizedBox(height: 8),
-          ..._buildContent(
-            _st,
-            _setTextColorList1,
-            _setTextColorList2,
-            _setState,
-            _setStateError,
-          ),
+          ..._buildContent(_st, _setState, _setStateError),
           if (_fileContent != null && _fileType == FileType.csv && _modeFixe)
             ElevatedButton(
               onPressed: () => setState(() {
@@ -1277,13 +1271,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ..._buildContent(
-            _st,
-            _setTextColorList1,
-            _setTextColorList2,
-            _setState,
-            _setStateError,
-          ),
+          ..._buildContent(_st, _setState, _setStateError),
           if ((!_dirFromButton || _fileName != null) &&
               _fileType != FileType.image &&
               _errorMessage == null) ...[
