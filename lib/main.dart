@@ -1151,13 +1151,12 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   }
 
   void _setStateError(String? filename, String msg) {
-    setState(() {
-      _fileType = FileType.txt;
-      _fileName = filename;
-      _fileContent = null;
-      _bytes = null;
-      _errorMessage = msg;
-    });
+    _fileType = FileType.txt;
+    _fileName = filename;
+    _fileContent = null;
+    _bytes = null;
+    _errorMessage = msg;
+    setState(() {});
   }
 
   void _setState(
