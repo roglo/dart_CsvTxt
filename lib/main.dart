@@ -483,7 +483,6 @@ Widget _buildButtonsChooseFile(
   String _lang,
   String? _initialDir,
   String? _fileName,
-  FileType? _fileType,
   String? _errorMessage,
   void Function(String) _setPickedFileState,
   void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
@@ -492,6 +491,7 @@ Widget _buildButtonsChooseFile(
   bool Function() _getModeFixe,
 ) {
   final BuildContext context = _st.getContext();
+  final FileType? _fileType = _st.getFileType();
   return Row(
     children: [
       ElevatedButton(
@@ -1270,7 +1270,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
               _lang,
               _initialDir,
               _fileName,
-              _fileType,
               _errorMessage,
               _setPickedFileState,
               _setState,
