@@ -175,6 +175,8 @@ typedef States = ({
   ScrollController Function() getVScrollController,
   ScrollController Function() getHScrollController,
   PdfViewerController Function() getPdfController,
+  Color? Function(int) getTextColorList1,
+  Color? Function(int) getTextColorList2,
   void Function(int) setCurrentPage,
   void Function(double) setFontSize,
   void Function(bool) setLoading,
@@ -748,9 +750,9 @@ Widget _clickOnCsvHeaderLine(
 List<Widget> _buildFirstLineColumnChildren(
   double _fontSize,
   List<CsvLine> _csvLines,
+  Color? Function(int) _getTextColorList1,
   void Function(List<CsvLine>) _setCsvLines,
   void Function(int, Color) _setTextColorList1,
-  Color? Function(int) _getTextColorList1,
 ) {
   final (leftList, rightLists) = _csvLines.first;
   return rightLists.map((rightList) {
@@ -789,7 +791,6 @@ Widget _clickOnCsvLine(
   String line,
   String txt,
   void Function(int, Color) _setTextColorList2,
-  Color? Function(int) _getTextColorList2,
 ) {
   final double _fontSize = _st.getFontSize();
   return GestureDetector(
@@ -804,7 +805,7 @@ Widget _clickOnCsvLine(
       txt,
       style: _fixedTextStyle(
         _fontSize,
-        color: _getTextColorList2(index) ?? Colors.blue,
+        color: _st.getTextColorList2(index) ?? Colors.blue,
       ),
     ),
   );
@@ -813,7 +814,6 @@ Widget _clickOnCsvLine(
 List<Widget> _buildColumnChildren(
   States _st,
   void Function(int, Color) _setTextColorList2,
-  Color? Function(int) _getTextColorList2,
 ) {
   final double _fontSize = _st.getFontSize();
   final List<CsvLine> _csvLines = _st.getCsvLines();
@@ -836,7 +836,6 @@ List<Widget> _buildColumnChildren(
             currentLine,
             firstField,
             _setTextColorList2,
-            _getTextColorList2,
           ),
           Text(
             "|${allOtherFields.join('|')}|",
@@ -852,7 +851,6 @@ Widget _clickOnTarFileName(
   States _st,
   int index,
   TarEntry entry,
-  Color? Function(int) _getTextColorList1,
   void Function(int, Color) _setTextColorList1,
   void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
   _setState,
@@ -871,7 +869,7 @@ Widget _clickOnTarFileName(
       entry.fname,
       style: _fixedTextStyle(
         _fontSize,
-        color: _getTextColorList1(index) ?? Colors.blue,
+        color: _st.getTextColorList1(index) ?? Colors.blue,
       ),
     ),
   );
@@ -881,9 +879,7 @@ Widget _fixedCsvView(
   States _st,
   void Function(List<CsvLine>) _setCsvLines,
   void Function(int, Color) _setTextColorList1,
-  Color? Function(int) _getTextColorList1,
   void Function(int, Color) _setTextColorList2,
-  Color? Function(int) _getTextColorList2,
 ) {
   List<CsvLine> _csvLines = _st.getCsvLines();
   final double _fontSize = _st.getFontSize();
@@ -907,9 +903,9 @@ Widget _fixedCsvView(
         ..._buildFirstLineColumnChildren(
           _fontSize,
           _csvLines,
+          _st.getTextColorList1,
           _setCsvLines,
           _setTextColorList1,
-          _getTextColorList1,
         ),
         Text(border, style: _fixedTextStyle(_fontSize)),
         Expanded(
@@ -922,7 +918,6 @@ Widget _fixedCsvView(
                 ..._buildColumnChildren(
                   _st,
                   _setTextColorList2,
-                  _getTextColorList2,
                 ),
                 Text(border, style: _fixedTextStyle(_fontSize)),
                 Text(""),
@@ -975,8 +970,6 @@ Widget _normalView(States _st, String? fileName, String content) {
 
 List<Widget> _buildContent(
   States _st,
-  Color? Function(int) _getTextColorList1,
-  Color? Function(int) _getTextColorList2,
   void Function(List<CsvLine>) _setCsvLines,
   void Function(int, Color) _setTextColorList1,
   void Function(int, Color) _setTextColorList2,
@@ -1053,7 +1046,6 @@ List<Widget> _buildContent(
                       _st,
                       entry.key,
                       file,
-                      _getTextColorList1,
                       _setTextColorList1,
                       _setState,
                       _setStateError,
@@ -1073,9 +1065,7 @@ List<Widget> _buildContent(
                       _st,
                       _setCsvLines,
                       _setTextColorList1,
-                      _getTextColorList1,
                       _setTextColorList2,
-                      _getTextColorList2,
                     )
                   : _fixedView(_st, _fileContent))
             : _normalView(_st, _fileName, _fileContent),
@@ -1183,16 +1173,8 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     setState(() => _textColorsList1[index] = color);
   }
 
-  Color? _getTextColorList1(int index) {
-    return _textColorsList1[index];
-  }
-
   void _setTextColorList2(int index, Color color) {
     setState(() => _textColorsList2[index] = color);
-  }
-
-  Color? _getTextColorList2(int index) {
-    return _textColorsList2[index];
   }
 
   BuildContext _getContext() => context;
@@ -1213,6 +1195,9 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   ScrollController _getVScrollController() => _vScrollController;
   ScrollController _getHScrollController() => _hScrollController;
   PdfViewerController _getPdfController() => _pdfController;
+  Color? _getTextColorList1(int i) => _textColorsList1[i];
+  Color? _getTextColorList2(int i) => _textColorsList2[i];
+
   void _setCurrentPage(int page) => _currentPage = page;
 
   void _setFontSize(double newFontSize) {
@@ -1252,6 +1237,8 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     getVScrollController: _getVScrollController,
     getHScrollController: _getHScrollController,
     getPdfController: _getPdfController,
+    getTextColorList1: _getTextColorList1,
+    getTextColorList2: _getTextColorList2,
     setCurrentPage: _setCurrentPage,
     setFontSize: _setFontSize,
     setLoading: _setLoading,
@@ -1293,8 +1280,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
           const SizedBox(height: 8),
           ..._buildContent(
             _st,
-            _getTextColorList1,
-            _getTextColorList2,
             _setCsvLines,
             _setTextColorList1,
             _setTextColorList2,
@@ -1319,8 +1304,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         children: [
           ..._buildContent(
             _st,
-            _getTextColorList1,
-            _getTextColorList2,
             _setCsvLines,
             _setTextColorList1,
             _setTextColorList2,
