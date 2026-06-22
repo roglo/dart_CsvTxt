@@ -723,23 +723,23 @@ Widget _clickOnCsvHeaderLine(
   String txt,
   double _fontSize,
   List<CsvLine> _csvLines,
-  Color? Function(int) _getHeaderTextColor,
+  Color? Function(int) _getTextColorList1,
   void Function(List<CsvLine>) _setCsvLines,
-  void Function(int, Color) _setHeaderTextColor,
+  void Function(int, Color) _setTextColorList1,
 ) {
   return GestureDetector(
     onTap: () {
-      _setHeaderTextColor(index, Colors.grey[300] ?? Colors.grey);
+      _setTextColorList1(index, Colors.grey[300] ?? Colors.grey);
       Future.delayed(const Duration(milliseconds: 100), () {
         _setCsvLines(_actionClickOnCsvHeaderLine(_csvLines, index, txt));
-        _setHeaderTextColor(index, Colors.blue);
+        _setTextColorList1(index, Colors.blue);
       });
     },
     child: Text(
       txt,
       style: _fixedTextStyle(
         _fontSize,
-        color: _getHeaderTextColor(index) ?? Colors.blue,
+        color: _getTextColorList1(index) ?? Colors.blue,
       ),
     ),
   );
@@ -749,8 +749,8 @@ List<Widget> _buildFirstLineColumnChildren(
   double _fontSize,
   List<CsvLine> _csvLines,
   void Function(List<CsvLine>) _setCsvLines,
-  void Function(int, Color) _setHeaderTextColor,
-  Color? Function(int) _getHeaderTextColor,
+  void Function(int, Color) _setTextColorList1,
+  Color? Function(int) _getTextColorList1,
 ) {
   final (leftList, rightLists) = _csvLines.first;
   return rightLists.map((rightList) {
@@ -769,9 +769,9 @@ List<Widget> _buildFirstLineColumnChildren(
                 txt,
                 _fontSize,
                 _csvLines,
-                _getHeaderTextColor,
+                _getTextColorList1,
                 _setCsvLines,
-                _setHeaderTextColor,
+                _setTextColorList1,
               ),
               Text("|", style: _fixedTextStyle(_fontSize)),
             ],
@@ -788,15 +788,15 @@ Widget _clickOnCsvLine(
   String def,
   String line,
   String txt,
-  void Function(int, Color) _setFirstColumnTextColor,
-  Color? Function(int) _getFirstColumnTextColor,
+  void Function(int, Color) _setTextColorList2,
+  Color? Function(int) _getTextColorList2,
 ) {
   final double _fontSize = _st.getFontSize();
   return GestureDetector(
     onTap: () {
-      _setFirstColumnTextColor(index, Colors.grey[300] ?? Colors.grey);
+      _setTextColorList2(index, Colors.grey[300] ?? Colors.grey);
       Future.delayed(const Duration(milliseconds: 300), () {
-        _setFirstColumnTextColor(index, Colors.blue);
+        _setTextColorList2(index, Colors.blue);
         _actionClickOnCsvLine(_st, def, line);
       });
     },
@@ -804,7 +804,7 @@ Widget _clickOnCsvLine(
       txt,
       style: _fixedTextStyle(
         _fontSize,
-        color: _getFirstColumnTextColor(index) ?? Colors.blue,
+        color: _getTextColorList2(index) ?? Colors.blue,
       ),
     ),
   );
@@ -812,8 +812,8 @@ Widget _clickOnCsvLine(
 
 List<Widget> _buildColumnChildren(
   States _st,
-  void Function(int, Color) _setFirstColumnTextColor,
-  Color? Function(int) _getFirstColumnTextColor,
+  void Function(int, Color) _setTextColorList2,
+  Color? Function(int) _getTextColorList2,
 ) {
   final double _fontSize = _st.getFontSize();
   final List<CsvLine> _csvLines = _st.getCsvLines();
@@ -835,8 +835,8 @@ List<Widget> _buildColumnChildren(
             firstLine,
             currentLine,
             firstField,
-            _setFirstColumnTextColor,
-            _getFirstColumnTextColor,
+            _setTextColorList2,
+            _getTextColorList2,
           ),
           Text(
             "|${allOtherFields.join('|')}|",
@@ -852,8 +852,8 @@ Widget _clickOnTarFileName(
   States _st,
   int index,
   TarEntry entry,
-  Color? Function(int) _getTarFileNameTextColor,
-  void Function(int, Color) _setTarFileNameTextColor,
+  Color? Function(int) _getTextColorList1,
+  void Function(int, Color) _setTextColorList1,
   void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
   _setState,
   void Function(String?, String) _setStateError,
@@ -861,9 +861,9 @@ Widget _clickOnTarFileName(
   final double _fontSize = _st.getFontSize();
   return GestureDetector(
     onTap: () {
-      _setTarFileNameTextColor(index, Colors.grey[300] ?? Colors.grey);
+      _setTextColorList1(index, Colors.grey[300] ?? Colors.grey);
       Future.delayed(const Duration(milliseconds: 100), () {
-        _setTarFileNameTextColor(index, Colors.blue);
+        _setTextColorList1(index, Colors.blue);
         _actionClickOnTarFileName(_st, entry, _setState, _setStateError);
       });
     },
@@ -871,7 +871,7 @@ Widget _clickOnTarFileName(
       entry.fname,
       style: _fixedTextStyle(
         _fontSize,
-        color: _getTarFileNameTextColor(index) ?? Colors.blue,
+        color: _getTextColorList1(index) ?? Colors.blue,
       ),
     ),
   );
@@ -880,10 +880,10 @@ Widget _clickOnTarFileName(
 Widget _fixedCsvView(
   States _st,
   void Function(List<CsvLine>) _setCsvLines,
-  void Function(int, Color) _setHeaderTextColor,
-  Color? Function(int) _getHeaderTextColor,
-  void Function(int, Color) _setFirstColumnTextColor,
-  Color? Function(int) _getFirstColumnTextColor,
+  void Function(int, Color) _setTextColorList1,
+  Color? Function(int) _getTextColorList1,
+  void Function(int, Color) _setTextColorList2,
+  Color? Function(int) _getTextColorList2,
 ) {
   List<CsvLine> _csvLines = _st.getCsvLines();
   final double _fontSize = _st.getFontSize();
@@ -908,8 +908,8 @@ Widget _fixedCsvView(
           _fontSize,
           _csvLines,
           _setCsvLines,
-          _setHeaderTextColor,
-          _getHeaderTextColor,
+          _setTextColorList1,
+          _getTextColorList1,
         ),
         Text(border, style: _fixedTextStyle(_fontSize)),
         Expanded(
@@ -921,8 +921,8 @@ Widget _fixedCsvView(
               children: [
                 ..._buildColumnChildren(
                   _st,
-                  _setFirstColumnTextColor,
-                  _getFirstColumnTextColor,
+                  _setTextColorList2,
+                  _getTextColorList2,
                 ),
                 Text(border, style: _fixedTextStyle(_fontSize)),
                 Text(""),
@@ -975,13 +975,11 @@ Widget _normalView(States _st, String? fileName, String content) {
 
 List<Widget> _buildContent(
   States _st,
-  Color? Function(int) _getHeaderTextColor,
-  Color? Function(int) _getFirstColumnTextColor,
-  Color? Function(int) _getTarFileNameTextColor,
+  Color? Function(int) _getTextColorList1,
+  Color? Function(int) _getTextColorList2,
   void Function(List<CsvLine>) _setCsvLines,
-  void Function(int, Color) _setHeaderTextColor,
-  void Function(int, Color) _setFirstColumnTextColor,
-  void Function(int, Color) _setTarFileNameTextColor,
+  void Function(int, Color) _setTextColorList1,
+  void Function(int, Color) _setTextColorList2,
   void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
   _setState,
   void Function(String?, String) _setStateError,
@@ -1055,8 +1053,8 @@ List<Widget> _buildContent(
                       _st,
                       entry.key,
                       file,
-                      _getTarFileNameTextColor,
-                      _setTarFileNameTextColor,
+                      _getTextColorList1,
+                      _setTextColorList1,
                       _setState,
                       _setStateError,
                     ),
@@ -1074,10 +1072,10 @@ List<Widget> _buildContent(
                   ? _fixedCsvView(
                       _st,
                       _setCsvLines,
-                      _setHeaderTextColor,
-                      _getHeaderTextColor,
-                      _setFirstColumnTextColor,
-                      _getFirstColumnTextColor,
+                      _setTextColorList1,
+                      _getTextColorList1,
+                      _setTextColorList2,
+                      _getTextColorList2,
                     )
                   : _fixedView(_st, _fileContent))
             : _normalView(_st, _fileName, _fileContent),
@@ -1106,9 +1104,8 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   bool _newVersion = true;
   bool _modeFixe = false;
   double _fontSize = _initialFontSize;
-  final Map<int, Color> _headersTextColors = {};
-  final Map<int, Color> _firstColumnTextColors = {};
-  final Map<int, Color> _tarFileNameTextColors = {};
+  final Map<int, Color> _textColorsList1 = {};
+  final Map<int, Color> _textColorsList2 = {};
 
   void _setPickedFileState(String file) {
     setState(() {
@@ -1182,28 +1179,20 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     setState(() => _csvLines = _newCsvLines);
   }
 
-  void _setHeaderTextColor(int index, Color color) {
-    setState(() => _headersTextColors[index] = color);
+  void _setTextColorList1(int index, Color color) {
+    setState(() => _textColorsList1[index] = color);
   }
 
-  Color? _getHeaderTextColor(int index) {
-    return _headersTextColors[index];
+  Color? _getTextColorList1(int index) {
+    return _textColorsList1[index];
   }
 
-  void _setFirstColumnTextColor(int index, Color color) {
-    setState(() => _firstColumnTextColors[index] = color);
+  void _setTextColorList2(int index, Color color) {
+    setState(() => _textColorsList2[index] = color);
   }
 
-  Color? _getFirstColumnTextColor(int index) {
-    return _firstColumnTextColors[index];
-  }
-
-  void _setTarFileNameTextColor(int index, Color color) {
-    setState(() => _tarFileNameTextColors[index] = color);
-  }
-
-  Color? _getTarFileNameTextColor(int index) {
-    return _tarFileNameTextColors[index];
+  Color? _getTextColorList2(int index) {
+    return _textColorsList2[index];
   }
 
   BuildContext _getContext() => context;
@@ -1304,13 +1293,11 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
           const SizedBox(height: 8),
           ..._buildContent(
             _st,
-            _getHeaderTextColor,
-            _getFirstColumnTextColor,
-            _getTarFileNameTextColor,
+            _getTextColorList1,
+            _getTextColorList2,
             _setCsvLines,
-            _setHeaderTextColor,
-            _setFirstColumnTextColor,
-            _setTarFileNameTextColor,
+            _setTextColorList1,
+            _setTextColorList2,
             _setState,
             _setStateError,
           ),
@@ -1332,13 +1319,11 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         children: [
           ..._buildContent(
             _st,
-            _getHeaderTextColor,
-            _getFirstColumnTextColor,
-            _getTarFileNameTextColor,
+            _getTextColorList1,
+            _getTextColorList2,
             _setCsvLines,
-            _setHeaderTextColor,
-            _setFirstColumnTextColor,
-            _setTarFileNameTextColor,
+            _setTextColorList1,
+            _setTextColorList2,
             _setState,
             _setStateError,
           ),
