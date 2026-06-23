@@ -159,6 +159,7 @@ Future<Uint8List> readFilePart(String filePath, int pos, int size) async {
 typedef States = ({
   BuildContext Function() getContext,
   String Function() getLang,
+  bool Function() getDirFromButton,
   String? Function() getInitialDir,
   String? Function() getFileName,
   String? Function() getFileContent,
@@ -1035,7 +1036,6 @@ List<Widget> _buildContent(
 
 Widget _buildNormal(
   States _st,
-  bool _dirFromButton,
   String? _errorMessage,
   void Function(String) _setPickedFileState,
   void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
@@ -1043,6 +1043,7 @@ Widget _buildNormal(
   void Function(String?, String) _setStateError,
   void Function() _switchModeFixe,
 ) {
+  final bool _dirFromButton = _st.getDirFromButton();
   final FileType? _fileType = _st.getFileType();
   final String? _fileName = _st.getFileName();
   if (Platform.isLinux ||
@@ -1202,6 +1203,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
 
   BuildContext _getContext() => context;
   String _getLang() => _lang;
+  bool _getDirFromButton() => _dirFromButton;
   String? _getInitialDir() => _initialDir;
   String? _getFileName() => _fileName;
   String? _getFileContent() => _fileContent;
@@ -1250,6 +1252,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   late States _st = (
     getContext: _getContext,
     getLang: _getLang,
+    getDirFromButton: _getDirFromButton,
     getInitialDir: _getInitialDir,
     getFileName: _getFileName,
     getFileContent: _getFileContent,
@@ -1308,7 +1311,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
             padding: const EdgeInsets.all(16),
             child: _buildNormal(
               _st,
-              _dirFromButton,
               _errorMessage,
               _setPickedFileState,
               _setState,
