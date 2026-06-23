@@ -180,7 +180,11 @@ typedef States = ({
   Color? Function(int) getTextColorList2,
   String? Function() getErrorMessage,
   void Function(String?) setInitialDir,
+  void Function(String?) setFileName,
+  void Function (String?) setFileContent,
+  void Function (Uint8List?) setBytes,
   void Function(int) setCurrentPage,
+  void Function(FileType?) setFileType,
   void Function(List<CsvLine>) setCsvLines,
   void Function(double) setFontSize,
   void Function() switchModeFixe,
@@ -189,6 +193,7 @@ typedef States = ({
   void Function() incrPdfLoadCount,
   void Function(int, Color) setTextColorList1,
   void Function(int, Color) setTextColorList2,
+  void Function(String?) setErrorMessage,
   void Function() sync,
 });
 
@@ -725,10 +730,16 @@ Future<void> _actionClickOnTarFileName(
   _hScrollController.jumpTo(0);
   if (entry.type == 53) {
     final fileName = entry.fname;
-    _setStateError(
-      "$fileName ($tarFileName)",
-      "C\'est un répertoire, pas un fichier",
-    );
+    _st.setFileType(FileType.txt);
+    _st.setFileName("$fileName ($tarFileName)");
+    _st.setFileContent(null);
+    _st.setBytes(null);
+    _st.setErrorMessage("C\'est un répertoire de merde, pas un fichier");
+    _st.sync();
+//    _setStateError(
+//      "$fileName ($tarFileName)",
+//      "C\'est un répertoire, pas un fichier",
+//    );
   } else {
     final String fileName = entry.fname.split("/").last;
     Uint8List? bytes;
@@ -1267,18 +1278,22 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   String? _getErrorMessage() => _errorMessage;
 
   void _setInitialDir(String? s) => _initialDir = s;
-  void _setCsvLines(List<CsvLine> _newCsvLines) => _csvLines = _newCsvLines;
+  void _setFileName(String? s) => _fileName = s;
+  void _setFileContent(String? s) => _fileContent = s;
+  void _setBytes(Uint8List? b) => _bytes = b;
+  void _setFileType(FileType? ft) => _fileType = ft;
   void _setCurrentPage(int page) => _currentPage = page;
-
+  void _setCsvLines(List<CsvLine> _newCsvLines) => _csvLines = _newCsvLines;
   void _setFontSize(double sz) => _fontSize = sz.clamp(8.0, 40.0);
+  void _switchModeFixe() => _modeFixe = !_modeFixe;
+  void _switchNewVersion() => _newVersion = !_newVersion;
   void _setLoading(bool loading) => _loading = loading;
   void _incrPdfLoadCount() => _pdfLoadCount++;
   void _setTextColorList1(int index, Color color) =>
       _textColorsList1[index] = color;
   void _setTextColorList2(int index, Color color) =>
       _textColorsList2[index] = color;
-  void _switchModeFixe() => _modeFixe = !_modeFixe;
-  void _switchNewVersion() => _newVersion = !_newVersion;
+  void _setErrorMessage(String?  msg) => _errorMessage = msg;
   void _sync() => setState(() {});
 
   late States _st = (
@@ -1305,15 +1320,20 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     getTextColorList2: _getTextColorList2,
     getErrorMessage: _getErrorMessage,
     setInitialDir: _setInitialDir,
+    setFileName: _setFileName,
+    setFileContent: _setFileContent,
+    setBytes: _setBytes,
+    setCurrentPage: _setCurrentPage,
+    setFileType: _setFileType,
     setCsvLines: _setCsvLines,
     setFontSize: _setFontSize,
-    setCurrentPage: _setCurrentPage,
     switchModeFixe: _switchModeFixe,
     switchNewVersion: _switchNewVersion,
     setLoading: _setLoading,
     incrPdfLoadCount: _incrPdfLoadCount,
     setTextColorList1: _setTextColorList1,
     setTextColorList2: _setTextColorList2,
+    setErrorMessage: _setErrorMessage,
     sync: _sync,
   );
 
