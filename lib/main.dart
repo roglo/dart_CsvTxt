@@ -557,7 +557,7 @@ Widget _buildButtonsChooseFile(
               : await _pickFile(_st, _setState);
           // : await customPickFile(context, _initialDir);
           if (path != null) {
-            _openFile(_st, path,_setState);
+            _openFile(_st, path, _setState);
           }
         },
       ),
@@ -1076,8 +1076,7 @@ Widget _buildNormal(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 40),
-        if (_dirFromButton)
-          _buildButtonsChooseFile(_st, _setState),
+        if (_dirFromButton) _buildButtonsChooseFile(_st, _setState),
         if ((!_dirFromButton || _fileName != null) &&
             _fileType != FileType.image &&
             _errorMessage == null) ...[
@@ -1160,11 +1159,7 @@ Widget _build(
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: _buildNormal(
-            _st,
-            _setState,
-            _setStateError,
-          ),
+          child: _buildNormal(_st, _setState, _setStateError),
         ),
       ),
     );
@@ -1323,8 +1318,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   );
 
   @override
-  Widget build(BuildContext context) =>
-      _build(_st, _setState, _setStateError);
+  Widget build(BuildContext context) => _build(_st, _setState, _setStateError);
 }
 
 class FilePickerScreen extends StatefulWidget {
