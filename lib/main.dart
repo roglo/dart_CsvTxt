@@ -179,12 +179,14 @@ typedef States = ({
   Color? Function(int) getTextColorList1,
   Color? Function(int) getTextColorList2,
   String? Function() getErrorMessage,
+  void Function(String?) setInitialDir,
   void Function(int) setCurrentPage,
   void Function(List<CsvLine>) setCsvLines,
   void Function(double) setFontSize,
   void Function() switchModeFixe,
   void Function() switchNewVersion,
   void Function(bool) setLoading,
+  void Function() incrPdfLoadCount,
   void Function(int, Color) setTextColorList1,
   void Function(int, Color) setTextColorList2,
   void Function() sync,
@@ -1176,10 +1178,11 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   final Map<int, Color> _textColorsList2 = {};
 
   void _setPickedFileState(String file) {
-    _initialDir = file.substring(0, file.lastIndexOf("/"));
-    _currentPage = 1;
+    _st.setInitialDir(file.substring(0, file.lastIndexOf("/")));
+    _st.setCurrentPage(1);
     _pdfLoadCount++;
-    _fontSize = _initialFontSize;
+//    _st.setFontSize(_initialFontSize);
+     _fontSize = _initialFontSize;
     _st.sync();
   }
 
@@ -1261,6 +1264,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   Color? _getTextColorList2(int i) => _textColorsList2[i];
   String? _getErrorMessage() => _errorMessage;
 
+  void _setInitialDir(String? s) => _initialDir = s;
   void _setCsvLines(List<CsvLine> _newCsvLines) => _csvLines = _newCsvLines;
   void _setCurrentPage(int page) => _currentPage = page;
 
@@ -1280,6 +1284,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   }
 
   void _setLoading(bool loading) => _loading = loading;
+  void _incrPdfLoadCount() =>_pdfLoadCount++;
   void _setTextColorList1(int index, Color color) =>
       _textColorsList1[index] = color;
   void _setTextColorList2(int index, Color color) =>
@@ -1311,12 +1316,14 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     getTextColorList1: _getTextColorList1,
     getTextColorList2: _getTextColorList2,
     getErrorMessage: _getErrorMessage,
+    setInitialDir: _setInitialDir,
     setCsvLines: _setCsvLines,
     setFontSize: _setFontSize,
     setCurrentPage: _setCurrentPage,
     switchModeFixe: _switchModeFixe,
     switchNewVersion: _switchNewVersion,
     setLoading: _setLoading,
+    incrPdfLoadCount: _incrPdfLoadCount,
     setTextColorList1: _setTextColorList1,
     setTextColorList2: _setTextColorList2,
     sync: _sync,
