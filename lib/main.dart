@@ -455,9 +455,11 @@ Future<void> _filePicked(
     List<TarEntry> tarList = [];
     if (isGzip) {
       _setLoading(true);
+      _st.sync();
       await Future.delayed(Duration(milliseconds: 200));
       tarList = await _parseTarGz(_st, path);
       _setLoading(false);
+      _st.sync();
     } else {
       tarList = await _parseTar(path);
     }
@@ -1108,6 +1110,54 @@ Widget _buildNormal(
   }
 }
 
+Widget _build(
+  States _st,
+  void Function(String) _setPickedFileState,
+  void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
+  _setState,
+  void Function(String?, String) _setStateError,
+  void Function() _switchModeFixe,
+) {
+  if (_st.getLoading()) {
+    return Scaffold(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Center(child: LinearProgressIndicator()),
+              Text("merci de patienter..."),
+              ElevatedButton(
+                onPressed: () {
+                  _st.setLoading(false);
+                  _st.sync();
+                },
+                child: const Text("Interrompre"),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  } else {
+    return Scaffold(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: _buildNormal(
+            _st,
+            _setPickedFileState,
+            _setState,
+            _setStateError,
+            _switchModeFixe,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _FilePickerScreenState extends State<FilePickerScreen> {
   final String _lang = PlatformDispatcher.instance.locale.languageCode;
   // final String _lang = "en"; // ← force l'anglais pour tester
@@ -1283,45 +1333,13 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   );
 
   @override
-  Widget build(BuildContext context) {
-    if (_loading) {
-      return Scaffold(
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Center(child: LinearProgressIndicator()),
-                Text("merci de patienter..."),
-                ElevatedButton(
-                  onPressed: () {
-                    _setLoading(false);
-                  },
-                  child: const Text("Interrompre"),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    } else {
-      return Scaffold(
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: _buildNormal(
-              _st,
-              _setPickedFileState,
-              _setState,
-              _setStateError,
-              _switchModeFixe,
-            ),
-          ),
-        ),
-      );
-    }
-  }
+  Widget build(BuildContext context) => _build(
+    _st,
+    _setPickedFileState,
+    _setState,
+    _setStateError,
+    _switchModeFixe,
+  );
 }
 
 class FilePickerScreen extends StatefulWidget {
