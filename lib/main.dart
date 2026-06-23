@@ -418,30 +418,26 @@ Future<List<TarEntry>> _parseTar(String path) async {
   return tarList;
 }
 
-  void _setState(
-States _st,
-    FileType ft,
-    String? name,
-    Uint8List? bytes,
-    String? fileContent,
-    List<TarEntry> tarList,
-  ) {
-    _st.setFileType(ft);
-    _st.setModeFixe (ft == FileType.csv ? true : false);
-    _st.setFileName(name);
-    _st.setBytes(bytes);
-    _st.setFileContent(fileContent);
-    _st.setCsvLines([]);
-    _st.setTarList(tarList);
-    _st.setErrorMessage(null);
-    _st.sync();
-  }
-
-Future<void> _filePicked(
+void _setState(
   States _st,
-  String path,
+  FileType ft,
   String? name,
-) async {
+  Uint8List? bytes,
+  String? fileContent,
+  List<TarEntry> tarList,
+) {
+  _st.setFileType(ft);
+  _st.setModeFixe(ft == FileType.csv ? true : false);
+  _st.setFileName(name);
+  _st.setBytes(bytes);
+  _st.setFileContent(fileContent);
+  _st.setCsvLines([]);
+  _st.setTarList(tarList);
+  _st.setErrorMessage(null);
+  _st.sync();
+}
+
+Future<void> _filePicked(States _st, String path, String? name) async {
   final ScrollController _vScrollController = _st.getVScrollController();
   final ScrollController _hScrollController = _st.getHScrollController();
   final _setLoading = _st.setLoading;
@@ -526,9 +522,7 @@ Future<void> _filePicked(
 }
 
 // ignore: unused_element
-Future<String?> _pickFile(
-  States _st,
-) async {
+Future<String?> _pickFile(States _st) async {
   final result = await FilePicker.platform.pickFiles();
   if (result != null && result.files.single.path != null) {
     final path = result.files.single.path!;
@@ -542,10 +536,7 @@ Future<String?> _pickFile(
 
 String _t(String _lang, String fr, String en) => _lang == "fr" ? fr : en;
 
-void _openFile(
-  States _st,
-  String file,
-) {
+void _openFile(States _st, String file) {
   final name = file.split("/").last;
   _st.setInitialDir(file.substring(0, file.lastIndexOf("/")));
   _st.setCurrentPage(1);
@@ -555,9 +546,7 @@ void _openFile(
   _st.sync();
 }
 
-Widget _buildButtonsChooseFile(
-  States _st,
-) {
+Widget _buildButtonsChooseFile(States _st) {
   final BuildContext context = _st.getContext();
   final String _lang = _st.getLang();
   final String? _initialDir = _st.getInitialDir();
@@ -728,10 +717,7 @@ void _actionClickOnCsvLine(States _st, String def, String line) {
   );
 }
 
-Future<void> _actionClickOnTarFileName(
-  States _st,
-  TarEntry entry,
-) async {
+Future<void> _actionClickOnTarFileName(States _st, TarEntry entry) async {
   final ScrollController _vScrollController = _st.getVScrollController();
   final ScrollController _hScrollController = _st.getHScrollController();
   final String tarFileName = entry.tarFilePath.split("/").last;
@@ -870,11 +856,7 @@ List<Widget> _buildColumnChildren(States _st) {
   }).toList();
 }
 
-Widget _clickOnTarFileName(
-  States _st,
-  int index,
-  TarEntry entry,
-) {
+Widget _clickOnTarFileName(States _st, int index, TarEntry entry) {
   final double _fontSize = _st.getFontSize();
   return GestureDetector(
     onTap: () {
@@ -979,9 +961,7 @@ Widget _normalView(States _st, String? fileName) {
   );
 }
 
-List<Widget> _buildContent(
-  States _st,
-) {
+List<Widget> _buildContent(States _st) {
   final BuildContext context = _st.getContext();
   final String? _fileContent = _st.getFileContent();
   final Uint8List? _bytes = _st.getBytes();
@@ -1064,9 +1044,7 @@ List<Widget> _buildContent(
   ];
 }
 
-Widget _buildNormal(
-  States _st,
-) {
+Widget _buildNormal(States _st) {
   final bool _dirFromButton = _st.getDirFromButton();
   final FileType? _fileType = _st.getFileType();
   final String? _fileName = _st.getFileName();
@@ -1127,9 +1105,7 @@ Widget _buildNormal(
   }
 }
 
-Widget _build(
-  States _st,
-) {
+Widget _build(States _st) {
   if (_st.getLoading()) {
     return Scaffold(
       body: SafeArea(
