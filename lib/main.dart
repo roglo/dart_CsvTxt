@@ -529,8 +529,12 @@ void _openFile(
   _setState,
 ) {
   final name = file.split("/").last;
-  _setPickedFileState(file);
+  _st.setInitialDir(file.substring(0, file.lastIndexOf("/")));
+  _st.setCurrentPage(1);
+  _st.incrPdfLoadCount;
+  _st.setFontSize(_initialFontSize);
   _filePicked(_st, file, name, _setState);
+  _st.sync();
 }
 
 Widget _buildButtonsChooseFile(
@@ -1210,9 +1214,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     _pdfController = PdfViewerController();
     if (widget.initialFile != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        setState(() {
-          _dirFromButton = false;
-        });
+        setState(() => _dirFromButton = false);
         _openFile(_st, widget.initialFile!, _setPickedFileState, _setState);
       });
     }
