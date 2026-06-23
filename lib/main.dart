@@ -524,7 +524,6 @@ String _t(String _lang, String fr, String en) => _lang == "fr" ? fr : en;
 void _openFile(
   States _st,
   String file,
-  void Function(String) _setPickedFileState,
   void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
   _setState,
 ) {
@@ -539,7 +538,6 @@ void _openFile(
 
 Widget _buildButtonsChooseFile(
   States _st,
-  void Function(String) _setPickedFileState,
   void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
   _setState,
 ) {
@@ -559,7 +557,7 @@ Widget _buildButtonsChooseFile(
               : await _pickFile(_st, _setState);
           // : await customPickFile(context, _initialDir);
           if (path != null) {
-            _openFile(_st, path, _setPickedFileState, _setState);
+            _openFile(_st, path,_setState);
           }
         },
       ),
@@ -1064,7 +1062,6 @@ List<Widget> _buildContent(
 
 Widget _buildNormal(
   States _st,
-  void Function(String) _setPickedFileState,
   void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
   _setState,
   void Function(String?, String) _setStateError,
@@ -1080,7 +1077,7 @@ Widget _buildNormal(
       children: [
         const SizedBox(height: 40),
         if (_dirFromButton)
-          _buildButtonsChooseFile(_st, _setPickedFileState, _setState),
+          _buildButtonsChooseFile(_st, _setState),
         if ((!_dirFromButton || _fileName != null) &&
             _fileType != FileType.image &&
             _errorMessage == null) ...[
@@ -1132,7 +1129,6 @@ Widget _buildNormal(
 
 Widget _build(
   States _st,
-  void Function(String) _setPickedFileState,
   void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
   _setState,
   void Function(String?, String) _setStateError,
@@ -1166,7 +1162,6 @@ Widget _build(
           padding: const EdgeInsets.all(16),
           child: _buildNormal(
             _st,
-            _setPickedFileState,
             _setState,
             _setStateError,
           ),
@@ -1200,14 +1195,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   final Map<int, Color> _textColorsList1 = {};
   final Map<int, Color> _textColorsList2 = {};
 
-  void _setPickedFileState(String file) {
-    _st.setInitialDir(file.substring(0, file.lastIndexOf("/")));
-    _st.setCurrentPage(1);
-    _st.incrPdfLoadCount;
-    _st.setFontSize(_initialFontSize);
-    _st.sync();
-  }
-
   @override
   void initState() {
     super.initState();
@@ -1215,7 +1202,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     if (widget.initialFile != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         setState(() => _dirFromButton = false);
-        _openFile(_st, widget.initialFile!, _setPickedFileState, _setState);
+        _openFile(_st, widget.initialFile!, _setState);
       });
     }
   }
@@ -1337,7 +1324,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
 
   @override
   Widget build(BuildContext context) =>
-      _build(_st, _setPickedFileState, _setState, _setStateError);
+      _build(_st, _setState, _setStateError);
 }
 
 class FilePickerScreen extends StatefulWidget {
