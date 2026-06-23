@@ -500,6 +500,18 @@ Future<String?> _pickFile(
 
 String _t(String _lang, String fr, String en) => _lang == "fr" ? fr : en;
 
+void _openFile(
+  States _st,
+  String file,
+  void Function(String) _setPickedFileState,
+  void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
+  _setState,
+) {
+  final name = file.split("/").last;
+  _setPickedFileState(file);
+  _filePicked(_st, file, name, _setState);
+}
+
 Widget _buildButtonsChooseFile(
   States _st,
   void Function(String) _setPickedFileState,
@@ -522,9 +534,7 @@ Widget _buildButtonsChooseFile(
               : await _pickFile(_st, _setState);
           // : await customPickFile(context, _initialDir);
           if (path != null) {
-            final name = path.split("/").last;
-            _setPickedFileState(path);
-            _filePicked(_st, path, name, _setState);
+            _openFile(_st, path, _setPickedFileState, _setState);
           }
         },
       ),
@@ -676,18 +686,6 @@ void _actionClickOnCsvLine(States _st, String def, String line) {
       ],
     ),
   );
-}
-
-void _openFile(
-  States _st,
-  String file,
-  void Function(String) _setPickedFileState,
-  void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
-  _setState,
-) {
-  final name = file.split("/").last;
-  _setPickedFileState(file);
-  _filePicked(_st, file, name, _setState);
 }
 
 Future<void> _actionClickOnTarFileName(
@@ -1178,12 +1176,11 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   final Map<int, Color> _textColorsList2 = {};
 
   void _setPickedFileState(String file) {
-    setState(() {
-      _initialDir = file.substring(0, file.lastIndexOf("/"));
-      _currentPage = 1;
-      _pdfLoadCount++;
-      _fontSize = _initialFontSize;
-    });
+    _initialDir = file.substring(0, file.lastIndexOf("/"));
+    _currentPage = 1;
+    _pdfLoadCount++;
+    _fontSize = _initialFontSize;
+    _st.sync();
   }
 
   @override
