@@ -192,6 +192,19 @@ typedef States = ({
   void Function() sync,
 });
 
+void _changedFontSizeAdjustScroll(States _st, double oldFontSize) {
+  final _vScrollController = _st.getVScrollController();
+  final double oldOffset = _vScrollController.offset;
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    final double ratio = _st.getFontSize() / oldFontSize;
+    final double newOffset = (oldOffset * ratio).clamp(
+      0.0,
+      _vScrollController.position.maxScrollExtent,
+    );
+    _vScrollController.jumpTo(newOffset);
+  });
+}
+
 Widget _buildRowButtonSizeAndJump(States _st) {
   final FileType? _fileType = _st.getFileType();
   final double _fontSize = _st.getFontSize();
@@ -218,21 +231,27 @@ Widget _buildRowButtonSizeAndJump(States _st) {
       ] else ...[
         ElevatedButton(
           onPressed: () {
+            final double oldFontSize = _fontSize;
             _setFontSize(_fontSize - 1);
+            _changedFontSizeAdjustScroll(_st, oldFontSize);
             _st.sync();
           },
           child: const Text("A-"),
         ),
         ElevatedButton(
           onPressed: () {
+            final double oldFontSize = _fontSize;
             _setFontSize(_initialFontSize);
+            _changedFontSizeAdjustScroll(_st, oldFontSize);
             _st.sync();
           },
           child: const Text("A"),
         ),
         ElevatedButton(
           onPressed: () {
+            final double oldFontSize = _fontSize;
             _setFontSize(_fontSize + 1);
+            _changedFontSizeAdjustScroll(_st, oldFontSize);
             _st.sync();
           },
           child: const Text("A+"),
@@ -1181,8 +1200,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     _st.setInitialDir(file.substring(0, file.lastIndexOf("/")));
     _st.setCurrentPage(1);
     _st.incrPdfLoadCount;
-//    _st.setFontSize(_initialFontSize);
-     _fontSize = _initialFontSize;
+    _st.setFontSize(_initialFontSize);
     _st.sync();
   }
 
@@ -1268,23 +1286,9 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   void _setCsvLines(List<CsvLine> _newCsvLines) => _csvLines = _newCsvLines;
   void _setCurrentPage(int page) => _currentPage = page;
 
-  void _setFontSize(double newFontSize) {
-    final double oldFontSize = _fontSize;
-    final double oldOffset = _vScrollController.offset;
-    _fontSize = newFontSize.clamp(8.0, 40.0);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final double ratio = _fontSize / oldFontSize;
-      final double newOffset = (oldOffset * ratio).clamp(
-        0.0,
-        _vScrollController.position.maxScrollExtent,
-      );
-      _vScrollController.jumpTo(newOffset);
-    });
-  }
-
+  void _setFontSize(double sz) => _fontSize = sz.clamp(8.0, 40.0);
   void _setLoading(bool loading) => _loading = loading;
-  void _incrPdfLoadCount() =>_pdfLoadCount++;
+  void _incrPdfLoadCount() => _pdfLoadCount++;
   void _setTextColorList1(int index, Color color) =>
       _textColorsList1[index] = color;
   void _setTextColorList2(int index, Color color) =>
