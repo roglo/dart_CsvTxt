@@ -140,22 +140,6 @@ typedef TarEntry = ({
   bool tarFileIsGz,
 });
 
-Future<Uint8List> readFilePart(String filePath, int pos, int size) async {
-  final file = File(filePath);
-  final raf = await file.open(mode: FileMode.read);
-  try {
-    await raf.setPosition(pos);
-    final buffer = Uint8List(size);
-    final bytesRead = await raf.readInto(buffer);
-    if (bytesRead != size) {
-      throw Exception("Impossible de lire $size octets à partir de $pos");
-    }
-    return buffer;
-  } finally {
-    await raf.close();
-  }
-}
-
 typedef States = ({
   BuildContext Function() getContext,
   String Function() getLang,
@@ -197,6 +181,22 @@ typedef States = ({
   void Function(String?) setErrorMessage,
   void Function() sync,
 });
+
+Future<Uint8List> readFilePart(String filePath, int pos, int size) async {
+  final file = File(filePath);
+  final raf = await file.open(mode: FileMode.read);
+  try {
+    await raf.setPosition(pos);
+    final buffer = Uint8List(size);
+    final bytesRead = await raf.readInto(buffer);
+    if (bytesRead != size) {
+      throw Exception("Impossible de lire $size octets à partir de $pos");
+    }
+    return buffer;
+  } finally {
+    await raf.close();
+  }
+}
 
 void _changedFontSizeAdjustScroll(States _st, double oldFontSize) {
   final _vScrollController = _st.getVScrollController();
