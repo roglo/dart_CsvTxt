@@ -182,10 +182,11 @@ typedef States = ({
   void Function(int) setCurrentPage,
   void Function(List<CsvLine>) setCsvLines,
   void Function(double) setFontSize,
+  void Function() switchModeFixe,
+  void Function() switchNewVersion,
   void Function(bool) setLoading,
   void Function(int, Color) setTextColorList1,
   void Function(int, Color) setTextColorList2,
-  void Function() switchNewVersion,
   void Function() sync,
 });
 
@@ -504,7 +505,6 @@ Widget _buildButtonsChooseFile(
   void Function(String) _setPickedFileState,
   void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
   _setState,
-  void Function() _switchModeFixe,
 ) {
   final BuildContext context = _st.getContext();
   final String _lang = _st.getLang();
@@ -535,7 +535,10 @@ Widget _buildButtonsChooseFile(
           _st.getErrorMessage() == null) ...[
         const SizedBox(width: 16),
         ElevatedButton(
-          onPressed: () => _switchModeFixe(),
+          onPressed: () {
+            _st.switchModeFixe();
+            _st.sync();
+          },
           child: Text(_st.getModeFixe() ? "Mode normal" : "Mode fixe"),
         ),
       ],
@@ -1042,7 +1045,6 @@ Widget _buildNormal(
   void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
   _setState,
   void Function(String?, String) _setStateError,
-  void Function() _switchModeFixe,
 ) {
   final bool _dirFromButton = _st.getDirFromButton();
   final FileType? _fileType = _st.getFileType();
@@ -1055,12 +1057,7 @@ Widget _buildNormal(
       children: [
         const SizedBox(height: 40),
         if (_dirFromButton)
-          _buildButtonsChooseFile(
-            _st,
-            _setPickedFileState,
-            _setState,
-            _switchModeFixe,
-          ),
+          _buildButtonsChooseFile(_st, _setPickedFileState, _setState),
         if ((!_dirFromButton || _fileName != null) &&
             _fileType != FileType.image &&
             _errorMessage == null) ...[
@@ -1116,7 +1113,6 @@ Widget _build(
   void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
   _setState,
   void Function(String?, String) _setStateError,
-  void Function() _switchModeFixe,
 ) {
   if (_st.getLoading()) {
     return Scaffold(
@@ -1150,7 +1146,6 @@ Widget _build(
             _setPickedFileState,
             _setState,
             _setStateError,
-            _switchModeFixe,
           ),
         ),
       ),
@@ -1246,10 +1241,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     setState(() {});
   }
 
-  void _switchModeFixe() {
-    setState(() => _modeFixe = !_modeFixe);
-  }
-
   BuildContext _getContext() => context;
   String _getLang() => _lang;
   bool _getDirFromButton() => _dirFromButton;
@@ -1296,6 +1287,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
       _textColorsList1[index] = color;
   void _setTextColorList2(int index, Color color) =>
       _textColorsList2[index] = color;
+  void _switchModeFixe() => _modeFixe = !_modeFixe;
   void _switchNewVersion() => _newVersion = !_newVersion;
   void _sync() => setState(() {});
 
@@ -1323,23 +1315,19 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     getTextColorList2: _getTextColorList2,
     getErrorMessage: _getErrorMessage,
     setCsvLines: _setCsvLines,
-    setCurrentPage: _setCurrentPage,
     setFontSize: _setFontSize,
+    setCurrentPage: _setCurrentPage,
+    switchModeFixe: _switchModeFixe,
+    switchNewVersion: _switchNewVersion,
     setLoading: _setLoading,
     setTextColorList1: _setTextColorList1,
     setTextColorList2: _setTextColorList2,
-    switchNewVersion: _switchNewVersion,
     sync: _sync,
   );
 
   @override
-  Widget build(BuildContext context) => _build(
-    _st,
-    _setPickedFileState,
-    _setState,
-    _setStateError,
-    _switchModeFixe,
-  );
+  Widget build(BuildContext context) =>
+      _build(_st, _setPickedFileState, _setState, _setStateError);
 }
 
 class FilePickerScreen extends StatefulWidget {
