@@ -183,11 +183,12 @@ typedef States = ({
   void Function(String?) setFileName,
   void Function(String?) setFileContent,
   void Function(Uint8List?) setBytes,
+  void Function(List<TarEntry>) setTarList,
   void Function(int) setCurrentPage,
   void Function(FileType?) setFileType,
   void Function(List<CsvLine>) setCsvLines,
   void Function(double) setFontSize,
-  void Function() switchModeFixe,
+  void Function(bool) setModeFixe,
   void Function() switchNewVersion,
   void Function(bool) setLoading,
   void Function() incrPdfLoadCount,
@@ -417,12 +418,29 @@ Future<List<TarEntry>> _parseTar(String path) async {
   return tarList;
 }
 
+  void _setState(
+States _st,
+    FileType ft,
+    String? name,
+    Uint8List? bytes,
+    String? fileContent,
+    List<TarEntry> tarList,
+  ) {
+    _st.setFileType(ft);
+    _st.setModeFixe (ft == FileType.csv ? true : false);
+    _st.setFileName(name);
+    _st.setBytes(bytes);
+    _st.setFileContent(fileContent);
+    _st.setCsvLines([]);
+    _st.setTarList(tarList);
+    _st.setErrorMessage(null);
+    _st.sync();
+  }
+
 Future<void> _filePicked(
   States _st,
   String path,
   String? name,
-  void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
-  _setState,
 ) async {
   final ScrollController _vScrollController = _st.getVScrollController();
   final ScrollController _hScrollController = _st.getHScrollController();
@@ -468,7 +486,7 @@ Future<void> _filePicked(
     } else {
       bytes = await File(path).readAsBytes();
     }
-    _setState(FileType.image, name, bytes, null, []);
+    _setState(_st, FileType.image, name, bytes, null, []);
   } else if (header.startsWith(0, [0x25, 0x50, 0x44, 0x46])) {
     Uint8List? bytes;
     if (isGzip) {
@@ -477,7 +495,7 @@ Future<void> _filePicked(
     } else {
       bytes = await File(path).readAsBytes();
     }
-    _setState(FileType.pdf, name, bytes, null, []);
+    _setState(_st, FileType.pdf, name, bytes, null, []);
   } else if (header.startsWith(257, [0x75, 0x73, 0x74, 0x61, 0x72])) {
     List<TarEntry> tarList = [];
     if (isGzip) {
@@ -490,7 +508,7 @@ Future<void> _filePicked(
     } else {
       tarList = await _parseTar(path);
     }
-    _setState(FileType.tar, name, null, null, tarList);
+    _setState(_st, FileType.tar, name, null, null, tarList);
   } else {
     Uint8List? bytes;
     if (isGzip) {
@@ -503,21 +521,19 @@ Future<void> _filePicked(
     final content = s.isNotEmpty && !s.endsWith("\n") ? "$s\n" : s;
     final extension = name == null ? "" : name.split(".").last.toLowerCase();
     final ft = (extension == "csv") ? FileType.csv : FileType.txt;
-    _setState(ft, name, null, content, []);
+    _setState(_st, ft, name, null, content, []);
   }
 }
 
 // ignore: unused_element
 Future<String?> _pickFile(
   States _st,
-  void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
-  _setState,
 ) async {
   final result = await FilePicker.platform.pickFiles();
   if (result != null && result.files.single.path != null) {
     final path = result.files.single.path!;
     final name = result.files.single.name;
-    _filePicked(_st, path, name, _setState);
+    _filePicked(_st, path, name);
     myprint(path);
     return path;
   }
@@ -529,22 +545,18 @@ String _t(String _lang, String fr, String en) => _lang == "fr" ? fr : en;
 void _openFile(
   States _st,
   String file,
-  void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
-  _setState,
 ) {
   final name = file.split("/").last;
   _st.setInitialDir(file.substring(0, file.lastIndexOf("/")));
   _st.setCurrentPage(1);
   _st.incrPdfLoadCount;
   _st.setFontSize(_initialFontSize);
-  _filePicked(_st, file, name, _setState);
+  _filePicked(_st, file, name);
   _st.sync();
 }
 
 Widget _buildButtonsChooseFile(
   States _st,
-  void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
-  _setState,
 ) {
   final BuildContext context = _st.getContext();
   final String _lang = _st.getLang();
@@ -559,10 +571,10 @@ Widget _buildButtonsChooseFile(
           final String? path = Platform.isLinux
               // ? await _pickFile()
               ? await customPickFile(context, _initialDir)
-              : await _pickFile(_st, _setState);
+              : await _pickFile(_st);
           // : await customPickFile(context, _initialDir);
           if (path != null) {
-            _openFile(_st, path, _setState);
+            _openFile(_st, path);
           }
         },
       ),
@@ -574,7 +586,7 @@ Widget _buildButtonsChooseFile(
         const SizedBox(width: 16),
         ElevatedButton(
           onPressed: () {
-            _st.switchModeFixe();
+            _st.setModeFixe(!_st.getModeFixe());
             _st.sync();
           },
           child: Text(_st.getModeFixe() ? "Mode normal" : "Mode fixe"),
@@ -719,8 +731,6 @@ void _actionClickOnCsvLine(States _st, String def, String line) {
 Future<void> _actionClickOnTarFileName(
   States _st,
   TarEntry entry,
-  void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
-  _setState,
 ) async {
   final ScrollController _vScrollController = _st.getVScrollController();
   final ScrollController _hScrollController = _st.getHScrollController();
@@ -753,7 +763,7 @@ Future<void> _actionClickOnTarFileName(
       );
     }
     final content = utf8.decode(bytes);
-    _setState(FileType.txt, "$fileName ($tarFileName)", null, content, []);
+    _setState(_st, FileType.txt, "$fileName ($tarFileName)", null, content, []);
   }
 }
 
@@ -864,8 +874,6 @@ Widget _clickOnTarFileName(
   States _st,
   int index,
   TarEntry entry,
-  void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
-  _setState,
 ) {
   final double _fontSize = _st.getFontSize();
   return GestureDetector(
@@ -875,7 +883,7 @@ Widget _clickOnTarFileName(
       Future.delayed(const Duration(milliseconds: 100), () {
         _st.setTextColorList1(index, Colors.blue);
         _st.sync();
-        _actionClickOnTarFileName(_st, entry, _setState);
+        _actionClickOnTarFileName(_st, entry);
       });
     },
     child: Text(
@@ -973,8 +981,6 @@ Widget _normalView(States _st, String? fileName) {
 
 List<Widget> _buildContent(
   States _st,
-  void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
-  _setState,
 ) {
   final BuildContext context = _st.getContext();
   final String? _fileContent = _st.getFileContent();
@@ -1041,7 +1047,7 @@ List<Widget> _buildContent(
                       style: _fixedTextStyle(_fontSize),
                     ),
                     Text(" ", style: _fixedTextStyle(_fontSize)),
-                    _clickOnTarFileName(_st, entry.key, file, _setState),
+                    _clickOnTarFileName(_st, entry.key, file),
                   ],
                 );
               }).toList(),
@@ -1060,8 +1066,6 @@ List<Widget> _buildContent(
 
 Widget _buildNormal(
   States _st,
-  void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
-  _setState,
 ) {
   final bool _dirFromButton = _st.getDirFromButton();
   final FileType? _fileType = _st.getFileType();
@@ -1073,7 +1077,7 @@ Widget _buildNormal(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 40),
-        if (_dirFromButton) _buildButtonsChooseFile(_st, _setState),
+        if (_dirFromButton) _buildButtonsChooseFile(_st),
         if ((!_dirFromButton || _fileName != null) &&
             _fileType != FileType.image &&
             _errorMessage == null) ...[
@@ -1091,7 +1095,7 @@ Widget _buildNormal(
           Text(_errorMessage, style: const TextStyle(color: Colors.red)),
 
         const SizedBox(height: 8),
-        ..._buildContent(_st, _setState),
+        ..._buildContent(_st),
         if (_st.getFileContent() != null &&
             _fileType == FileType.csv &&
             _st.getModeFixe())
@@ -1111,7 +1115,7 @@ Widget _buildNormal(
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ..._buildContent(_st, _setState),
+        ..._buildContent(_st),
         if ((!_dirFromButton || _fileName != null) &&
             _fileType != FileType.image &&
             _errorMessage == null) ...[
@@ -1125,8 +1129,6 @@ Widget _buildNormal(
 
 Widget _build(
   States _st,
-  void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
-  _setState,
 ) {
   if (_st.getLoading()) {
     return Scaffold(
@@ -1155,7 +1157,7 @@ Widget _build(
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: _buildNormal(_st, _setState),
+          child: _buildNormal(_st),
         ),
       ),
     );
@@ -1193,7 +1195,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     if (widget.initialFile != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         setState(() => _dirFromButton = false);
-        _openFile(_st, widget.initialFile!, _setState);
+        _openFile(_st, widget.initialFile!);
       });
     }
   }
@@ -1210,24 +1212,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _pdfController = PdfViewerController();
-  }
-
-  void _setState(
-    FileType ft,
-    String? name,
-    Uint8List? bytes,
-    String? fileContent,
-    List<TarEntry> tarList,
-  ) {
-    _fileType = ft;
-    _modeFixe = (ft == FileType.csv ? true : false);
-    _fileName = name;
-    _bytes = bytes;
-    _fileContent = fileContent;
-    _csvLines = [];
-    _tarList = tarList;
-    _errorMessage = null;
-    setState(() {});
   }
 
   BuildContext _getContext() => context;
@@ -1257,11 +1241,12 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   void _setFileName(String? s) => _fileName = s;
   void _setFileContent(String? s) => _fileContent = s;
   void _setBytes(Uint8List? b) => _bytes = b;
+  void _setTarList(List<TarEntry> tl) => _tarList = tl;
   void _setFileType(FileType? ft) => _fileType = ft;
   void _setCurrentPage(int page) => _currentPage = page;
   void _setCsvLines(List<CsvLine> _newCsvLines) => _csvLines = _newCsvLines;
   void _setFontSize(double sz) => _fontSize = sz.clamp(8.0, 40.0);
-  void _switchModeFixe() => _modeFixe = !_modeFixe;
+  void _setModeFixe(b) => _modeFixe = b;
   void _switchNewVersion() => _newVersion = !_newVersion;
   void _setLoading(bool loading) => _loading = loading;
   void _incrPdfLoadCount() => _pdfLoadCount++;
@@ -1299,11 +1284,12 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     setFileName: _setFileName,
     setFileContent: _setFileContent,
     setBytes: _setBytes,
+    setTarList: _setTarList,
     setCurrentPage: _setCurrentPage,
     setFileType: _setFileType,
     setCsvLines: _setCsvLines,
     setFontSize: _setFontSize,
-    switchModeFixe: _switchModeFixe,
+    setModeFixe: _setModeFixe,
     switchNewVersion: _switchNewVersion,
     setLoading: _setLoading,
     incrPdfLoadCount: _incrPdfLoadCount,
@@ -1314,7 +1300,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   );
 
   @override
-  Widget build(BuildContext context) => _build(_st, _setState);
+  Widget build(BuildContext context) => _build(_st);
 }
 
 class FilePickerScreen extends StatefulWidget {
