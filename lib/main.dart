@@ -1041,12 +1041,7 @@ List<Widget> _buildContent(
                       style: _fixedTextStyle(_fontSize),
                     ),
                     Text(" ", style: _fixedTextStyle(_fontSize)),
-                    _clickOnTarFileName(
-                      _st,
-                      entry.key,
-                      file,
-                      _setState,
-                    ),
+                    _clickOnTarFileName(_st, entry.key, file, _setState),
                   ],
                 );
               }).toList(),
