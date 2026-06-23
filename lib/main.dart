@@ -1180,7 +1180,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   void _setPickedFileState(String file) {
     _st.setInitialDir(file.substring(0, file.lastIndexOf("/")));
     _st.setCurrentPage(1);
-    _pdfLoadCount++;
+    _st.incrPdfLoadCount;
 //    _st.setFontSize(_initialFontSize);
      _fontSize = _initialFontSize;
     _st.sync();
