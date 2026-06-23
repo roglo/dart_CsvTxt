@@ -181,8 +181,8 @@ typedef States = ({
   String? Function() getErrorMessage,
   void Function(String?) setInitialDir,
   void Function(String?) setFileName,
-  void Function (String?) setFileContent,
-  void Function (Uint8List?) setBytes,
+  void Function(String?) setFileContent,
+  void Function(Uint8List?) setBytes,
   void Function(int) setCurrentPage,
   void Function(FileType?) setFileType,
   void Function(List<CsvLine>) setCsvLines,
@@ -721,7 +721,6 @@ Future<void> _actionClickOnTarFileName(
   TarEntry entry,
   void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
   _setState,
-  void Function(String?, String) _setStateError,
 ) async {
   final ScrollController _vScrollController = _st.getVScrollController();
   final ScrollController _hScrollController = _st.getHScrollController();
@@ -734,12 +733,8 @@ Future<void> _actionClickOnTarFileName(
     _st.setFileName("$fileName ($tarFileName)");
     _st.setFileContent(null);
     _st.setBytes(null);
-    _st.setErrorMessage("C\'est un répertoire de merde, pas un fichier");
+    _st.setErrorMessage("C\'est un répertoire, pas un fichier");
     _st.sync();
-//    _setStateError(
-//      "$fileName ($tarFileName)",
-//      "C\'est un répertoire, pas un fichier",
-//    );
   } else {
     final String fileName = entry.fname.split("/").last;
     Uint8List? bytes;
@@ -871,7 +866,6 @@ Widget _clickOnTarFileName(
   TarEntry entry,
   void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
   _setState,
-  void Function(String?, String) _setStateError,
 ) {
   final double _fontSize = _st.getFontSize();
   return GestureDetector(
@@ -881,7 +875,7 @@ Widget _clickOnTarFileName(
       Future.delayed(const Duration(milliseconds: 100), () {
         _st.setTextColorList1(index, Colors.blue);
         _st.sync();
-        _actionClickOnTarFileName(_st, entry, _setState, _setStateError);
+        _actionClickOnTarFileName(_st, entry, _setState);
       });
     },
     child: Text(
@@ -981,7 +975,6 @@ List<Widget> _buildContent(
   States _st,
   void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
   _setState,
-  void Function(String?, String) _setStateError,
 ) {
   final BuildContext context = _st.getContext();
   final String? _fileContent = _st.getFileContent();
@@ -1053,7 +1046,6 @@ List<Widget> _buildContent(
                       entry.key,
                       file,
                       _setState,
-                      _setStateError,
                     ),
                   ],
                 );
@@ -1075,7 +1067,6 @@ Widget _buildNormal(
   States _st,
   void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
   _setState,
-  void Function(String?, String) _setStateError,
 ) {
   final bool _dirFromButton = _st.getDirFromButton();
   final FileType? _fileType = _st.getFileType();
@@ -1105,7 +1096,7 @@ Widget _buildNormal(
           Text(_errorMessage, style: const TextStyle(color: Colors.red)),
 
         const SizedBox(height: 8),
-        ..._buildContent(_st, _setState, _setStateError),
+        ..._buildContent(_st, _setState),
         if (_st.getFileContent() != null &&
             _fileType == FileType.csv &&
             _st.getModeFixe())
@@ -1125,7 +1116,7 @@ Widget _buildNormal(
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ..._buildContent(_st, _setState, _setStateError),
+        ..._buildContent(_st, _setState),
         if ((!_dirFromButton || _fileName != null) &&
             _fileType != FileType.image &&
             _errorMessage == null) ...[
@@ -1141,7 +1132,6 @@ Widget _build(
   States _st,
   void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
   _setState,
-  void Function(String?, String) _setStateError,
 ) {
   if (_st.getLoading()) {
     return Scaffold(
@@ -1170,7 +1160,7 @@ Widget _build(
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: _buildNormal(_st, _setState, _setStateError),
+          child: _buildNormal(_st, _setState),
         ),
       ),
     );
@@ -1225,15 +1215,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _pdfController = PdfViewerController();
-  }
-
-  void _setStateError(String? filename, String msg) {
-    _fileType = FileType.txt;
-    _fileName = filename;
-    _fileContent = null;
-    _bytes = null;
-    _errorMessage = msg;
-    setState(() {});
   }
 
   void _setState(
@@ -1293,7 +1274,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
       _textColorsList1[index] = color;
   void _setTextColorList2(int index, Color color) =>
       _textColorsList2[index] = color;
-  void _setErrorMessage(String?  msg) => _errorMessage = msg;
+  void _setErrorMessage(String? msg) => _errorMessage = msg;
   void _sync() => setState(() {});
 
   late States _st = (
@@ -1338,7 +1319,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   );
 
   @override
-  Widget build(BuildContext context) => _build(_st, _setState, _setStateError);
+  Widget build(BuildContext context) => _build(_st, _setState);
 }
 
 class FilePickerScreen extends StatefulWidget {
