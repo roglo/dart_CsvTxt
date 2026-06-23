@@ -178,6 +178,7 @@ typedef States = ({
   PdfViewerController Function() getPdfController,
   Color? Function(int) getTextColorList1,
   Color? Function(int) getTextColorList2,
+  String? Function() getErrorMessage,
   void Function(int) setCurrentPage,
   void Function(List<CsvLine>) setCsvLines,
   void Function(double) setFontSize,
@@ -498,7 +499,6 @@ String _t(String _lang, String fr, String en) => _lang == "fr" ? fr : en;
 
 Widget _buildButtonsChooseFile(
   States _st,
-  String? _errorMessage,
   void Function(String) _setPickedFileState,
   void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
   _setState,
@@ -530,7 +530,7 @@ Widget _buildButtonsChooseFile(
           _fileType != FileType.image &&
           _fileType != FileType.pdf &&
           _fileType != FileType.tar &&
-          _errorMessage == null) ...[
+          _st.getErrorMessage() == null) ...[
         const SizedBox(width: 16),
         ElevatedButton(
           onPressed: () => _switchModeFixe(),
@@ -1036,7 +1036,6 @@ List<Widget> _buildContent(
 
 Widget _buildNormal(
   States _st,
-  String? _errorMessage,
   void Function(String) _setPickedFileState,
   void Function(FileType, String?, Uint8List?, String?, List<TarEntry>)
   _setState,
@@ -1046,6 +1045,7 @@ Widget _buildNormal(
   final bool _dirFromButton = _st.getDirFromButton();
   final FileType? _fileType = _st.getFileType();
   final String? _fileName = _st.getFileName();
+  final String? _errorMessage = _st.getErrorMessage();
   if (Platform.isLinux ||
       MediaQuery.of(_st.getContext()).orientation == Orientation.portrait) {
     return Column(
@@ -1055,7 +1055,6 @@ Widget _buildNormal(
         if (_dirFromButton)
           _buildButtonsChooseFile(
             _st,
-            _errorMessage,
             _setPickedFileState,
             _setState,
             _switchModeFixe,
@@ -1222,6 +1221,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   PdfViewerController _getPdfController() => _pdfController;
   Color? _getTextColorList1(int i) => _textColorsList1[i];
   Color? _getTextColorList2(int i) => _textColorsList2[i];
+  String? _getErrorMessage() => _errorMessage;
 
   void _setCsvLines(List<CsvLine> _newCsvLines) => _csvLines = _newCsvLines;
   void _setCurrentPage(int page) => _currentPage = page;
@@ -1271,6 +1271,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     getPdfController: _getPdfController,
     getTextColorList1: _getTextColorList1,
     getTextColorList2: _getTextColorList2,
+    getErrorMessage: _getErrorMessage,
     setCsvLines: _setCsvLines,
     setCurrentPage: _setCurrentPage,
     setFontSize: _setFontSize,
@@ -1311,7 +1312,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
             padding: const EdgeInsets.all(16),
             child: _buildNormal(
               _st,
-              _errorMessage,
               _setPickedFileState,
               _setState,
               _setStateError,
