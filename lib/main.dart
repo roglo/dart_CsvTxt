@@ -565,8 +565,6 @@ Future<void> syncLexiconIfNewer() async {
   }
 }
 
-String _t(String _lang, String fr, String en) => _lang == "fr" ? fr : en;
-
 void readLexicon(States _st, File lexFile) {
   List<String> sl = utf8.decode(lexFile.readAsBytesSync()).split("\n");
   final table = _st.getLexTable();
@@ -576,7 +574,6 @@ void readLexicon(States _st, File lexFile) {
     final line = sl[i];
     if (line.length > 5 && line.substring(0, 4) == "    ") {
       final key = line.substring(4);
-      print("*** key \"$key\"");
       i++;
       List<(String, String)> val = [];
       while (i < sl.length) {
@@ -584,14 +581,13 @@ void readLexicon(States _st, File lexFile) {
         final j = line.indexOf(":");
         if (j == -1) break;
         final k = line.substring(0, j);
-        final v = line.substring(j+2);
+        final v = line.substring(j + 2);
         val.add((k, v));
-        print("***** value \"$k/$v\"");
         i++;
       }
       table[key] = val;
-    }
-    else i++;
+    } else
+      i++;
   }
 }
 
@@ -608,13 +604,20 @@ String transl(States _st, txt) {
     print("transl \"$txt\" lexicon not yet loaded");
     readLexicon(_st, lexFile);
     _st.setLexDate(lexDate);
-  }
-  else if (lexDate.isAfter(prevLexDate)) {
+  } else if (lexDate.isAfter(prevLexDate)) {
     print("transl \"$txt\" lexicon has changed");
     readLexicon(_st, lexFile);
     _st.setLexDate(lexDate);
   }
-  return _t(_st.getLang(), "Choisir un fichier", txt);
+  final table = _st.getLexTable();
+  final lang = _st.getLang();
+  List<(String, String)>? val = table[txt];
+  if (val == null) return "<$txt>";
+  try {
+    return val.firstWhere((tuple) => tuple.$1 == lang).$2;
+  } catch (e) {
+    return "[$txt]";
+  }
 }
 
 void _openFile(States _st, String file) {
@@ -629,7 +632,6 @@ void _openFile(States _st, String file) {
 
 Widget _buildButtonsChooseFile(States _st) {
   final BuildContext context = _st.getContext();
-  final String _lang = _st.getLang();
   final String? _initialDir = _st.getInitialDir();
   final String? _fileName = _st.getFileName();
   final FileType? _fileType = _st.getFileType();
@@ -1153,7 +1155,7 @@ Widget _buildNormal(States _st) {
         const SizedBox(height: 16),
         if (_fileName != null)
           Text(
-            "Fichier : $_fileName",
+            "${transl(_st, "File:")} $_fileName",
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         const SizedBox(height: 8),
@@ -1230,7 +1232,7 @@ Widget _build(States _st) {
 
 class _FilePickerScreenState extends State<FilePickerScreen> {
   final String _lang = PlatformDispatcher.instance.locale.languageCode;
-  // final String _lang = "en"; // ← force l'anglais pour tester
+  // final String _lang = "cn"; // for test
   final ScrollController _vScrollController = ScrollController();
   final ScrollController _hScrollController = ScrollController();
   late PdfViewerController _pdfController;
