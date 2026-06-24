@@ -1,0 +1,4 @@
+    Choose a file
+en: Choose a file
+fr: Choisir un fichier
+
