@@ -562,6 +562,13 @@ Widget _buildButtonsChooseFile(States _st) {
               ? await customPickFile(context, _initialDir)
               : await _pickFile(_st);
           // : await customPickFile(context, _initialDir);
+          // to be able to use the custom file picker on the phone, one
+          // must add
+          // <uses-permission
+          //   android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
+          // in android/app/src/main/AndroidManifest.xml
+          // But not recommended if this application could be installable
+          // in the Play Store.
           if (path != null) {
             _openFile(_st, path);
           }
