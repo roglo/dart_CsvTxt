@@ -2,3 +2,7 @@
 en: Choose a file
 fr: Choisir un fichier
 
+    File:
+en: File:
+fr: Fichier :
+

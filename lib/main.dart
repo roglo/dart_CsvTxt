@@ -569,6 +569,9 @@ void _openFile(States _st, String file) {
   _st.sync();
 }
 
+String transl(States _st, txt) =>
+  _t(_st.getLang(), "Choisir un fichier", txt);
+
 Widget _buildButtonsChooseFile(States _st) {
   final BuildContext context = _st.getContext();
   final String _lang = _st.getLang();
@@ -578,7 +581,7 @@ Widget _buildButtonsChooseFile(States _st) {
   return Row(
     children: [
       ElevatedButton(
-        child: Text(_t(_lang, "Choisir un fichier", "Choose a file")),
+        child: Text(transl(_st, "Choose a file")),
         onPressed: () async {
           final String? path = Platform.isLinux
               // ? await _pickFile()
