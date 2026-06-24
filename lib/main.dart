@@ -534,6 +534,29 @@ Future<String?> _pickFile(States _st) async {
   return null;
 }
 
+const _channel = MethodChannel('app/mediastore');
+
+Future<void> _createLexicon() async {
+  final data = await rootBundle.load('assets/lexicon.txt');
+  await _channel.invokeMethod('createLexicon', data.buffer.asUint8List());
+}
+
+Future<void> syncLexiconIfNewer() async {
+  if (!Platform.isAndroid) return;
+  final file = File('/storage/emulated/0/Documents/CsvTxt/lexicon.txt');
+  if (!await file.exists()) {
+    await _createLexicon();
+    return;
+  }
+  final apkInstallMs = await _channel.invokeMethod<int>('getApkInstallDate');
+  final apkInstallDate = DateTime.fromMillisecondsSinceEpoch(apkInstallMs!);
+  final lexiconDate = await file.lastModified();
+
+  if (apkInstallDate.isAfter(lexiconDate)) {
+    await _createLexicon();
+  }
+}
+
 String _t(String _lang, String fr, String en) => _lang == "fr" ? fr : en;
 
 void _openFile(States _st, String file) {
@@ -1181,6 +1204,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
         _openFile(_st, widget.initialFile!);
       });
     }
+    syncLexiconIfNewer();
   }
 
   @override
