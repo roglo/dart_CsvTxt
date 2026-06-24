@@ -566,6 +566,10 @@ Future<void> syncLexiconIfNewer() async {
 
 String _t(String _lang, String fr, String en) => _lang == "fr" ? fr : en;
 
+void readLexicon(States _st, File lexFile) {
+  print("read lexicon");
+}
+
 String transl(States _st, txt) {
   final String _lexFileName = lexFileName();
   final lexFile = File(_lexFileName);
@@ -577,10 +581,12 @@ String transl(States _st, txt) {
   final DateTime? prevLexDate = _st.getLexDate();
   if (prevLexDate == null) {
     print("transl \"$txt\" lexicon not yet loaded");
+    readLexicon(_st, lexFile);
     _st.setLexDate(lexDate);
   }
   else if (lexDate.isAfter(prevLexDate)) {
     print("transl \"$txt\" lexicon has changed");
+    readLexicon(_st, lexFile);
     _st.setLexDate(lexDate);
   }
   return _t(_st.getLang(), "Choisir un fichier", txt);
