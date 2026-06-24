@@ -577,8 +577,21 @@ void readLexicon(States _st, File lexFile) {
     if (line.length > 5 && line.substring(0, 4) == "    ") {
       final key = line.substring(4);
       print("*** key \"$key\"");
+      i++;
+      List<(String, String)> val = [];
+      while (i < sl.length) {
+        final line = sl[i];
+        final j = line.indexOf(":");
+        if (j == -1) break;
+        final k = line.substring(0, j);
+        final v = line.substring(j+2);
+        val.add((k, v));
+        print("***** value \"$k/$v\"");
+        i++;
+      }
+      table[key] = val;
     }
-    i++;
+    else i++;
   }
 }
 
