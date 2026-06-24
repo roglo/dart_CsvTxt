@@ -144,6 +144,7 @@ typedef States = ({
   BuildContext Function() getContext,
   String Function() getLang,
   DateTime? Function() getLexDate,
+  Map<String, List<(String, String)>> Function() getLexTable,
   bool Function() getDirFromButton,
   String? Function() getInitialDir,
   String? Function() getFileName,
@@ -567,9 +568,17 @@ Future<void> syncLexiconIfNewer() async {
 String _t(String _lang, String fr, String en) => _lang == "fr" ? fr : en;
 
 void readLexicon(States _st, File lexFile) {
-  final s = utf8.decode(lexFile.readAsBytesSync());
-  print("$s");
-  print("EOF");
+  List<String> sl = utf8.decode(lexFile.readAsBytesSync()).split("\n");
+  final table = _st.getLexTable();
+  int i = 0;
+  while (i < sl.length) {
+    final line = sl[i];
+    if (line.length > 5 && line.substring(0, 4) == "    ") {
+      final key = line.substring(4);
+      print("*** key \"$key\"");
+    }
+    i++;
+  }
 }
 
 String transl(States _st, txt) {
@@ -1212,6 +1221,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   final ScrollController _hScrollController = ScrollController();
   late PdfViewerController _pdfController;
   DateTime? _lexDate = null;
+  Map<String, List<(String, String)>> _lexTable = {};
   int _currentPage = 1;
   int _pdfLoadCount = 0;
   bool _dirFromButton = true;
@@ -1260,6 +1270,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   BuildContext _getContext() => context;
   String _getLang() => _lang;
   DateTime? _getLexDate() => _lexDate;
+  Map<String, List<(String, String)>> _getLexTable() => _lexTable;
   bool _getDirFromButton() => _dirFromButton;
   String? _getInitialDir() => _initialDir;
   String? _getFileName() => _fileName;
@@ -1306,6 +1317,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     getContext: _getContext,
     getLang: _getLang,
     getLexDate: _getLexDate,
+    getLexTable: _getLexTable,
     getDirFromButton: _getDirFromButton,
     getInitialDir: _getInitialDir,
     getFileName: _getFileName,
