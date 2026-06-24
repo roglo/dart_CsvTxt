@@ -570,6 +570,7 @@ String _t(String _lang, String fr, String en) => _lang == "fr" ? fr : en;
 void readLexicon(States _st, File lexFile) {
   List<String> sl = utf8.decode(lexFile.readAsBytesSync()).split("\n");
   final table = _st.getLexTable();
+  table.clear();
   int i = 0;
   while (i < sl.length) {
     final line = sl[i];
