@@ -143,6 +143,7 @@ typedef TarEntry = ({
 typedef States = ({
   BuildContext Function() getContext,
   String Function() getLang,
+  DateTime? Function() getLexDate,
   bool Function() getDirFromButton,
   String? Function() getInitialDir,
   String? Function() getFileName,
@@ -163,6 +164,7 @@ typedef States = ({
   Color? Function(int) getTextColorList1,
   Color? Function(int) getTextColorList2,
   String? Function() getErrorMessage,
+  void Function(DateTime) setLexDate,
   void Function(String?) setInitialDir,
   void Function(String?) setFileName,
   void Function(String?) setFileContent,
@@ -536,6 +538,11 @@ Future<String?> _pickFile(States _st) async {
 
 const _channel = MethodChannel('app/mediastore');
 
+String lexFileName() {
+  if (Platform.isLinux) return "assets/lexicon.txt";
+  return "/storage/emulated/0/Documents/CsvTxt/lexicon.txt";
+}
+
 Future<void> _createLexicon() async {
   final data = await rootBundle.load('assets/lexicon.txt');
   await _channel.invokeMethod('createLexicon', data.buffer.asUint8List());
@@ -543,7 +550,7 @@ Future<void> _createLexicon() async {
 
 Future<void> syncLexiconIfNewer() async {
   if (!Platform.isAndroid) return;
-  final file = File('/storage/emulated/0/Documents/CsvTxt/lexicon.txt');
+  final file = File(lexFileName());
   if (!await file.exists()) {
     await _createLexicon();
     return;
@@ -559,6 +566,26 @@ Future<void> syncLexiconIfNewer() async {
 
 String _t(String _lang, String fr, String en) => _lang == "fr" ? fr : en;
 
+String transl(States _st, txt) {
+  final String _lexFileName = lexFileName();
+  final lexFile = File(_lexFileName);
+  if (!lexFile.existsSync()) {
+    print("transl \"$txt\", no lexicon");
+    return txt;
+  }
+  final DateTime lexDate = lexFile.lastModifiedSync();
+  final DateTime? prevLexDate = _st.getLexDate();
+  if (prevLexDate == null) {
+    print("transl \"$txt\" lexicon not yet loaded");
+    _st.setLexDate(lexDate);
+  }
+  else if (lexDate.isAfter(prevLexDate)) {
+    print("transl \"$txt\" lexicon has changed");
+    _st.setLexDate(lexDate);
+  }
+  return _t(_st.getLang(), "Choisir un fichier", txt);
+}
+
 void _openFile(States _st, String file) {
   final name = file.split("/").last;
   _st.setInitialDir(file.substring(0, file.lastIndexOf("/")));
@@ -568,9 +595,6 @@ void _openFile(States _st, String file) {
   _filePicked(_st, file, name);
   _st.sync();
 }
-
-String transl(States _st, txt) =>
-  _t(_st.getLang(), "Choisir un fichier", txt);
 
 Widget _buildButtonsChooseFile(States _st) {
   final BuildContext context = _st.getContext();
@@ -1179,6 +1203,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   final ScrollController _vScrollController = ScrollController();
   final ScrollController _hScrollController = ScrollController();
   late PdfViewerController _pdfController;
+  DateTime? _lexDate = null;
   int _currentPage = 1;
   int _pdfLoadCount = 0;
   bool _dirFromButton = true;
@@ -1226,6 +1251,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
 
   BuildContext _getContext() => context;
   String _getLang() => _lang;
+  DateTime? _getLexDate() => _lexDate;
   bool _getDirFromButton() => _dirFromButton;
   String? _getInitialDir() => _initialDir;
   String? _getFileName() => _fileName;
@@ -1247,6 +1273,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   Color? _getTextColorList2(int i) => _textColorsList2[i];
   String? _getErrorMessage() => _errorMessage;
 
+  void _setLexDate(DateTime d) => _lexDate = d;
   void _setInitialDir(String? s) => _initialDir = s;
   void _setFileName(String? s) => _fileName = s;
   void _setFileContent(String? s) => _fileContent = s;
@@ -1270,6 +1297,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   late States _st = (
     getContext: _getContext,
     getLang: _getLang,
+    getLexDate: _getLexDate,
     getDirFromButton: _getDirFromButton,
     getInitialDir: _getInitialDir,
     getFileName: _getFileName,
@@ -1290,6 +1318,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     getTextColorList1: _getTextColorList1,
     getTextColorList2: _getTextColorList2,
     getErrorMessage: _getErrorMessage,
+    setLexDate: _setLexDate,
     setInitialDir: _setInitialDir,
     setFileName: _setFileName,
     setFileContent: _setFileContent,
