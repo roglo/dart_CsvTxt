@@ -567,7 +567,9 @@ Future<void> syncLexiconIfNewer() async {
 String _t(String _lang, String fr, String en) => _lang == "fr" ? fr : en;
 
 void readLexicon(States _st, File lexFile) {
-  print("read lexicon");
+  final s = utf8.decode(lexFile.readAsBytesSync());
+  print("$s");
+  print("EOF");
 }
 
 String transl(States _st, txt) {
