@@ -137,6 +137,23 @@ TextStyle lsStyle({Color color = Colors.blue}) {
   );
 }
 
+// Calculate the width of a character with the given style
+double getCharWidth(BuildContext context, TextStyle style) {
+  final TextPainter textPainter = TextPainter(
+    text: TextSpan(text: 'M', style: style),
+    textDirection: TextDirection.ltr,
+  )..layout();
+  return textPainter.width;
+}
+
+int getMaxCharsPerLine(BuildContext context, int width) {
+  final padding = 50.0;
+  final availableWidth = width - padding;
+  final charWidth = getCharWidth(context, lsStyle());
+  final r = (availableWidth / charWidth).floor();
+  return r;
+}
+
 class CustomFilePickerState extends State<CustomFilePicker> {
   List<FileSystemEntity> _files = [];
   LangCtx? _lc;
@@ -196,23 +213,6 @@ class CustomFilePickerState extends State<CustomFilePicker> {
       _lastVScrollPosition = _vScrollController.position.pixels;
     });
     _initPlatform();
-  }
-
-  // Calculate the width of a character with the given style
-  double getCharWidth(BuildContext context, TextStyle style) {
-    final TextPainter textPainter = TextPainter(
-      text: TextSpan(text: 'M', style: style),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    return textPainter.width;
-  }
-
-  int getMaxCharsPerLine(BuildContext context, int width) {
-    final padding = 50.0;
-    final availableWidth = width - padding;
-    final charWidth = getCharWidth(context, lsStyle());
-    final r = (availableWidth / charWidth).floor();
-    return r;
   }
 
   Widget fileSelectorByTiles(String currentDir, List<FileSystemEntity> files) {
