@@ -668,7 +668,11 @@ Widget _buildButtonsChooseFile(States _st) {
             _st.setModeFixe(!_st.getModeFixe());
             _st.sync();
           },
-          child: Text(_st.getModeFixe() ? "Mode normal" : "Mode fixe"),
+          child: Text(
+            _st.getModeFixe()
+                ? transl(_st, "Normal mode")
+                : transl(_st, "Fixed mode"),
+          ),
         ),
       ],
     ],
@@ -1174,9 +1178,9 @@ Widget _buildNormal(States _st) {
               _st.sync();
             },
             child: Text(
-              _st.getNewVersion() ?
-              transl(_st, "One row per entry") :
-              transl(_st, "Short columns"),
+              _st.getNewVersion()
+                  ? transl(_st, "One row per entry")
+                  : transl(_st, "Short columns"),
             ),
           ),
       ],

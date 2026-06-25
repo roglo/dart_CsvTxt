@@ -6,6 +6,14 @@ fr: Choisir un fichier
 en: File:
 fr: Fichier :
 
+    Fixed mode
+en: Fixed mode
+fr: Mode fixe
+
+    Normal mode
+en: Normal mode
+fr: Mode normal
+
     One row per entry
 en: One row per entry
 fr: Une ligne par entrée
