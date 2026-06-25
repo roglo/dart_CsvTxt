@@ -1244,7 +1244,7 @@ String _userLang() {
     final String s = utf8.decode(langFile.readAsBytesSync());
     final String t = s.endsWith("\n") ? s.substring(0, s.length - 1) : s;
     if (t != "") _lang = t;
-  };
+  }
   return _lang;
 }
 
