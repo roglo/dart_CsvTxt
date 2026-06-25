@@ -140,11 +140,16 @@ typedef TarEntry = ({
   bool tarFileIsGz,
 });
 
-typedef States = ({
-  BuildContext Function() getContext,
+typedef LangCtx = ({
   String Function() getLang,
   DateTime? Function() getLexDate,
   Map<String, List<(String, String)>> Function() getLexTable,
+  void Function(DateTime) setLexDate,
+});
+
+typedef States = ({
+  BuildContext Function() getContext,
+  LangCtx Function() getLangCtx,
   bool Function() getDirFromButton,
   String? Function() getInitialDir,
   String? Function() getFileName,
@@ -165,7 +170,6 @@ typedef States = ({
   Color? Function(int) getTextColorList1,
   Color? Function(int) getTextColorList2,
   String? Function() getErrorMessage,
-  void Function(DateTime) setLexDate,
   void Function(String?) setInitialDir,
   void Function(String?) setFileName,
   void Function(String?) setFileContent,
@@ -565,9 +569,9 @@ Future<void> syncLexiconIfNewer() async {
   }
 }
 
-void readLexicon(States _st, File lexFile) {
+void readLexicon(LangCtx _lc, File lexFile) {
   List<String> sl = utf8.decode(lexFile.readAsBytesSync()).split("\n");
-  final table = _st.getLexTable();
+  final table = _lc.getLexTable();
   table.clear();
   int i = 0;
   while (i < sl.length) {
@@ -591,7 +595,7 @@ void readLexicon(States _st, File lexFile) {
   }
 }
 
-String transl(States _st, txt) {
+String transl(LangCtx _lc, txt) {
   final String _lexFileName = "${appDirName()}/lexicon.txt";
   final lexFile = File(_lexFileName);
   if (!lexFile.existsSync()) {
@@ -599,18 +603,18 @@ String transl(States _st, txt) {
     return txt;
   }
   final DateTime lexDate = lexFile.lastModifiedSync();
-  final DateTime? prevLexDate = _st.getLexDate();
+  final DateTime? prevLexDate = _lc.getLexDate();
   if (prevLexDate == null) {
     print("transl \"$txt\" lexicon not yet loaded");
-    readLexicon(_st, lexFile);
-    _st.setLexDate(lexDate);
+    readLexicon(_lc, lexFile);
+    _lc.setLexDate(lexDate);
   } else if (lexDate.isAfter(prevLexDate)) {
     print("transl \"$txt\" lexicon has changed");
-    readLexicon(_st, lexFile);
-    _st.setLexDate(lexDate);
+    readLexicon(_lc, lexFile);
+    _lc.setLexDate(lexDate);
   }
-  final table = _st.getLexTable();
-  final lang = _st.getLang();
+  final table = _lc.getLexTable();
+  final lang = _lc.getLang();
   List<(String, String)>? val = table[txt];
   if (val == null) return "<$txt>";
   try {
@@ -635,10 +639,11 @@ Widget _buildButtonsChooseFile(States _st) {
   final String? _initialDir = _st.getInitialDir();
   final String? _fileName = _st.getFileName();
   final FileType? _fileType = _st.getFileType();
+  final LangCtx _lc = _st.getLangCtx();
   return Row(
     children: [
       ElevatedButton(
-        child: Text(transl(_st, "Choose a file")),
+        child: Text(transl(_lc, "Choose a file")),
         onPressed: () async {
           final String? path = Platform.isLinux
               // ? await _pickFile()
@@ -670,8 +675,8 @@ Widget _buildButtonsChooseFile(States _st) {
           },
           child: Text(
             _st.getModeFixe()
-                ? transl(_st, "Normal mode")
-                : transl(_st, "Fixed mode"),
+                ? transl(_lc, "Normal mode")
+                : transl(_lc, "Fixed mode"),
           ),
         ),
       ],
@@ -1143,6 +1148,7 @@ Widget _buildNormal(States _st) {
   final FileType? _fileType = _st.getFileType();
   final String? _fileName = _st.getFileName();
   final String? _errorMessage = _st.getErrorMessage();
+  final LangCtx _lc = _st.getLangCtx();
   if (Platform.isLinux ||
       MediaQuery.of(_st.getContext()).orientation == Orientation.portrait) {
     return Column(
@@ -1159,7 +1165,7 @@ Widget _buildNormal(States _st) {
         const SizedBox(height: 16),
         if (_fileName != null)
           Text(
-            "${transl(_st, "File:")} $_fileName",
+            "${transl(_lc, "File:")} $_fileName",
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         const SizedBox(height: 8),
@@ -1179,8 +1185,8 @@ Widget _buildNormal(States _st) {
             },
             child: Text(
               _st.getNewVersion()
-                  ? transl(_st, "One row per entry")
-                  : transl(_st, "Short columns"),
+                  ? transl(_lc, "One row per entry")
+                  : transl(_lc, "Short columns"),
             ),
           ),
       ],
@@ -1300,10 +1306,20 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     _pdfController = PdfViewerController();
   }
 
-  BuildContext _getContext() => context;
   String _getLang() => _lang;
   DateTime? _getLexDate() => _lexDate;
   Map<String, List<(String, String)>> _getLexTable() => _lexTable;
+  void _setLexDate(DateTime d) => _lexDate = d;
+
+  late LangCtx _lc = (
+    getLang: _getLang,
+    getLexDate: _getLexDate,
+    getLexTable: _getLexTable,
+    setLexDate: _setLexDate,
+  );
+
+  BuildContext _getContext() => context;
+  LangCtx _getLangCtx() => _lc;
   bool _getDirFromButton() => _dirFromButton;
   String? _getInitialDir() => _initialDir;
   String? _getFileName() => _fileName;
@@ -1325,7 +1341,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   Color? _getTextColorList2(int i) => _textColorsList2[i];
   String? _getErrorMessage() => _errorMessage;
 
-  void _setLexDate(DateTime d) => _lexDate = d;
   void _setInitialDir(String? s) => _initialDir = s;
   void _setFileName(String? s) => _fileName = s;
   void _setFileContent(String? s) => _fileContent = s;
@@ -1348,9 +1363,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
 
   late States _st = (
     getContext: _getContext,
-    getLang: _getLang,
-    getLexDate: _getLexDate,
-    getLexTable: _getLexTable,
+    getLangCtx: _getLangCtx,
     getDirFromButton: _getDirFromButton,
     getInitialDir: _getInitialDir,
     getFileName: _getFileName,
@@ -1371,7 +1384,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     getTextColorList1: _getTextColorList1,
     getTextColorList2: _getTextColorList2,
     getErrorMessage: _getErrorMessage,
-    setLexDate: _setLexDate,
     setInitialDir: _setInitialDir,
     setFileName: _setFileName,
     setFileContent: _setFileContent,
