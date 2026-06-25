@@ -317,7 +317,10 @@ class CustomFilePickerState extends State<CustomFilePicker> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
-                  child: Text("Annuler", style: TextStyle(fontSize: 16)),
+                  child: Text(
+                    transl(_lc, "Cancel"),
+                    style: TextStyle(fontSize: 16)
+                  ),
                   onPressed: () => Navigator.pop(context),
                 ),
                 SizedBox(width: 10),
@@ -325,7 +328,10 @@ class CustomFilePickerState extends State<CustomFilePicker> {
                   onPressed: _selectedFile != null
                       ? () => Navigator.pop(context, _selectedFile)
                       : null,
-                  child: Text("Ouvrir", style: TextStyle(fontSize: 16)),
+                  child: Text(
+                    transl(_lc, "Open"),
+                    style: TextStyle(fontSize: 16)
+                  ),
                 ),
               ],
             ),

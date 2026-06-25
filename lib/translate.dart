@@ -39,7 +39,8 @@ void readLexicon(LangCtx _lc, File lexFile) {
   }
 }
 
-String transl(LangCtx _lc, txt) {
+String transl(LangCtx? _lc, txt) {
+  if (_lc == null) return txt;
   final String _lexFileName = "${appDirName()}/lexicon.txt";
   final lexFile = File(_lexFileName);
   if (!lexFile.existsSync()) {

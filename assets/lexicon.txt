@@ -1,3 +1,7 @@
+    Cancel
+en: Cancel
+fr: Annuler
+
     Choose a file
 en: Choose a file
 fr: Choisir un fichier
@@ -17,6 +21,10 @@ fr: Mode normal
     One row per entry
 en: One row per entry
 fr: Une ligne par entrée
+
+    Open
+en: Open
+fr: Ouvrir
 
     Short columns
 en: Short columns
