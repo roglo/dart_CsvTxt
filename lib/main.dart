@@ -1232,20 +1232,8 @@ Widget _build(States _st) {
   }
 }
 
-String _userLang() {
-  String _lang = PlatformDispatcher.instance.locale.languageCode;
-  final String _langFileName = "${appDirName()}/lang.txt";
-  final langFile = File(_langFileName);
-  if (langFile.existsSync()) {
-    final String s = utf8.decode(langFile.readAsBytesSync());
-    final String t = s.endsWith("\n") ? s.substring(0, s.length - 1) : s;
-    if (t != "") _lang = t;
-  };
-  return _lang;
-}
-
 class _FilePickerScreenState extends State<FilePickerScreen> {
-  final String _lang = _userLang();
+  final String _lang = PlatformDispatcher.instance.locale.languageCode;
   final ScrollController _vScrollController = ScrollController();
   final ScrollController _hScrollController = ScrollController();
   late PdfViewerController _pdfController;
