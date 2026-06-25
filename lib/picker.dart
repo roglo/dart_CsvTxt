@@ -87,11 +87,12 @@ class CustomFilePicker extends StatefulWidget {
 double _lastVScrollPosition = 0.0;
 
 typedef PickerState = ({
-  String Function() getCurrentDir,
+  String? Function() getCurrentDir,
   ScrollController Function() getVScrollController,
   ScrollController Function() getHScrollController,
   void Function(String) setCurrentDir,
   void Function(List<FileSystemEntity>) setFiles,
+  void Function() sync,
 });
 
 Future<void> _loadFiles(
@@ -117,6 +118,7 @@ Future<void> _loadFiles(
     }
     _ps.setCurrentDir(path);
     _ps.setFiles(filteredEntities);
+    _ps.sync();
   } catch (e) {
     if (mounted) {
       ScaffoldMessenger.of(
@@ -134,6 +136,23 @@ class CustomFilePickerState extends State<CustomFilePicker> {
   final Map<int, Color> _fileTextColors = {};
   final ScrollController _vScrollController = ScrollController();
   final ScrollController _hScrollController = ScrollController();
+
+  String? _getCurrentDir() => _currentDir;
+  ScrollController _getVScrollController() => _vScrollController;
+  ScrollController _getHScrollController() => _hScrollController;
+  void _setCurrentDir(String? d) => _currentDir = d;
+  void _setFiles(List<FileSystemEntity> fl) => _files = fl;
+  void _sync() => setState(() {});
+
+  late PickerState _ps = (
+    getCurrentDir: _getCurrentDir,
+    getVScrollController: _getVScrollController,
+    getHScrollController: _getHScrollController,
+    setCurrentDir: _setCurrentDir,
+    setFiles: _setFiles,
+    sync: _sync,
+  );
+
   @override
   void dispose() {
     _vScrollController.dispose();
@@ -158,7 +177,7 @@ class CustomFilePickerState extends State<CustomFilePicker> {
         _currentDir = extDir?.path ?? "/storage/emulated/0";
       }
     }
-    _loadFiles(_currentDir!);
+    _loadFiles(_ps, context, mounted, _currentDir!);
   }
 
   @override
@@ -168,35 +187,6 @@ class CustomFilePickerState extends State<CustomFilePicker> {
       _lastVScrollPosition = _vScrollController.position.pixels;
     });
     _initPlatform();
-  }
-
-  Future<void> _loadFiles(String path) async {
-    final dir = Directory(path);
-    try {
-      final entities = await dir.list().toList();
-      final filteredEntities = entities.where((entity) {
-        final basename = entity.path.split('/').last;
-        return !basename.startsWith('.');
-      }).toList();
-      filteredEntities.add(Directory('..'));
-      filteredEntities.sort((a, b) => a.path.compareTo(b.path));
-      if (_hScrollController.hasClients) {
-        _hScrollController.jumpTo(0);
-      }
-      if (_vScrollController.hasClients) {
-        _vScrollController.jumpTo(_lastVScrollPosition);
-      }
-      setState(() {
-        _currentDir = path;
-        _files = filteredEntities;
-      });
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Erreur: $e")));
-      }
-    }
   }
 
   TextStyle lsStyle({Color color = Colors.blue}) {
@@ -242,9 +232,9 @@ class CustomFilePickerState extends State<CustomFilePicker> {
               if (isDir) {
                 if (displayName == '..') {
                   final parentDir = Directory(currentDir).parent.path;
-                  _loadFiles(parentDir);
+                  _loadFiles(_ps, context, mounted, parentDir);
                 } else {
-                  _loadFiles(file.path);
+                  _loadFiles(_ps, context, mounted, file.path);
                 }
               } else {
                 setState(() => _selectedFile = file.path);
@@ -264,9 +254,9 @@ class CustomFilePickerState extends State<CustomFilePicker> {
     if (isDir) {
       if (label == '../') {
         final parentDir = Directory(currentDir).parent.path;
-        _loadFiles(parentDir);
+        _loadFiles(_ps, context, mounted, parentDir);
       } else {
-        _loadFiles("$wds$label");
+        _loadFiles(_ps, context, mounted, "$wds$label");
       }
     } else {
       setState(() => _selectedFile = "$wds$label");
