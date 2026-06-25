@@ -128,6 +128,15 @@ Future<void> _loadFiles(
   }
 }
 
+TextStyle lsStyle({Color color = Colors.blue}) {
+  return TextStyle(
+    fontFamily: "monospace", // "Courier",
+    fontSize: _lsFontSize,
+    fontWeight: FontWeight.bold,
+    color: color,
+  );
+}
+
 class CustomFilePickerState extends State<CustomFilePicker> {
   List<FileSystemEntity> _files = [];
   LangCtx? _lc;
@@ -187,15 +196,6 @@ class CustomFilePickerState extends State<CustomFilePicker> {
       _lastVScrollPosition = _vScrollController.position.pixels;
     });
     _initPlatform();
-  }
-
-  TextStyle lsStyle({Color color = Colors.blue}) {
-    return TextStyle(
-      fontFamily: "monospace", // "Courier",
-      fontSize: _lsFontSize,
-      fontWeight: FontWeight.bold,
-      color: color,
-    );
   }
 
   // Calculate the width of a character with the given style
