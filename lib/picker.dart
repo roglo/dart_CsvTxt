@@ -344,6 +344,6 @@ Future<String?> customPickFile(
   return await showDialog<String>(
     context: context,
     builder: (context) =>
-      CustomFilePicker(langCtx: langCtx, initialDir: initialDir),
+        CustomFilePicker(langCtx: langCtx, initialDir: initialDir),
   );
 }
