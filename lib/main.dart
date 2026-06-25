@@ -581,7 +581,7 @@ Widget _buildButtonsChooseFile(States _st) {
         onPressed: () async {
           final String? path = Platform.isLinux
               // ? await _pickFile()
-              ? await customPickFile(context, _initialDir)
+              ? await customPickFile(context, _lc, _initialDir)
               : await _pickFile(_st);
           // : await customPickFile(context, _initialDir);
           // to be able to use the custom file picker on the phone, one

@@ -9,6 +9,8 @@ import 'package:permission_handler/permission_handler.dart';
 // ignore: unused_import
 import 'package:file_picker/file_picker.dart';
 
+import "translate.dart";
+
 double _lsFontSize = 18;
 
 List<List<(String, int)>> buildLsLikeLines(List<String> labels, int maxWidth) {
@@ -74,8 +76,9 @@ List<List<(String, int)>> buildLsLikeLines(List<String> labels, int maxWidth) {
 }
 
 class CustomFilePicker extends StatefulWidget {
+  final LangCtx? langCtx;
   final String? initialDir;
-  const CustomFilePicker({super.key, this.initialDir});
+  const CustomFilePicker({super.key, this.initialDir, this.langCtx});
 
   @override
   CustomFilePickerState createState() => CustomFilePickerState();
@@ -85,6 +88,7 @@ double _lastVScrollPosition = 0.0;
 
 class CustomFilePickerState extends State<CustomFilePicker> {
   List<FileSystemEntity> _files = [];
+  LangCtx? _lc;
   String? _currentDir;
   String? _selectedFile;
   final Map<int, Color> _fileTextColors = {};
@@ -98,6 +102,7 @@ class CustomFilePickerState extends State<CustomFilePicker> {
   }
 
   Future<void> _initPlatform() async {
+    _lc = widget.langCtx;
     if (widget.initialDir != null) {
       _currentDir = widget.initialDir;
     } else if (Platform.isLinux) {
@@ -331,9 +336,14 @@ class CustomFilePickerState extends State<CustomFilePicker> {
   }
 }
 
-Future<String?> customPickFile(BuildContext context, String? initialDir) async {
+Future<String?> customPickFile(
+  BuildContext context,
+  LangCtx langCtx,
+  String? initialDir,
+) async {
   return await showDialog<String>(
     context: context,
-    builder: (context) => CustomFilePicker(initialDir: initialDir),
+    builder: (context) =>
+      CustomFilePicker(langCtx: langCtx, initialDir: initialDir),
   );
 }
