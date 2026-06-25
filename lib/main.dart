@@ -1174,7 +1174,9 @@ Widget _buildNormal(States _st) {
               _st.sync();
             },
             child: Text(
-              _st.getNewVersion() ? "Une ligne par entrée" : "Colonnes courtes",
+              _st.getNewVersion() ?
+              transl(_st, "One row per entry") :
+              transl(_st, "Short columns"),
             ),
           ),
       ],

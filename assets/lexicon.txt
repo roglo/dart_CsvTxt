@@ -5,3 +5,11 @@ fr: Choisir un fichier
     File:
 en: File:
 fr: Fichier :
+
+    One row per entry
+en: One row per entry
+fr: Une ligne par entrée
+
+    Short columns
+en: Short columns
+fr: Colonnes courtes
