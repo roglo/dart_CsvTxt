@@ -323,16 +323,6 @@ class CustomFilePickerState extends State<CustomFilePicker> {
                   ),
                   onPressed: () => Navigator.pop(context),
                 ),
-                SizedBox(width: 10),
-                TextButton(
-                  onPressed: _selectedFile != null
-                      ? () => Navigator.pop(context, _selectedFile)
-                      : null,
-                  child: Text(
-                    transl(_lc, "Open"),
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ),
               ],
             ),
           ],

@@ -22,10 +22,6 @@ fr: Mode normal
 en: One row per entry
 fr: Une ligne par entrée
 
-    Open
-en: Open
-fr: Ouvrir
-
     Short columns
 en: Short columns
 fr: Colonnes courtes
