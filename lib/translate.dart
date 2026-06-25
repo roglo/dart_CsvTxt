@@ -61,7 +61,6 @@ String transl(LangCtx? _lc, txt) {
   final table = _lc.getLexTable();
   final lang = _lc.getLang();
   List<(String, String)>? val = table[txt];
-print("lang is $lang");
   if (val == null) return "<$txt>";
   try {
     return val.firstWhere((tuple) => tuple.$1 == lang).$2;
