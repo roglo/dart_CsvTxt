@@ -539,9 +539,9 @@ Future<String?> _pickFile(States _st) async {
 
 const _channel = MethodChannel('app/mediastore');
 
-String lexFileName() {
-  if (Platform.isLinux) return "assets/lexicon.txt";
-  return "/storage/emulated/0/Documents/CsvTxt/lexicon.txt";
+String appDirName() {
+  if (Platform.isLinux) return "assets";
+  return "/storage/emulated/0/Documents/CsvTxt";
 }
 
 Future<void> _createLexicon() async {
@@ -551,7 +551,7 @@ Future<void> _createLexicon() async {
 
 Future<void> syncLexiconIfNewer() async {
   if (!Platform.isAndroid) return;
-  final file = File(lexFileName());
+  final file = File("${appDirName()}/lexicon.txt");
   if (!await file.exists()) {
     await _createLexicon();
     return;
@@ -592,7 +592,7 @@ void readLexicon(States _st, File lexFile) {
 }
 
 String transl(States _st, txt) {
-  final String _lexFileName = lexFileName();
+  final String _lexFileName = "${appDirName()}/lexicon.txt";
   final lexFile = File(_lexFileName);
   if (!lexFile.existsSync()) {
     print("transl \"$txt\", no lexicon");
@@ -1232,9 +1232,20 @@ Widget _build(States _st) {
   }
 }
 
+String _userLang() {
+  String _lang = PlatformDispatcher.instance.locale.languageCode;
+  final String _langFileName = "${appDirName()}/lang.txt";
+  final langFile = File(_langFileName);
+  if (langFile.existsSync()) {
+    final String s = utf8.decode(langFile.readAsBytesSync());
+    final String t = s.endsWith("\n") ? s.substring(0, s.length - 1) : s;
+    if (t != "") _lang = t;
+  };
+  return _lang;
+}
+
 class _FilePickerScreenState extends State<FilePickerScreen> {
-  final String _lang = PlatformDispatcher.instance.locale.languageCode;
-  // final String _lang = "cn"; // for test
+  final String _lang = _userLang();
   final ScrollController _vScrollController = ScrollController();
   final ScrollController _hScrollController = ScrollController();
   late PdfViewerController _pdfController;
