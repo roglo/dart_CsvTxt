@@ -194,6 +194,30 @@ Widget fileSelectorByTiles(
   );
 }
 
+void _actionClickOnFile(
+  PickerState _ps,
+  BuildContext context,
+  bool mounted,
+  String currentDir,
+  String label,
+) {
+  final isDir = label.endsWith("/");
+  final cds = currentDir.endsWith("/");
+  final wds = "$currentDir${cds ? '' : '/'}";
+  if (isDir) {
+    if (label == '../') {
+      final parentDir = Directory(currentDir).parent.path;
+      _loadFiles(_ps, context, mounted, parentDir);
+    } else {
+      _loadFiles(_ps, context, mounted, "$wds$label");
+    }
+  } else {
+    _ps.setSelectedFile("$wds$label");
+    _ps.sync();
+    Navigator.pop(context, _ps.getSelectedFile());
+  }
+}
+
 class CustomFilePickerState extends State<CustomFilePicker> {
   List<FileSystemEntity> _files = [];
   LangCtx? _lc;
@@ -259,23 +283,6 @@ class CustomFilePickerState extends State<CustomFilePicker> {
     _initPlatform();
   }
 
-  void _actionClickOnFile(String currentDir, String label) {
-    final isDir = label.endsWith("/");
-    final cds = currentDir.endsWith("/");
-    final wds = "$currentDir${cds ? '' : '/'}";
-    if (isDir) {
-      if (label == '../') {
-        final parentDir = Directory(currentDir).parent.path;
-        _loadFiles(_ps, context, mounted, parentDir);
-      } else {
-        _loadFiles(_ps, context, mounted, "$wds$label");
-      }
-    } else {
-      setState(() => _selectedFile = "$wds$label");
-      Navigator.pop(context, _selectedFile);
-    }
-  }
-
   Widget _clickOnFile(int index, String currentDir, String label, int pad) {
     return GestureDetector(
       onTap: () {
@@ -284,7 +291,7 @@ class CustomFilePickerState extends State<CustomFilePicker> {
         });
         Future.delayed(const Duration(milliseconds: 300), () {
           _fileTextColors[index] = Colors.blue;
-          _actionClickOnFile(currentDir, label);
+          _actionClickOnFile(_ps, context, mounted, currentDir, label);
         });
       },
       child: Text(
