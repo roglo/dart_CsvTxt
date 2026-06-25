@@ -86,6 +86,46 @@ class CustomFilePicker extends StatefulWidget {
 
 double _lastVScrollPosition = 0.0;
 
+typedef PickerState = ({
+  String Function() getCurrentDir,
+  ScrollController Function() getVScrollController,
+  ScrollController Function() getHScrollController,
+  void Function(String) setCurrentDir,
+  void Function(List<FileSystemEntity>) setFiles,
+});
+
+Future<void> _loadFiles(
+  PickerState _ps,
+  BuildContext context,
+  bool mounted,
+  String path,
+) async {
+  final dir = Directory(path);
+  try {
+    final entities = await dir.list().toList();
+    final filteredEntities = entities.where((entity) {
+      final basename = entity.path.split('/').last;
+      return !basename.startsWith('.');
+    }).toList();
+    filteredEntities.add(Directory('..'));
+    filteredEntities.sort((a, b) => a.path.compareTo(b.path));
+    if (_ps.getHScrollController().hasClients) {
+      _ps.getHScrollController().jumpTo(0);
+    }
+    if (_ps.getVScrollController().hasClients) {
+      _ps.getVScrollController().jumpTo(_lastVScrollPosition);
+    }
+    _ps.setCurrentDir(path);
+    _ps.setFiles(filteredEntities);
+  } catch (e) {
+    if (mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Erreur: $e")));
+    }
+  }
+}
+
 class CustomFilePickerState extends State<CustomFilePicker> {
   List<FileSystemEntity> _files = [];
   LangCtx? _lc;
