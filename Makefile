@@ -27,12 +27,14 @@ analyze:
 pretty:
 	dart format lib/find_sep.dart
 	dart format lib/picker.dart
+	dart format lib/translate.dart
 	dart format lib/main.dart
 
 copy_src:
 	adb push lib/find_sep.ml /sdcard/Download/.
 	adb push lib/find_sep.dart /sdcard/Download/.
 	adb push lib/picker.dart /sdcard/Download/.
+	adb push lib/translate.dart /sdcard/Download/.
 	adb push lib/main.dart /sdcard/Download/.
 
 find_sep:
