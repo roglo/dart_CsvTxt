@@ -319,7 +319,7 @@ class CustomFilePickerState extends State<CustomFilePicker> {
                 TextButton(
                   child: Text(
                     transl(_lc, "Cancel"),
-                    style: TextStyle(fontSize: 16)
+                    style: TextStyle(fontSize: 16),
                   ),
                   onPressed: () => Navigator.pop(context),
                 ),
@@ -330,7 +330,7 @@ class CustomFilePickerState extends State<CustomFilePicker> {
                       : null,
                   child: Text(
                     transl(_lc, "Open"),
-                    style: TextStyle(fontSize: 16)
+                    style: TextStyle(fontSize: 16),
                   ),
                 ),
               ],
