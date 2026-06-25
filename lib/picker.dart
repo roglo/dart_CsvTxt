@@ -88,9 +88,11 @@ double _lastVScrollPosition = 0.0;
 
 typedef PickerState = ({
   String? Function() getCurrentDir,
+  String? Function() getSelectedFile,
   ScrollController Function() getVScrollController,
   ScrollController Function() getHScrollController,
-  void Function(String) setCurrentDir,
+  void Function(String?) setCurrentDir,
+  void Function(String?) setSelectedFile,
   void Function(List<FileSystemEntity>) setFiles,
   void Function() sync,
 });
@@ -154,6 +156,44 @@ int getMaxCharsPerLine(BuildContext context, int width) {
   return r;
 }
 
+Widget fileSelectorByTiles(
+  PickerState _ps,
+  bool mounted,
+  String currentDir,
+  List<FileSystemEntity> files,
+) {
+  return Expanded(
+    child: ListView.builder(
+      controller: _ps.getVScrollController(),
+      scrollDirection: Axis.vertical,
+      itemCount: files.length,
+      itemBuilder: (context, index) {
+        final file = files[index];
+        final isDir = file is Directory;
+        final displayName = file.path.split('/').last;
+        return ListTile(
+          title: Text(displayName, style: TextStyle(fontSize: 16)),
+          trailing: isDir ? Icon(Icons.folder) : null,
+          onTap: () {
+            if (isDir) {
+              if (displayName == '..') {
+                final parentDir = Directory(currentDir).parent.path;
+                _loadFiles(_ps, context, mounted, parentDir);
+              } else {
+                _loadFiles(_ps, context, mounted, file.path);
+              }
+            } else {
+              _ps.setSelectedFile(file.path);
+              _ps.sync();
+              Navigator.pop(context, _ps.getSelectedFile());
+            }
+          },
+        );
+      },
+    ),
+  );
+}
+
 class CustomFilePickerState extends State<CustomFilePicker> {
   List<FileSystemEntity> _files = [];
   LangCtx? _lc;
@@ -164,17 +204,21 @@ class CustomFilePickerState extends State<CustomFilePicker> {
   final ScrollController _hScrollController = ScrollController();
 
   String? _getCurrentDir() => _currentDir;
+  String? _getSelectedFile() => _selectedFile;
   ScrollController _getVScrollController() => _vScrollController;
   ScrollController _getHScrollController() => _hScrollController;
   void _setCurrentDir(String? d) => _currentDir = d;
+  void _setSelectedFile(String? f) => _selectedFile = f;
   void _setFiles(List<FileSystemEntity> fl) => _files = fl;
   void _sync() => setState(() {});
 
   late PickerState _ps = (
     getCurrentDir: _getCurrentDir,
+    getSelectedFile: _getSelectedFile,
     getVScrollController: _getVScrollController,
     getHScrollController: _getHScrollController,
     setCurrentDir: _setCurrentDir,
+    setSelectedFile: _setSelectedFile,
     setFiles: _setFiles,
     sync: _sync,
   );
@@ -213,38 +257,6 @@ class CustomFilePickerState extends State<CustomFilePicker> {
       _lastVScrollPosition = _vScrollController.position.pixels;
     });
     _initPlatform();
-  }
-
-  Widget fileSelectorByTiles(String currentDir, List<FileSystemEntity> files) {
-    return Expanded(
-      child: ListView.builder(
-        controller: _vScrollController,
-        scrollDirection: Axis.vertical,
-        itemCount: files.length,
-        itemBuilder: (context, index) {
-          final file = files[index];
-          final isDir = file is Directory;
-          final displayName = file.path.split('/').last;
-          return ListTile(
-            title: Text(displayName, style: TextStyle(fontSize: 16)),
-            trailing: isDir ? Icon(Icons.folder) : null,
-            onTap: () {
-              if (isDir) {
-                if (displayName == '..') {
-                  final parentDir = Directory(currentDir).parent.path;
-                  _loadFiles(_ps, context, mounted, parentDir);
-                } else {
-                  _loadFiles(_ps, context, mounted, file.path);
-                }
-              } else {
-                setState(() => _selectedFile = file.path);
-                Navigator.pop(context, _selectedFile);
-              }
-            },
-          );
-        },
-      ),
-    );
   }
 
   void _actionClickOnFile(String currentDir, String label) {
