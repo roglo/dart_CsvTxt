@@ -100,11 +100,7 @@ typedef PickerState = ({
   void Function() sync,
 });
 
-Future<void> _loadFiles(
-  PickerState _ps,
-  bool mounted,
-  String path,
-) async {
+Future<void> _loadFiles(PickerState _ps, bool mounted, String path) async {
   final dir = Directory(path);
   try {
     final entities = await dir.list().toList();
@@ -337,14 +333,7 @@ class CustomFilePickerState extends State<CustomFilePicker> {
                 final (label, pad) = entry.value;
                 return Row(
                   children: [
-                    _clickOnFile(
-                      _ps,
-                      mounted,
-                      index,
-                      currentDir,
-                      label,
-                      pad,
-                    ),
+                    _clickOnFile(_ps, mounted, index, currentDir, label, pad),
                   ],
                 );
               }).toList(),
