@@ -87,6 +87,7 @@ class CustomFilePicker extends StatefulWidget {
 double _lastVScrollPosition = 0.0;
 
 typedef PickerState = ({
+  BuildContext Function() getContext,
   String? Function() getCurrentDir,
   String? Function() getSelectedFile,
   Color? Function(int) getTextColorList,
@@ -101,7 +102,6 @@ typedef PickerState = ({
 
 Future<void> _loadFiles(
   PickerState _ps,
-  BuildContext context,
   bool mounted,
   String path,
 ) async {
@@ -126,7 +126,7 @@ Future<void> _loadFiles(
   } catch (e) {
     if (mounted) {
       ScaffoldMessenger.of(
-        context,
+        _ps.getContext(),
       ).showSnackBar(SnackBar(content: Text("Erreur: $e")));
     }
   }
@@ -180,9 +180,9 @@ Widget fileSelectorByTiles(
             if (isDir) {
               if (displayName == '..') {
                 final parentDir = Directory(currentDir).parent.path;
-                _loadFiles(_ps, context, mounted, parentDir);
+                _loadFiles(_ps, mounted, parentDir);
               } else {
-                _loadFiles(_ps, context, mounted, file.path);
+                _loadFiles(_ps, mounted, file.path);
               }
             } else {
               _ps.setSelectedFile(file.path);
@@ -198,7 +198,6 @@ Widget fileSelectorByTiles(
 
 void _actionClickOnFile(
   PickerState _ps,
-  BuildContext context,
   bool mounted,
   String currentDir,
   String label,
@@ -209,20 +208,19 @@ void _actionClickOnFile(
   if (isDir) {
     if (label == '../') {
       final parentDir = Directory(currentDir).parent.path;
-      _loadFiles(_ps, context, mounted, parentDir);
+      _loadFiles(_ps, mounted, parentDir);
     } else {
-      _loadFiles(_ps, context, mounted, "$wds$label");
+      _loadFiles(_ps, mounted, "$wds$label");
     }
   } else {
     _ps.setSelectedFile("$wds$label");
     _ps.sync();
-    Navigator.pop(context, _ps.getSelectedFile());
+    Navigator.pop(_ps.getContext(), _ps.getSelectedFile());
   }
 }
 
 Widget _clickOnFile(
   PickerState _ps,
-  BuildContext context,
   bool mounted,
   int index,
   String currentDir,
@@ -236,7 +234,7 @@ Widget _clickOnFile(
       Future.delayed(const Duration(milliseconds: 300), () {
         _ps.setTextColorList(index, Colors.blue);
         _ps.sync();
-        _actionClickOnFile(_ps, context, mounted, currentDir, label);
+        _actionClickOnFile(_ps, mounted, currentDir, label);
       });
     },
     child: Text(
@@ -255,6 +253,7 @@ class CustomFilePickerState extends State<CustomFilePicker> {
   final ScrollController _vScrollController = ScrollController();
   final ScrollController _hScrollController = ScrollController();
 
+  BuildContext _getContext() => context;
   String? _getCurrentDir() => _currentDir;
   String? _getSelectedFile() => _selectedFile;
   Color? _getTextColorList(int i) => _textColorList[i];
@@ -268,6 +267,7 @@ class CustomFilePickerState extends State<CustomFilePicker> {
   void _sync() => setState(() {});
 
   late PickerState _ps = (
+    getContext: _getContext,
     getCurrentDir: _getCurrentDir,
     getSelectedFile: _getSelectedFile,
     getTextColorList: _getTextColorList,
@@ -304,7 +304,7 @@ class CustomFilePickerState extends State<CustomFilePicker> {
         _currentDir = extDir?.path ?? "/storage/emulated/0";
       }
     }
-    _loadFiles(_ps, context, mounted, _currentDir!);
+    _loadFiles(_ps, mounted, _currentDir!);
   }
 
   @override
@@ -339,7 +339,6 @@ class CustomFilePickerState extends State<CustomFilePicker> {
                   children: [
                     _clickOnFile(
                       _ps,
-                      context,
                       mounted,
                       index,
                       currentDir,
