@@ -192,8 +192,10 @@ Widget fileSelectorByTiles(
   );
 }
 
-void _actionClickOnFile(PickerState _ps, String currentDir, String label) {
+void _actionClickOnFile(PickerState _ps, String label) {
   final isDir = label.endsWith("/");
+  final currentDir = _ps.getCurrentDir();
+  if (currentDir == null) return;
   final cds = currentDir.endsWith("/");
   final wds = "$currentDir${cds ? '' : '/'}";
   if (isDir) {
@@ -213,7 +215,6 @@ void _actionClickOnFile(PickerState _ps, String currentDir, String label) {
 Widget _clickOnFile(
   PickerState _ps,
   int index,
-  String currentDir,
   String label,
   int pad,
 ) {
@@ -224,7 +225,7 @@ Widget _clickOnFile(
       Future.delayed(const Duration(milliseconds: 300), () {
         _ps.setTextColorList(index, Colors.blue);
         _ps.sync();
-        _actionClickOnFile(_ps, currentDir, label);
+        _actionClickOnFile(_ps, label);
       });
     },
     child: Text(
@@ -309,8 +310,8 @@ class CustomFilePickerState extends State<CustomFilePicker> {
   }
 
   Widget buildLsLikeWidget(
+    PickerState _ps,
     int width,
-    String currentDir,
     List<List<(String, int)>> lines,
   ) {
     return Expanded(
@@ -328,7 +329,7 @@ class CustomFilePickerState extends State<CustomFilePicker> {
                 final int index = rowIndex * lines.first.length + entry.key;
                 final (label, pad) = entry.value;
                 return Row(
-                  children: [_clickOnFile(_ps, index, currentDir, label, pad)],
+                  children: [_clickOnFile(_ps, index, label, pad)],
                 );
               }).toList(),
             );
@@ -339,8 +340,8 @@ class CustomFilePickerState extends State<CustomFilePicker> {
   }
 
   Widget fileSelectorByLs(
+    PickerState _ps,
     int width,
-    String currentDir,
     List<FileSystemEntity> files,
   ) {
     final maxWidth = getMaxCharsPerLine(context, width);
@@ -349,7 +350,7 @@ class CustomFilePickerState extends State<CustomFilePicker> {
       return "${file.path.split('/').last}${isDir ? '/' : ''}";
     }).toList();
     final spll = buildLsLikeLines(filesTagDir, maxWidth);
-    return buildLsLikeWidget(width, currentDir, spll);
+    return buildLsLikeWidget(_ps, width, spll);
   }
 
   @override
@@ -367,8 +368,8 @@ class CustomFilePickerState extends State<CustomFilePicker> {
           children: [
             Text(_currentDir!, style: TextStyle(fontSize: 18)),
             SizedBox(height: 10),
-            // fileSelectorByTiles(
-            fileSelectorByLs(containerWidth, _currentDir!, _files),
+            // fileSelectorByTiles
+            fileSelectorByLs(_ps, containerWidth, _files),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
