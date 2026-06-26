@@ -258,6 +258,20 @@ Widget buildLsLikeWidget(
   );
 }
 
+Widget fileSelectorByLs(
+  PickerState _ps,
+  int width,
+  List<FileSystemEntity> files,
+) {
+  final maxWidth = getMaxCharsPerLine(_ps.getContext(), width);
+  final filesTagDir = files.map((file) {
+    final isDir = file is Directory;
+    return "${file.path.split("/").last}${isDir ? "/" : ""}";
+  }).toList();
+  final spll = buildLsLikeLines(filesTagDir, maxWidth);
+  return buildLsLikeWidget(_ps, width, spll);
+}
+
 class CustomFilePickerState extends State<CustomFilePicker> {
   List<FileSystemEntity> _files = [];
   LangCtx? _lc;
@@ -330,20 +344,6 @@ class CustomFilePickerState extends State<CustomFilePicker> {
       _lastVScrollPosition = _vScrollController.position.pixels;
     });
     _initPlatform();
-  }
-
-  Widget fileSelectorByLs(
-    PickerState _ps,
-    int width,
-    List<FileSystemEntity> files,
-  ) {
-    final maxWidth = getMaxCharsPerLine(context, width);
-    final filesTagDir = files.map((file) {
-      final isDir = file is Directory;
-      return "${file.path.split('/').last}${isDir ? '/' : ''}";
-    }).toList();
-    final spll = buildLsLikeLines(filesTagDir, maxWidth);
-    return buildLsLikeWidget(_ps, width, spll);
   }
 
   @override
