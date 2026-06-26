@@ -5,6 +5,7 @@ fr: Annuler
     Choose a file
 en: Choose a file
 fr: Choisir un fichier
+zh: 选择文件
 
     File:
 en: File:
