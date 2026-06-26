@@ -192,11 +192,7 @@ Widget fileSelectorByTiles(
   );
 }
 
-void _actionClickOnFile(
-  PickerState _ps,
-  String currentDir,
-  String label,
-) {
+void _actionClickOnFile(PickerState _ps, String currentDir, String label) {
   final isDir = label.endsWith("/");
   final cds = currentDir.endsWith("/");
   final wds = "$currentDir${cds ? '' : '/'}";
@@ -332,9 +328,7 @@ class CustomFilePickerState extends State<CustomFilePicker> {
                 final int index = rowIndex * lines.first.length + entry.key;
                 final (label, pad) = entry.value;
                 return Row(
-                  children: [
-                    _clickOnFile(_ps, index, currentDir, label, pad),
-                  ],
+                  children: [_clickOnFile(_ps, index, currentDir, label, pad)],
                 );
               }).toList(),
             );
