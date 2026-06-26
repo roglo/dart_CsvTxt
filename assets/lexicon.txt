@@ -1,6 +1,7 @@
     Cancel
 en: Cancel
 fr: Annuler
+zh: 取消
 
     Choose a file
 en: Choose a file
@@ -10,6 +11,7 @@ zh: 选择文件
     File:
 en: File:
 fr: Fichier :
+zh: 文件：
 
     Fixed mode
 en: Fixed mode
