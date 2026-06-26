@@ -230,6 +230,34 @@ Widget _clickOnFile(PickerState _ps, int index, String label, int pad) {
   );
 }
 
+Widget buildLsLikeWidget(
+  PickerState _ps,
+  int width,
+  List<List<(String, int)>> lines,
+) {
+  return Expanded(
+    child: SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      controller: _ps.getHScrollController(),
+      child: ListView.builder(
+        controller: _ps.getVScrollController(),
+        itemCount: lines.length,
+        itemBuilder: (context, rowIndex) {
+          final line = lines[rowIndex];
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: line.asMap().entries.map((entry) {
+              final int index = rowIndex * lines.first.length + entry.key;
+              final (label, pad) = entry.value;
+              return Row(children: [_clickOnFile(_ps, index, label, pad)]);
+            }).toList(),
+          );
+        },
+      ),
+    ),
+  );
+}
+
 class CustomFilePickerState extends State<CustomFilePicker> {
   List<FileSystemEntity> _files = [];
   LangCtx? _lc;
@@ -302,34 +330,6 @@ class CustomFilePickerState extends State<CustomFilePicker> {
       _lastVScrollPosition = _vScrollController.position.pixels;
     });
     _initPlatform();
-  }
-
-  Widget buildLsLikeWidget(
-    PickerState _ps,
-    int width,
-    List<List<(String, int)>> lines,
-  ) {
-    return Expanded(
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        controller: _hScrollController,
-        child: ListView.builder(
-          controller: _vScrollController,
-          itemCount: lines.length,
-          itemBuilder: (context, rowIndex) {
-            final line = lines[rowIndex];
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: line.asMap().entries.map((entry) {
-                final int index = rowIndex * lines.first.length + entry.key;
-                final (label, pad) = entry.value;
-                return Row(children: [_clickOnFile(_ps, index, label, pad)]);
-              }).toList(),
-            );
-          },
-        ),
-      ),
-    );
   }
 
   Widget fileSelectorByLs(
