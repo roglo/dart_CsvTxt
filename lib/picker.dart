@@ -89,11 +89,13 @@ double _lastVScrollPosition = 0.0;
 typedef PickerState = ({
   String? Function() getCurrentDir,
   String? Function() getSelectedFile,
+  Color? Function(int) getTextColorList,
   ScrollController Function() getVScrollController,
   ScrollController Function() getHScrollController,
   void Function(String?) setCurrentDir,
   void Function(String?) setSelectedFile,
   void Function(List<FileSystemEntity>) setFiles,
+  void Function(int, Color) setTextColorList,
   void Function() sync,
 });
 
@@ -218,32 +220,63 @@ void _actionClickOnFile(
   }
 }
 
+Widget _clickOnFile(
+  PickerState _ps,
+  BuildContext context,
+  bool mounted,
+  int index,
+  String currentDir,
+  String label,
+  int pad,
+) {
+  return GestureDetector(
+    onTap: () {
+      _ps.setTextColorList(index, Colors.grey[300] ?? Colors.grey);
+      _ps.sync();
+      Future.delayed(const Duration(milliseconds: 300), () {
+        _ps.setTextColorList(index, Colors.blue);
+        _ps.sync();
+        _actionClickOnFile(_ps, context, mounted, currentDir, label);
+      });
+    },
+    child: Text(
+      "$label${" " * pad}",
+      style: lsStyle(color: _ps.getTextColorList(index) ?? Colors.blue),
+    ),
+  );
+}
+
 class CustomFilePickerState extends State<CustomFilePicker> {
   List<FileSystemEntity> _files = [];
   LangCtx? _lc;
   String? _currentDir;
   String? _selectedFile;
-  final Map<int, Color> _fileTextColors = {};
+  final Map<int, Color> _textColorList = {};
   final ScrollController _vScrollController = ScrollController();
   final ScrollController _hScrollController = ScrollController();
 
   String? _getCurrentDir() => _currentDir;
   String? _getSelectedFile() => _selectedFile;
+  Color? _getTextColorList(int i) => _textColorList[i];
   ScrollController _getVScrollController() => _vScrollController;
   ScrollController _getHScrollController() => _hScrollController;
   void _setCurrentDir(String? d) => _currentDir = d;
   void _setSelectedFile(String? f) => _selectedFile = f;
   void _setFiles(List<FileSystemEntity> fl) => _files = fl;
+  void _setTextColorList(int index, Color color) =>
+      _textColorList[index] = color;
   void _sync() => setState(() {});
 
   late PickerState _ps = (
     getCurrentDir: _getCurrentDir,
     getSelectedFile: _getSelectedFile,
+    getTextColorList: _getTextColorList,
     getVScrollController: _getVScrollController,
     getHScrollController: _getHScrollController,
     setCurrentDir: _setCurrentDir,
     setSelectedFile: _setSelectedFile,
     setFiles: _setFiles,
+    setTextColorList: _setTextColorList,
     sync: _sync,
   );
 
@@ -283,24 +316,6 @@ class CustomFilePickerState extends State<CustomFilePicker> {
     _initPlatform();
   }
 
-  Widget _clickOnFile(int index, String currentDir, String label, int pad) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _fileTextColors[index] = Colors.grey[300] ?? Colors.grey;
-        });
-        Future.delayed(const Duration(milliseconds: 300), () {
-          _fileTextColors[index] = Colors.blue;
-          _actionClickOnFile(_ps, context, mounted, currentDir, label);
-        });
-      },
-      child: Text(
-        "$label${' ' * pad}",
-        style: lsStyle(color: _fileTextColors[index] ?? Colors.blue),
-      ),
-    );
-  }
-
   Widget buildLsLikeWidget(
     int width,
     String currentDir,
@@ -321,7 +336,17 @@ class CustomFilePickerState extends State<CustomFilePicker> {
                 final int index = rowIndex * lines.first.length + entry.key;
                 final (label, pad) = entry.value;
                 return Row(
-                  children: [_clickOnFile(index, currentDir, label, pad)],
+                  children: [
+                    _clickOnFile(
+                      _ps,
+                      context,
+                      mounted,
+                      index,
+                      currentDir,
+                      label,
+                      pad,
+                    ),
+                  ],
                 );
               }).toList(),
             );
