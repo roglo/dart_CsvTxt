@@ -16,15 +16,19 @@ zh: 文件：
     Fixed mode
 en: Fixed mode
 fr: Mode fixe
+zh: 固定模式
 
     Normal mode
 en: Normal mode
 fr: Mode normal
+zh: 普通模式
 
     One row per entry
 en: One row per entry
 fr: Une ligne par entrée
+zh: 每条目一行
 
     Short columns
 en: Short columns
 fr: Colonnes courtes
+zh: 短列
