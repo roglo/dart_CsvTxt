@@ -212,12 +212,7 @@ void _actionClickOnFile(PickerState _ps, String label) {
   }
 }
 
-Widget _clickOnFile(
-  PickerState _ps,
-  int index,
-  String label,
-  int pad,
-) {
+Widget _clickOnFile(PickerState _ps, int index, String label, int pad) {
   return GestureDetector(
     onTap: () {
       _ps.setTextColorList(index, Colors.grey[300] ?? Colors.grey);
@@ -328,9 +323,7 @@ class CustomFilePickerState extends State<CustomFilePicker> {
               children: line.asMap().entries.map((entry) {
                 final int index = rowIndex * lines.first.length + entry.key;
                 final (label, pad) = entry.value;
-                return Row(
-                  children: [_clickOnFile(_ps, index, label, pad)],
-                );
+                return Row(children: [_clickOnFile(_ps, index, label, pad)]);
               }).toList(),
             );
           },
