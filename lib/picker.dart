@@ -88,6 +88,7 @@ double _lastVScrollPosition = 0.0;
 
 typedef PickerState = ({
   BuildContext Function() getContext,
+  bool Function() getMounted,
   String? Function() getCurrentDir,
   String? Function() getSelectedFile,
   Color? Function(int) getTextColorList,
@@ -100,7 +101,7 @@ typedef PickerState = ({
   void Function() sync,
 });
 
-Future<void> _loadFiles(PickerState _ps, bool mounted, String path) async {
+Future<void> _loadFiles(PickerState _ps, String path) async {
   final dir = Directory(path);
   try {
     final entities = await dir.list().toList();
@@ -120,7 +121,7 @@ Future<void> _loadFiles(PickerState _ps, bool mounted, String path) async {
     _ps.setFiles(filteredEntities);
     _ps.sync();
   } catch (e) {
-    if (mounted) {
+    if (_ps.getMounted()) {
       ScaffoldMessenger.of(
         _ps.getContext(),
       ).showSnackBar(SnackBar(content: Text("Erreur: $e")));
@@ -156,7 +157,6 @@ int getMaxCharsPerLine(BuildContext context, int width) {
 
 Widget fileSelectorByTiles(
   PickerState _ps,
-  bool mounted,
   String currentDir,
   List<FileSystemEntity> files,
 ) {
@@ -176,9 +176,9 @@ Widget fileSelectorByTiles(
             if (isDir) {
               if (displayName == '..') {
                 final parentDir = Directory(currentDir).parent.path;
-                _loadFiles(_ps, mounted, parentDir);
+                _loadFiles(_ps, parentDir);
               } else {
-                _loadFiles(_ps, mounted, file.path);
+                _loadFiles(_ps, file.path);
               }
             } else {
               _ps.setSelectedFile(file.path);
@@ -194,7 +194,6 @@ Widget fileSelectorByTiles(
 
 void _actionClickOnFile(
   PickerState _ps,
-  bool mounted,
   String currentDir,
   String label,
 ) {
@@ -204,9 +203,9 @@ void _actionClickOnFile(
   if (isDir) {
     if (label == '../') {
       final parentDir = Directory(currentDir).parent.path;
-      _loadFiles(_ps, mounted, parentDir);
+      _loadFiles(_ps, parentDir);
     } else {
-      _loadFiles(_ps, mounted, "$wds$label");
+      _loadFiles(_ps, "$wds$label");
     }
   } else {
     _ps.setSelectedFile("$wds$label");
@@ -217,7 +216,6 @@ void _actionClickOnFile(
 
 Widget _clickOnFile(
   PickerState _ps,
-  bool mounted,
   int index,
   String currentDir,
   String label,
@@ -230,7 +228,7 @@ Widget _clickOnFile(
       Future.delayed(const Duration(milliseconds: 300), () {
         _ps.setTextColorList(index, Colors.blue);
         _ps.sync();
-        _actionClickOnFile(_ps, mounted, currentDir, label);
+        _actionClickOnFile(_ps, currentDir, label);
       });
     },
     child: Text(
@@ -250,6 +248,7 @@ class CustomFilePickerState extends State<CustomFilePicker> {
   final ScrollController _hScrollController = ScrollController();
 
   BuildContext _getContext() => context;
+  bool _getMounted() => mounted;
   String? _getCurrentDir() => _currentDir;
   String? _getSelectedFile() => _selectedFile;
   Color? _getTextColorList(int i) => _textColorList[i];
@@ -264,6 +263,7 @@ class CustomFilePickerState extends State<CustomFilePicker> {
 
   late PickerState _ps = (
     getContext: _getContext,
+    getMounted: _getMounted,
     getCurrentDir: _getCurrentDir,
     getSelectedFile: _getSelectedFile,
     getTextColorList: _getTextColorList,
@@ -300,7 +300,7 @@ class CustomFilePickerState extends State<CustomFilePicker> {
         _currentDir = extDir?.path ?? "/storage/emulated/0";
       }
     }
-    _loadFiles(_ps, mounted, _currentDir!);
+    _loadFiles(_ps, _currentDir!);
   }
 
   @override
@@ -333,7 +333,7 @@ class CustomFilePickerState extends State<CustomFilePicker> {
                 final (label, pad) = entry.value;
                 return Row(
                   children: [
-                    _clickOnFile(_ps, mounted, index, currentDir, label, pad),
+                    _clickOnFile(_ps, index, currentDir, label, pad),
                   ],
                 );
               }).toList(),
