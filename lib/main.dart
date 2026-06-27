@@ -1166,6 +1166,25 @@ Widget _buildNormal(States _st) {
   }
 }
 
+Widget _buildKeyboard() {
+  return MaterialApp(
+    home: Scaffold(
+      appBar: AppBar(title: Text('Exemple de clavier')),
+      body: Center(
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: TextField(
+            decoration: InputDecoration(
+              labelText: 'Tapez ici',
+              border: OutlineInputBorder(),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
 Widget _build(States _st) {
   if (_st.getLoading()) {
     return Scaffold(
@@ -1194,11 +1213,10 @@ Widget _build(States _st) {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child:
-            Column(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("not yet implemented"),
+              _buildKeyboard(),
               ElevatedButton(
                 onPressed: () {
                   _st.setKeyboard(false);
