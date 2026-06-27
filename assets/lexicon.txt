@@ -21,6 +21,7 @@ zh: 固定模式
     It is a directory, not a file
 en: It is a directory, not a file
 fr: C'est un répertoire, pas un fichier
+zh: 这是一个目录，不是文件
 
     Normal mode
 en: Normal mode
