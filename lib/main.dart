@@ -1166,25 +1166,6 @@ Widget _buildNormal(States _st) {
   }
 }
 
-Widget _buildKeyboard() {
-  return MaterialApp(
-    home: Scaffold(
-      appBar: AppBar(title: Text('Exemple de clavier')),
-      body: Center(
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: TextField(
-            decoration: InputDecoration(
-              labelText: 'Tapez ici',
-              border: OutlineInputBorder(),
-            ),
-          ),
-        ),
-      ),
-    ),
-  );
-}
-
 Widget _build(States _st) {
   if (_st.getLoading()) {
     return Scaffold(
@@ -1216,7 +1197,22 @@ Widget _build(States _st) {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildKeyboard(),
+              MaterialApp(
+                home: Scaffold(
+                  appBar: AppBar(title: Text('Exemple de clavier')),
+                  body: Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: TextField(
+                        decoration: InputDecoration(
+                          labelText: 'Tapez ici',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
               ElevatedButton(
                 onPressed: () {
                   _st.setKeyboard(false);
