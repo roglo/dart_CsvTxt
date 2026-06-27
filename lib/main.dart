@@ -1191,25 +1191,19 @@ Widget _build(States _st) {
     );
   } else if (_st.getKeyboard()) {
     return Scaffold(
+      appBar: AppBar(title: Text('Exemple de clavier')), // AppBar ici
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              MaterialApp(
-                home: Scaffold(
-                  appBar: AppBar(title: Text('Exemple de clavier')),
-                  body: Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(16.0),
-                      child: TextField(
-                        decoration: InputDecoration(
-                          labelText: 'Tapez ici',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                    ),
+              Padding(
+                padding: EdgeInsets.all(16.0),
+                child: TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Tapez ici',
+                    border: OutlineInputBorder(),
                   ),
                 ),
               ),
