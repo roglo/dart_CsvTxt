@@ -157,6 +157,7 @@ typedef States = ({
   bool Function() getModeFixe,
   bool Function() getNewVersion,
   bool Function() getLoading,
+  bool Function() getKeyboard,
   int Function() getPdfLoadCount,
   ScrollController Function() getVScrollController,
   ScrollController Function() getHScrollController,
@@ -176,6 +177,7 @@ typedef States = ({
   void Function(bool) setModeFixe,
   void Function() switchNewVersion,
   void Function(bool) setLoading,
+  void Function(bool) setKeyboard,
   void Function() incrPdfLoadCount,
   void Function(int, Color) setTextColorList1,
   void Function(int, Color) setTextColorList2,
@@ -763,7 +765,7 @@ Future<void> _actionClickOnTarFileName(States _st, TarEntry entry) async {
     _st.setFileName("$fileName ($tarFileName)");
     _st.setFileContent(null);
     _st.setBytes(null);
-    _st.setErrorMessage(transl (_lc, "It is a directory, not a file"));
+    _st.setErrorMessage(transl(_lc, "It is a directory, not a file"));
     _st.sync();
   } else {
     final String fileName = entry.fname.split("/").last;
@@ -1099,9 +1101,31 @@ Widget _buildNormal(States _st) {
         ],
         const SizedBox(height: 16),
         if (_fileName != null)
-          Text(
-            "${transl(_lc, "File:")} $_fileName",
-            style: const TextStyle(fontWeight: FontWeight.bold),
+          Row(
+            children: [
+              Text(
+                transl(_lc, "File:"),
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              GestureDetector(
+                onTap: () {
+                  _st.setTextColorList1(-1, Colors.grey[300] ?? Colors.grey);
+                  _st.sync();
+                  Future.delayed(const Duration(milliseconds: 100), () {
+                    _st.setTextColorList1(-1, Colors.blue);
+                    _st.setKeyboard(true);
+                    _st.sync();
+                  });
+                },
+                child: Text(
+                  " $_fileName",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: _st.getTextColorList1(-1) ?? Colors.blue,
+                  ),
+                ),
+              ),
+            ],
           ),
         const SizedBox(height: 8),
         if (_errorMessage != null)
@@ -1165,6 +1189,22 @@ Widget _build(States _st) {
         ),
       ),
     );
+  } else if (_st.getKeyboard()) {
+    return Scaffold(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("not yet implemented"),
+          ElevatedButton(
+            onPressed: () {
+              _st.setKeyboard(false);
+              _st.sync();
+            },
+            child: const Text("return"),
+          ),
+        ]
+      )
+    );
   } else {
     return Scaffold(
       body: SafeArea(
@@ -1200,6 +1240,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   List<TarEntry> _tarList = [];
   String? _errorMessage;
   bool _loading = false;
+  bool _keyboard = false;
   bool _newVersion = true;
   bool _modeFixe = false;
   double _fontSize = _initialFontSize;
@@ -1260,6 +1301,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   bool _getModeFixe() => _modeFixe;
   bool _getNewVersion() => _newVersion;
   bool _getLoading() => _loading;
+  bool _getKeyboard() => _keyboard;
   int _getPdfLoadCount() => _pdfLoadCount;
   ScrollController _getVScrollController() => _vScrollController;
   ScrollController _getHScrollController() => _hScrollController;
@@ -1280,6 +1322,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   void _setModeFixe(b) => _modeFixe = b;
   void _switchNewVersion() => _newVersion = !_newVersion;
   void _setLoading(bool loading) => _loading = loading;
+  void _setKeyboard(bool b) => _keyboard = b;
   void _incrPdfLoadCount() => _pdfLoadCount++;
   void _setTextColorList1(int index, Color color) =>
       _textColorsList1[index] = color;
@@ -1304,6 +1347,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     getModeFixe: _getModeFixe,
     getNewVersion: _getNewVersion,
     getLoading: _getLoading,
+    getKeyboard: _getKeyboard,
     getPdfLoadCount: _getPdfLoadCount,
     getVScrollController: _getVScrollController,
     getHScrollController: _getHScrollController,
@@ -1323,6 +1367,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     setModeFixe: _setModeFixe,
     switchNewVersion: _switchNewVersion,
     setLoading: _setLoading,
+    setKeyboard: _setKeyboard,
     incrPdfLoadCount: _incrPdfLoadCount,
     setTextColorList1: _setTextColorList1,
     setTextColorList2: _setTextColorList2,
