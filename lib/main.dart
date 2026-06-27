@@ -162,8 +162,10 @@ typedef States = ({
   ScrollController Function() getVScrollController,
   ScrollController Function() getHScrollController,
   PdfViewerController Function() getPdfController,
+  TextEditingController Function() getTextController,
   Color? Function(int) getTextColorList1,
   Color? Function(int) getTextColorList2,
+  String Function() getUserInput,
   String? Function() getErrorMessage,
   void Function(String?) setInitialDir,
   void Function(String?) setFileName,
@@ -181,6 +183,7 @@ typedef States = ({
   void Function() incrPdfLoadCount,
   void Function(int, Color) setTextColorList1,
   void Function(int, Color) setTextColorList2,
+  void Function(String) setUserInput,
   void Function(String?) setErrorMessage,
   void Function() sync,
 });
@@ -1208,10 +1211,14 @@ Widget _build(States _st) {
               Padding(
                 padding: EdgeInsets.all(16.0),
                 child: TextField(
+                  controller: _st.getTextController(),
                   decoration: InputDecoration(
                     labelText: transl(_lc, "Search"),
                     border: OutlineInputBorder(),
                   ),
+                  onChanged: (value) {
+                    print("typed \"$value\"");
+                  },
                 ),
               ),
               ElevatedButton(
@@ -1246,7 +1253,9 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   final String _lang = _userLang();
   final ScrollController _vScrollController = ScrollController();
   final ScrollController _hScrollController = ScrollController();
+  final TextEditingController _textController = TextEditingController();
   late PdfViewerController _pdfController;
+  String _userInput = "";
   DateTime? _lexDate = null;
   Map<String, List<(String, String)>> _lexTable = {};
   int _currentPage = 1;
@@ -1285,6 +1294,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   void dispose() {
     _vScrollController.dispose();
     _hScrollController.dispose();
+    _textController.dispose();
     //    _pdfController.dispose();
     super.dispose();
   }
@@ -1327,8 +1337,10 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   ScrollController _getVScrollController() => _vScrollController;
   ScrollController _getHScrollController() => _hScrollController;
   PdfViewerController _getPdfController() => _pdfController;
+  TextEditingController _getTextController() => _textController;
   Color? _getTextColorList1(int i) => _textColorsList1[i];
   Color? _getTextColorList2(int i) => _textColorsList2[i];
+  String _getUserInput() => _userInput;
   String? _getErrorMessage() => _errorMessage;
 
   void _setInitialDir(String? s) => _initialDir = s;
@@ -1349,6 +1361,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
       _textColorsList1[index] = color;
   void _setTextColorList2(int index, Color color) =>
       _textColorsList2[index] = color;
+  void _setUserInput(String s) => _userInput = s;
   void _setErrorMessage(String? msg) => _errorMessage = msg;
   void _sync() => setState(() {});
 
@@ -1373,8 +1386,10 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     getVScrollController: _getVScrollController,
     getHScrollController: _getHScrollController,
     getPdfController: _getPdfController,
+    getTextController: _getTextController,
     getTextColorList1: _getTextColorList1,
     getTextColorList2: _getTextColorList2,
+    getUserInput: _getUserInput,
     getErrorMessage: _getErrorMessage,
     setInitialDir: _setInitialDir,
     setFileName: _setFileName,
@@ -1392,6 +1407,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     incrPdfLoadCount: _incrPdfLoadCount,
     setTextColorList1: _setTextColorList1,
     setTextColorList2: _setTextColorList2,
+    setUserInput: _setUserInput,
     setErrorMessage: _setErrorMessage,
     sync: _sync,
   );
