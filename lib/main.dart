@@ -751,6 +751,7 @@ void _actionClickOnCsvLine(States _st, String def, String line) {
 }
 
 Future<void> _actionClickOnTarFileName(States _st, TarEntry entry) async {
+  final LangCtx _lc = _st.getLangCtx();
   final ScrollController _vScrollController = _st.getVScrollController();
   final ScrollController _hScrollController = _st.getHScrollController();
   final String tarFileName = entry.tarFilePath.split("/").last;
@@ -762,7 +763,7 @@ Future<void> _actionClickOnTarFileName(States _st, TarEntry entry) async {
     _st.setFileName("$fileName ($tarFileName)");
     _st.setFileContent(null);
     _st.setBytes(null);
-    _st.setErrorMessage("C\'est un répertoire, pas un fichier");
+    _st.setErrorMessage(transl (_lc, "It is a directory, not a file"));
     _st.sync();
   } else {
     final String fileName = entry.fname.split("/").last;

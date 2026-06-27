@@ -50,11 +50,11 @@ String transl(LangCtx? _lc, txt) {
   final DateTime lexDate = lexFile.lastModifiedSync();
   final DateTime? prevLexDate = _lc.getLexDate();
   if (prevLexDate == null) {
-    print("transl \"$txt\" lexicon not yet loaded");
+    // lexicon not yet loaded
     readLexicon(_lc, lexFile);
     _lc.setLexDate(lexDate);
   } else if (lexDate.isAfter(prevLexDate)) {
-    print("transl \"$txt\" lexicon has changed");
+    // lexicon has changed
     readLexicon(_lc, lexFile);
     _lc.setLexDate(lexDate);
   }

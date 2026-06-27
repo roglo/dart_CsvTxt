@@ -18,6 +18,10 @@ en: Fixed mode
 fr: Mode fixe
 zh: 固定模式
 
+    It is a directory, not a file
+en: It is a directory, not a file
+fr: C'est un répertoire, pas un fichier
+
     Normal mode
 en: Normal mode
 fr: Mode normal
