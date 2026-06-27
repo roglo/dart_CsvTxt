@@ -33,6 +33,10 @@ en: One row per entry
 fr: Une ligne par entrée
 zh: 每条目一行
 
+    Search
+en: Search
+fr: Rechercher
+
     Short columns
 en: Short columns
 fr: Colonnes courtes

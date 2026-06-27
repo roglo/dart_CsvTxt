@@ -1101,32 +1101,38 @@ Widget _buildNormal(States _st) {
         ],
         const SizedBox(height: 16),
         if (_fileName != null)
-          Row(
-            children: [
-              Text(
-                transl(_lc, "File:"),
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              GestureDetector(
-                onTap: () {
-                  _st.setTextColorList1(-1, Colors.grey[300] ?? Colors.grey);
-                  _st.sync();
-                  Future.delayed(const Duration(milliseconds: 100), () {
-                    _st.setTextColorList1(-1, Colors.blue);
-                    _st.setKeyboard(true);
+          if (_fileType == FileType.csv)
+            Row(
+              children: [
+                Text(
+                  transl(_lc, "File:"),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    _st.setTextColorList1(-1, Colors.grey[300] ?? Colors.grey);
                     _st.sync();
-                  });
-                },
-                child: Text(
-                  " $_fileName",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: _st.getTextColorList1(-1) ?? Colors.blue,
+                    Future.delayed(const Duration(milliseconds: 100), () {
+                      _st.setTextColorList1(-1, Colors.blue);
+                      _st.setKeyboard(true);
+                      _st.sync();
+                    });
+                  },
+                  child: Text(
+                    " $_fileName",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: _st.getTextColorList1(-1) ?? Colors.blue,
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            )
+          else
+            Text(
+              "${transl(_lc, "File:")} $_fileName",
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
         const SizedBox(height: 8),
         if (_errorMessage != null)
           Text(_errorMessage, style: const TextStyle(color: Colors.red)),
@@ -1167,6 +1173,7 @@ Widget _buildNormal(States _st) {
 }
 
 Widget _build(States _st) {
+  final LangCtx _lc = _st.getLangCtx();
   if (_st.getLoading()) {
     return Scaffold(
       body: SafeArea(
@@ -1191,7 +1198,7 @@ Widget _build(States _st) {
     );
   } else if (_st.getKeyboard()) {
     return Scaffold(
-      appBar: AppBar(title: Text('Exemple de clavier')), // AppBar ici
+      appBar: AppBar(title: Text(transl(_lc, "Search"))),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -1202,7 +1209,7 @@ Widget _build(States _st) {
                 padding: EdgeInsets.all(16.0),
                 child: TextField(
                   decoration: InputDecoration(
-                    labelText: 'Tapez ici',
+                    labelText: transl(_lc, "Search"),
                     border: OutlineInputBorder(),
                   ),
                 ),
@@ -1212,7 +1219,7 @@ Widget _build(States _st) {
                   _st.setKeyboard(false);
                   _st.sync();
                 },
-                child: const Text("return"),
+                child: Text(transl(_lc, "Cancel")),
               ),
             ],
           ),
