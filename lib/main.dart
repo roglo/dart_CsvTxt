@@ -1191,18 +1191,24 @@ Widget _build(States _st) {
     );
   } else if (_st.getKeyboard()) {
     return Scaffold(
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("not yet implemented"),
-          ElevatedButton(
-            onPressed: () {
-              _st.setKeyboard(false);
-              _st.sync();
-            },
-            child: const Text("return"),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child:
+            Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("not yet implemented"),
+              ElevatedButton(
+                onPressed: () {
+                  _st.setKeyboard(false);
+                  _st.sync();
+                },
+                child: const Text("return"),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   } else {
