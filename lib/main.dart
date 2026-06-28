@@ -157,7 +157,7 @@ typedef States = ({
   bool Function() getModeFixe,
   bool Function() getNewVersion,
   bool Function() getLoading,
-  bool Function() getKeyboard,
+  bool Function() getSearch,
   int Function() getPdfLoadCount,
   ScrollController Function() getVScrollController,
   ScrollController Function() getHScrollController,
@@ -179,7 +179,7 @@ typedef States = ({
   void Function(bool) setModeFixe,
   void Function() switchNewVersion,
   void Function(bool) setLoading,
-  void Function(bool) setKeyboard,
+  void Function(bool) setSearch,
   void Function() incrPdfLoadCount,
   void Function(int, Color) setTextColorList1,
   void Function(int, Color) setTextColorList2,
@@ -1117,7 +1117,7 @@ Widget _buildNormal(States _st) {
                     _st.sync();
                     Future.delayed(const Duration(milliseconds: 100), () {
                       _st.setTextColorList1(-1, Colors.blue);
-                      _st.setKeyboard(true);
+                      _st.setSearch(true);
                       _st.getTextController().clear();
                       _st.sync();
                     });
@@ -1200,7 +1200,7 @@ Widget _build(States _st) {
         ),
       ),
     );
-  } else if (_st.getKeyboard()) {
+  } else if (_st.getSearch()) {
     return Scaffold(
       appBar: AppBar(title: Text(transl(_lc, "Search"))),
       body: SafeArea(
@@ -1224,7 +1224,7 @@ Widget _build(States _st) {
               ),
               ElevatedButton(
                 onPressed: () {
-                  _st.setKeyboard(false);
+                  _st.setSearch(false);
                   _st.sync();
                 },
                 child: Text(transl(_lc, "Cancel")),
@@ -1271,7 +1271,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   List<TarEntry> _tarList = [];
   String? _errorMessage;
   bool _loading = false;
-  bool _keyboard = false;
+  bool _search = false;
   bool _newVersion = true;
   bool _modeFixe = false;
   double _fontSize = _initialFontSize;
@@ -1333,7 +1333,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   bool _getModeFixe() => _modeFixe;
   bool _getNewVersion() => _newVersion;
   bool _getLoading() => _loading;
-  bool _getKeyboard() => _keyboard;
+  bool _getSearch() => _search;
   int _getPdfLoadCount() => _pdfLoadCount;
   ScrollController _getVScrollController() => _vScrollController;
   ScrollController _getHScrollController() => _hScrollController;
@@ -1356,7 +1356,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   void _setModeFixe(b) => _modeFixe = b;
   void _switchNewVersion() => _newVersion = !_newVersion;
   void _setLoading(bool loading) => _loading = loading;
-  void _setKeyboard(bool b) => _keyboard = b;
+  void _setSearch(bool b) => _search = b;
   void _incrPdfLoadCount() => _pdfLoadCount++;
   void _setTextColorList1(int index, Color color) =>
       _textColorsList1[index] = color;
@@ -1382,7 +1382,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     getModeFixe: _getModeFixe,
     getNewVersion: _getNewVersion,
     getLoading: _getLoading,
-    getKeyboard: _getKeyboard,
+    getSearch: _getSearch,
     getPdfLoadCount: _getPdfLoadCount,
     getVScrollController: _getVScrollController,
     getHScrollController: _getHScrollController,
@@ -1404,7 +1404,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     setModeFixe: _setModeFixe,
     switchNewVersion: _switchNewVersion,
     setLoading: _setLoading,
-    setKeyboard: _setKeyboard,
+    setSearch: _setSearch,
     incrPdfLoadCount: _incrPdfLoadCount,
     setTextColorList1: _setTextColorList1,
     setTextColorList2: _setTextColorList2,
