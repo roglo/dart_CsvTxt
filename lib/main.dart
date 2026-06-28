@@ -1201,6 +1201,13 @@ Widget _build(States _st) {
       ),
     );
   } else if (_st.getSearch()) {
+    final List<CsvLine> _csvLines = _st.getCsvLines();
+    final double _fontSize = _st.getFontSize();
+    final length =
+        _csvLines.first.$2.first.fold(0, (a, s) => a + s.length) +
+        _csvLines.first.$2.first.length +
+        1;
+    final border = "-" * length;
     return Scaffold(
       appBar: AppBar(title: Text(transl(_lc, "Search"))),
       body: SafeArea(
@@ -1218,7 +1225,8 @@ Widget _build(States _st) {
                     border: OutlineInputBorder(),
                   ),
                   onChanged: (value) {
-                    print("typed \"$value\"");
+                    _st.setUserInput(value);
+                    _st.sync();
                   },
                 ),
               ),
@@ -1229,6 +1237,25 @@ Widget _build(States _st) {
                 },
                 child: Text(transl(_lc, "Cancel")),
               ),
+              if (_st.getUserInput() != "")
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 16),
+                    SingleChildScrollView(
+                      controller: _st.getHScrollController(),
+                      scrollDirection: Axis.horizontal,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(border, style: _fixedTextStyle(_fontSize)),
+                          ..._buildCsvFirstLineColumnChildren(_st),
+                          Text(border, style: _fixedTextStyle(_fontSize)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
             ],
           ),
         ),
