@@ -1179,10 +1179,27 @@ Widget _buildNormal(States _st) {
   }
 }
 
+bool _inString(String s, String t) {
+  final String u = normalizeString(t);
+  return u.contains(s);
+}
+
+bool _inList(String s, List<String> line) {
+  for (int i = 0; i < line.length; i++) {
+    if (_inString(s, line[i])) return true;
+  }
+  return false;
+}
+
 List<CsvLine> _filterCsvLines(_st) {
-  final String s = _st.getUserInput();
-  final List<CsvLine> _csvLines = _st.getCsvLines().sublist(0, 50);
-  return _csvLines;
+  final String s = normalizeString(_st.getUserInput());
+  final List<CsvLine> _csvLines = _st.getCsvLines();
+  List<CsvLine> _filteredCsvLines = [_st.getCsvLines().first];
+  for (int i = 1; i < _csvLines.length; i++) {
+    final line = _csvLines[i].$1;
+    if (_inList(s, line)) _filteredCsvLines.add(_csvLines[i]);
+  }
+  return _filteredCsvLines;
 }
 
 Widget _buildCsvFiltered(States _st) {
