@@ -1181,7 +1181,7 @@ Widget _buildNormal(States _st) {
 
 List<CsvLine> _filterCsvLines(_st) {
   final String s = _st.getUserInput();
-  final List<CsvLine> _csvLines = _st.getCsvLines().sublist(0, 4);
+  final List<CsvLine> _csvLines = _st.getCsvLines().sublist(0, 50);
   return _csvLines;
 }
 
