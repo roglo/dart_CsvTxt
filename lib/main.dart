@@ -830,12 +830,10 @@ List<Widget> _buildCsvFirstLineColumnChildren(States _st, bool click) {
           return Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              if (click) _clickOnCsvHeaderLine(_st, index, txt)
+              if (click)
+                _clickOnCsvHeaderLine(_st, index, txt)
               else
-                Text(
-                  txt,
-                  style: _fixedTextStyle(_st.getFontSize()),
-                ),
+                Text(txt, style: _fixedTextStyle(_st.getFontSize())),
               Text("|", style: _fixedTextStyle(_st.getFontSize())),
             ],
           );
@@ -1181,6 +1179,34 @@ Widget _buildNormal(States _st) {
   }
 }
 
+Widget _buildCsvSelected(States _st) {
+  final List<CsvLine> _csvLines = _st.getCsvLines();
+  final double _fontSize = _st.getFontSize();
+  final length =
+      _csvLines.first.$2.first.fold(0, (a, s) => a + s.length) +
+      _csvLines.first.$2.first.length +
+      1;
+  final border = "-" * length;
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const SizedBox(height: 16),
+      SingleChildScrollView(
+        controller: _st.getHScrollController(),
+        scrollDirection: Axis.horizontal,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(border, style: _fixedTextStyle(_fontSize)),
+            ..._buildCsvFirstLineColumnChildren(_st, false),
+            Text(border, style: _fixedTextStyle(_fontSize)),
+          ],
+        ),
+      ),
+    ],
+  );
+}
+
 Widget _build(States _st) {
   final LangCtx _lc = _st.getLangCtx();
   if (_st.getLoading()) {
@@ -1206,13 +1232,6 @@ Widget _build(States _st) {
       ),
     );
   } else if (_st.getSearch()) {
-    final List<CsvLine> _csvLines = _st.getCsvLines();
-    final double _fontSize = _st.getFontSize();
-    final length =
-        _csvLines.first.$2.first.fold(0, (a, s) => a + s.length) +
-        _csvLines.first.$2.first.length +
-        1;
-    final border = "-" * length;
     return Scaffold(
       appBar: AppBar(title: Text(transl(_lc, "Search"))),
       body: SafeArea(
@@ -1242,25 +1261,7 @@ Widget _build(States _st) {
                 },
                 child: Text(transl(_lc, "Cancel")),
               ),
-              if (_st.getUserInput() != "")
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 16),
-                    SingleChildScrollView(
-                      controller: _st.getHScrollController(),
-                      scrollDirection: Axis.horizontal,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(border, style: _fixedTextStyle(_fontSize)),
-                          ..._buildCsvFirstLineColumnChildren(_st, false),
-                          Text(border, style: _fixedTextStyle(_fontSize)),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+              if (_st.getUserInput() != "") _buildCsvSelected(_st),
             ],
           ),
         ),
