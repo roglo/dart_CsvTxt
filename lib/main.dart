@@ -1193,39 +1193,33 @@ Widget _buildCsvFiltered(States _st) {
       _csvLines.first.$2.first.length +
       1;
   final border = "-" * length;
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      const SizedBox(height: 16),
-      SingleChildScrollView(
-        controller: _st.getHScrollController(),
-        scrollDirection: Axis.horizontal,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(border, style: _fixedTextStyle(_fontSize)),
-            ..._buildCsvFirstLineColumnChildren(_st, false),
-            Text(border, style: _fixedTextStyle(_fontSize)),
-            Expanded(
-              child: SingleChildScrollView(
-                controller: _st.getVScrollController(),
-                scrollDirection: Axis.vertical,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ..._buildCsvColumnChildren(_st, _csvLines),
-                    Text(border, style: _fixedTextStyle(_fontSize)),
-                    Text(""),
-                    Text(""),
-                    Text(""),
-                  ],
-                ),
-              ),
+  return SingleChildScrollView(
+    controller: _st.getHScrollController(),
+    scrollDirection: Axis.horizontal,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(border, style: _fixedTextStyle(_fontSize)),
+        ..._buildCsvFirstLineColumnChildren(_st, false),
+        Text(border, style: _fixedTextStyle(_fontSize)),
+        Expanded(
+          child: SingleChildScrollView(
+            controller: _st.getVScrollController(),
+            scrollDirection: Axis.vertical,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ..._buildCsvColumnChildren(_st, _csvLines),
+                Text(border, style: _fixedTextStyle(_fontSize)),
+                Text(""),
+                Text(""),
+                Text(""),
+              ],
             ),
-          ],
+          ),
         ),
-      ),
-    ],
+      ],
+    ),
   );
 }
 
@@ -1283,7 +1277,8 @@ Widget _build(States _st) {
                 },
                 child: Text(transl(_lc, "Cancel")),
               ),
-              if (_st.getUserInput() != "") _buildCsvFiltered(_st),
+              if (_st.getUserInput() != "")
+                Expanded(child: _buildCsvFiltered(_st)),
             ],
           ),
         ),
