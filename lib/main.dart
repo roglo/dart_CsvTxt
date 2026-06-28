@@ -1120,6 +1120,7 @@ Widget _buildNormal(States _st) {
                     _st.sync();
                     Future.delayed(const Duration(milliseconds: 100), () {
                       _st.setTextColorList1(-1, Colors.blue);
+                      _st.setUserInput("");
                       _st.setSearch(true);
                       _st.getTextController().clear();
                       _st.sync();
@@ -1179,8 +1180,14 @@ Widget _buildNormal(States _st) {
   }
 }
 
-Widget _buildCsvFiltered(States _st) {
+List<CsvLine> _filterCsvLines(_st) {
+  final String s =_st.getUserInput();
   final List<CsvLine> _csvLines = _st.getCsvLines();
+  return _csvLines;
+}
+
+Widget _buildCsvFiltered(States _st) {
+  final List<CsvLine> _csvLines = _filterCsvLines(_st);
   final double _fontSize = _st.getFontSize();
   final length =
       _csvLines.first.$2.first.fold(0, (a, s) => a + s.length) +
