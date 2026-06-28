@@ -1179,7 +1179,7 @@ Widget _buildNormal(States _st) {
   }
 }
 
-Widget _buildCsvSelected(States _st) {
+Widget _buildCsvFiltered(States _st) {
   final List<CsvLine> _csvLines = _st.getCsvLines();
   final double _fontSize = _st.getFontSize();
   final length =
@@ -1261,7 +1261,7 @@ Widget _build(States _st) {
                 },
                 child: Text(transl(_lc, "Cancel")),
               ),
-              if (_st.getUserInput() != "") _buildCsvSelected(_st),
+              if (_st.getUserInput() != "") _buildCsvFiltered(_st),
             ],
           ),
         ),
