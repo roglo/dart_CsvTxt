@@ -1118,6 +1118,7 @@ Widget _buildNormal(States _st) {
                     Future.delayed(const Duration(milliseconds: 100), () {
                       _st.setTextColorList1(-1, Colors.blue);
                       _st.setKeyboard(true);
+                      _st.getTextController().clear();
                       _st.sync();
                     });
                   },
