@@ -872,9 +872,8 @@ Widget _clickOnCsvLine(
   );
 }
 
-List<Widget> _buildCsvColumnChildren(States _st) {
+List<Widget> _buildCsvColumnChildren(States _st, List<CsvLine> _csvLines) {
   final double _fontSize = _st.getFontSize();
-  final List<CsvLine> _csvLines = _st.getCsvLines();
   final String firstLine = "|${_csvLines.first.$1.join('|')}|";
   return _csvLines.sublist(1).asMap().entries.expand((entry) {
     final index = entry.key;
@@ -951,7 +950,7 @@ Widget _fixedCsvView(States _st) {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ..._buildCsvColumnChildren(_st),
+                ..._buildCsvColumnChildren(_st, _csvLines),
                 Text(border, style: _fixedTextStyle(_fontSize)),
                 Text(""),
                 Text(""),
@@ -1181,8 +1180,8 @@ Widget _buildNormal(States _st) {
 }
 
 List<CsvLine> _filterCsvLines(_st) {
-  final String s =_st.getUserInput();
-  final List<CsvLine> _csvLines = _st.getCsvLines();
+  final String s = _st.getUserInput();
+  final List<CsvLine> _csvLines = _st.getCsvLines().sublist(0, 4);
   return _csvLines;
 }
 
@@ -1207,6 +1206,22 @@ Widget _buildCsvFiltered(States _st) {
             Text(border, style: _fixedTextStyle(_fontSize)),
             ..._buildCsvFirstLineColumnChildren(_st, false),
             Text(border, style: _fixedTextStyle(_fontSize)),
+            Expanded(
+              child: SingleChildScrollView(
+                controller: _st.getVScrollController(),
+                scrollDirection: Axis.vertical,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ..._buildCsvColumnChildren(_st, _csvLines),
+                    Text(border, style: _fixedTextStyle(_fontSize)),
+                    Text(""),
+                    Text(""),
+                    Text(""),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
