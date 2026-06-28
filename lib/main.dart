@@ -816,7 +816,7 @@ Widget _clickOnCsvHeaderLine(States _st, int index, String txt) {
   );
 }
 
-List<Widget> _buildFirstLineColumnChildren(States _st) {
+List<Widget> _buildCsvFirstLineColumnChildren(States _st) {
   final List<CsvLine> _csvLines = _st.getCsvLines();
   final (leftList, rightLists) = _csvLines.first;
   return rightLists.map((rightList) {
@@ -869,7 +869,7 @@ Widget _clickOnCsvLine(
   );
 }
 
-List<Widget> _buildColumnChildren(States _st) {
+List<Widget> _buildCsvColumnChildren(States _st) {
   final double _fontSize = _st.getFontSize();
   final List<CsvLine> _csvLines = _st.getCsvLines();
   final String firstLine = "|${_csvLines.first.$1.join('|')}|";
@@ -939,7 +939,7 @@ Widget _fixedCsvView(States _st) {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(border, style: _fixedTextStyle(_fontSize)),
-        ..._buildFirstLineColumnChildren(_st),
+        ..._buildCsvFirstLineColumnChildren(_st),
         Text(border, style: _fixedTextStyle(_fontSize)),
         Expanded(
           child: SingleChildScrollView(
@@ -948,7 +948,7 @@ Widget _fixedCsvView(States _st) {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ..._buildColumnChildren(_st),
+                ..._buildCsvColumnChildren(_st),
                 Text(border, style: _fixedTextStyle(_fontSize)),
                 Text(""),
                 Text(""),
