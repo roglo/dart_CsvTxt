@@ -1270,8 +1270,8 @@ Widget _build(States _st) {
     final List<CsvLine> _csvFilteredLines = _st.getUserInput() == ""
         ? []
         : _filterCsvLines(_st);
-    final int _nb_matched = _csvFilteredLines.length - 1;
-    final int _nb_total = _csvLines.length - 1;
+    final int _nbMatched = _csvFilteredLines.length - 1;
+    final int _nbTotal = _csvLines.length - 1;
     return Scaffold(
       appBar: AppBar(title: Text(transl(_lc, "Search"))),
       body: SafeArea(
@@ -1302,7 +1302,7 @@ Widget _build(States _st) {
                   if (_st.getUserInput() != "")
                     Expanded(
                       child: Text(
-                        "$_nb_matched/$_nb_total",
+                        "$_nbMatched/$_nbTotal",
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -1315,7 +1315,7 @@ Widget _build(States _st) {
                   ),
                 ],
               ),
-              if (_st.getUserInput() != "")
+              if (_st.getUserInput() != "" && _nbMatched != 0)
                 Expanded(child: _buildCsvFiltered(_st, _csvFilteredLines)),
             ],
           ),
