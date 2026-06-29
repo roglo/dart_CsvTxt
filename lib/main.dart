@@ -1289,12 +1289,17 @@ Widget _build(States _st) {
                   },
                 ),
               ),
-              ElevatedButton(
-                onPressed: () {
-                  _st.setSearch(false);
-                  _st.sync();
-                },
-                child: Text(transl(_lc, "Cancel")),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      _st.setSearch(false);
+                      _st.sync();
+                    },
+                    child: Text(transl(_lc, "Cancel")),
+                  ),
+                ]
               ),
               if (_st.getUserInput() != "")
                 Expanded(child: _buildCsvFiltered(_st)),
