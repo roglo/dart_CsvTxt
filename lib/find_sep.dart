@@ -456,7 +456,6 @@ List<List<String>> linesOfCsvString(String sep, String content) {
   String trimmedContent = content.isNotEmpty && content.endsWith("\n")
       ? content.substring(0, content.length - 1)
       : content;
-
   return trimmedContent
       .split("\n")
       .map(
@@ -518,17 +517,21 @@ List<String> completeBySpaces(List<int> fsl, List<String> sl) {
   return completeBySpaces(fsl, sl);
 }
 
+List<List<String>> csvStruct(String content, String sep) {
+  final trimmedContent = trimRightKeepNewlines(content);
+  return linesOfCsvString(sep, trimmedContent);
+}
+
 List<CsvLine> formattedCsv(
   String content,
   String sep,
   int nbOccOfSep,
   bool newVersion,
 ) {
-  final trimmedContent = trimRightKeepNewlines(content);
-  final lines = linesOfCsvString(sep, trimmedContent);
+  final lines = csvStruct(content, sep);
   final fieldsSizes = newVersion
-      ? computeFieldSizes2(lines)
-      : computeFieldsSizes(lines);
+       ? computeFieldSizes2(lines)
+       : computeFieldsSizes(lines);
   final flines = foldLongLines(fieldsSizes, lines);
   final flines2 = completeListBySpaces(fieldsSizes, flines);
   return flines2;
