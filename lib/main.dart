@@ -38,7 +38,7 @@ String normalizeString(String input) {
       .replaceAll(RegExp(r'[áàâäãå]'), 'a')
       .replaceAll(RegExp(r'[éèêë]'), 'e')
       .replaceAll(RegExp(r'[îï]'), 'i')
-      .replaceAll(RegExp(r'[ôöõø]'), 'o')
+      .replaceAll(RegExp(r'[óôöõø]'), 'o')
       .replaceAll(RegExp(r'[œ]'), 'oe')
       .replaceAll(RegExp(r'[ùûü]'), 'u')
       .replaceAll(RegExp(r'[ç]'), 'c');
@@ -1202,12 +1202,11 @@ List<CsvLine> _filterCsvLines(_st) {
   return _filteredCsvLines;
 }
 
-Widget _buildCsvFiltered(States _st) {
-  final List<CsvLine> _csvLines = _filterCsvLines(_st);
+Widget _buildCsvFiltered(States _st, List<CsvLine> _csvFilteredLines) {
   final double _fontSize = _st.getFontSize();
   final length =
-      _csvLines.first.$2.first.fold(0, (a, s) => a + s.length) +
-      _csvLines.first.$2.first.length +
+      _csvFilteredLines.first.$2.first.fold(0, (a, s) => a + s.length) +
+      _csvFilteredLines.first.$2.first.length +
       1;
   final border = "-" * length;
   return Expanded(
@@ -1227,7 +1226,7 @@ Widget _buildCsvFiltered(States _st) {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ..._buildCsvColumnChildren(_st, _csvLines),
+                  ..._buildCsvColumnChildren(_st, _csvFilteredLines),
                   Text(border, style: _fixedTextStyle(_fontSize)),
                   Text(""),
                   Text(""),
@@ -1267,6 +1266,12 @@ Widget _build(States _st) {
       ),
     );
   } else if (_st.getSearch()) {
+    final List<CsvLine> _csvLines = _st.getCsvLines();
+    final List<CsvLine> _csvFilteredLines = _st.getUserInput() == ""
+        ? []
+        : _filterCsvLines(_st);
+    final int _nb_matched = _csvFilteredLines.length - 1;
+    final int _nb_total = _csvLines.length - 1;
     return Scaffold(
       appBar: AppBar(title: Text(transl(_lc, "Search"))),
       body: SafeArea(
@@ -1292,6 +1297,13 @@ Widget _build(States _st) {
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
+                  if (_st.getUserInput() != "")
+                    Expanded(
+                      child: Text(
+                        "$_nb_matched/$_nb_total",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
                   ElevatedButton(
                     onPressed: () {
                       _st.setSearch(false);
@@ -1299,10 +1311,10 @@ Widget _build(States _st) {
                     },
                     child: Text(transl(_lc, "Cancel")),
                   ),
-                ]
+                ],
               ),
               if (_st.getUserInput() != "")
-                Expanded(child: _buildCsvFiltered(_st)),
+                Expanded(child: _buildCsvFiltered(_st, _csvFilteredLines)),
             ],
           ),
         ),
