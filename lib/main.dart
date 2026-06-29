@@ -1311,7 +1311,7 @@ Widget _build(States _st) {
                       _st.setSearch(false);
                       _st.sync();
                     },
-                    child: Text(transl(_lc, "Cancel")),
+                    child: Text(transl(_lc, "Return")),
                   ),
                 ],
               ),

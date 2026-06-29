@@ -33,6 +33,10 @@ en: One row per entry
 fr: Une ligne par entrée
 zh: 每条目一行
 
+    Return
+en: Return
+fr: Retour
+
     Search
 en: Search
 fr: Rechercher
