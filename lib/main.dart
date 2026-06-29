@@ -1290,6 +1290,8 @@ Widget _build(States _st) {
                   ),
                   onChanged: (value) {
                     _st.setUserInput(value);
+                    _st.getVScrollController().jumpTo(0);
+                    _st.getHScrollController().jumpTo(0);
                     _st.sync();
                   },
                 ),
