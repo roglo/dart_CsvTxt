@@ -530,8 +530,8 @@ List<CsvLine> formattedCsv(
 ) {
   final lines = csvStruct(content, sep);
   final fieldsSizes = newVersion
-       ? computeFieldSizes2(lines)
-       : computeFieldsSizes(lines);
+      ? computeFieldSizes2(lines)
+      : computeFieldsSizes(lines);
   final flines = foldLongLines(fieldsSizes, lines);
   final flines2 = completeListBySpaces(fieldsSizes, flines);
   return flines2;
