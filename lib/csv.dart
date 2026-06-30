@@ -263,14 +263,6 @@ String getGoodSeparator(List<List<dynamic>> r) {
   }
 }
 
-int getNbOccOfChar(List<List<dynamic>> r) {
-  if (r.isNotEmpty) {
-    return r.first[1] as int;
-  } else {
-    return 0;
-  }
-}
-
 //
 // Changing the display of a csv file to make it pretty
 //
@@ -525,7 +517,6 @@ List<List<String>> csvStruct(String content, String sep) {
 List<CsvLine> formattedCsv(
   String content,
   String sep,
-  int nbOccOfSep,
   bool newVersion,
 ) {
   final lines = csvStruct(content, sep);
@@ -544,6 +535,5 @@ List<CsvLine> treatCsv(String content, bool newVersion) {
   final test = ",;|\t:";
   final rs = findSeparator(test, content);
   final sep = getGoodSeparator(rs);
-  final nbOccOfChar = getNbOccOfChar(rs);
-  return formattedCsv(content, sep, nbOccOfChar, newVersion);
+  return formattedCsv(content, sep, newVersion);
 }
