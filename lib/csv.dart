@@ -297,13 +297,16 @@ const int percent = 90;
 
 List<int> computeFieldSizesShortColumns(List<List<String>> lines) {
   List<int> loop(List<int> fsl, int nbCol) {
-    List<int> loop1(List<int> szl, List<List<String>> remainingLines) {
+    List<(int, String)> loop1(
+      List<(int, String)> szl,
+      List<List<String>> remainingLines
+    ) {
       if (remainingLines.isEmpty) {
         return szl;
       }
       final line = remainingLines.first;
       final newSzl = (nbCol < line.length)
-          ? [...szl, line[nbCol].length]
+          ? [...szl, (line[nbCol].length, line[nbCol])]
           : [...szl];
       return loop1(newSzl, remainingLines.sublist(1));
     }
@@ -312,11 +315,16 @@ List<int> computeFieldSizesShortColumns(List<List<String>> lines) {
     if (szl.isEmpty) {
       return List.from(fsl.reversed);
     } else {
-      final sortedSzl = List.from(szl)..sort();
+      final sortedSzl = List.from(szl)..sort((a, b) => a.$1.compareTo(b.$1));
       final len = sortedSzl.length;
-      final u = sortedSzl.last.clamp(0, 10);
+//
       final index = ((len * percent + 50) ~/ 100 - 1).clamp(0, len - 1);
-      final fs = max(u, sortedSzl[index]).toInt();
+      final (int fs1, String s) = sortedSzl[index];
+      final u = sortedSzl.last.$1.clamp(0, 10);
+      final fs = max(u, fs1).toInt();
+//       final u = sortedSzl.last.clamp(0, 10);
+//       final index = ((len * percent + 50) ~/ 100 - 1).clamp(0, len - 1);
+//       final fs = max(u, sortedSzl[index]).toInt();
       return loop([fs, ...fsl], nbCol + 1);
     }
   }
