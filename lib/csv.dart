@@ -514,8 +514,11 @@ List<List<String>> csvStruct(String content, String sep) {
   return linesOfCsvString(sep, trimmedContent);
 }
 
-List<CsvLine> formattedCsv(String content, String sep, bool csvShortColumns) {
-  final lines = csvStruct(content, sep);
+List<CsvLine> formattedCsv(
+  List<List<String>> lines,
+  String sep,
+  bool csvShortColumns
+) {
   final fieldsSizes = csvShortColumns
       ? computeFieldSizesShortColumns(lines)
       : computeFieldsSizes(lines);
@@ -531,5 +534,6 @@ List<CsvLine> treatCsv(String content, bool csvShortColumns) {
   final test = ",;|\t:";
   final rs = findSeparator(test, content);
   final sep = getGoodSeparator(rs);
-  return formattedCsv(content, sep, csvShortColumns);
+  final lines = csvStruct(content, sep);
+  return formattedCsv(lines, sep, csvShortColumns);
 }
