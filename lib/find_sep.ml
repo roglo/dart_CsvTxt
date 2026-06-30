@@ -370,17 +370,23 @@ value formatted_csv content sep nb_occ_of_sep : string = do {
   let lines = lines_of_csv_string sep content in
   let fields_sizes = compute_field_sizes lines in
   let flines = fold_long_lines fields_sizes lines in
-  let flines = complete_list_by_spaces fields_sizes flines in
+(**)
+  let fields_sizes_again = compute_field_sizes (List.concat flines) in
+  let flines = fold_long_lines fields_sizes_again lines in
+  let flines = complete_list_by_spaces fields_sizes_again flines in
 (*
-  let old_fields_sizes = compute_old_field_sizes lines in
-  printf "=== old fields_sizes";
-  List.iter (fun sz → printf " %3d" sz) old_fields_sizes;
-  printf "\n%!";
+  let flines = complete_list_by_spaces fields_sizes flines in
 *)
-  printf "=== new fields_sizes";
+  printf "=== fields_sizes";
   List.iter (fun sz → printf " %3d" sz) fields_sizes;
   printf "\n%!";
+  printf "=== again fsizes";
+  List.iter (fun sz → printf " %3d" sz) fields_sizes_again;
+  printf "\n%!";
+  format_content fields_sizes_again flines
+(*
   format_content fields_sizes flines
+*)
 };
 
 (* Main *)
