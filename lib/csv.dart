@@ -299,7 +299,7 @@ List<int> computeFieldSizesShortColumns(List<List<String>> lines) {
   List<int> loop(List<int> fsl, int nbCol) {
     List<(int, String)> loop1(
       List<(int, String)> szl,
-      List<List<String>> remainingLines
+      List<List<String>> remainingLines,
     ) {
       if (remainingLines.isEmpty) {
         return szl;
@@ -317,14 +317,10 @@ List<int> computeFieldSizesShortColumns(List<List<String>> lines) {
     } else {
       final sortedSzl = List.from(szl)..sort((a, b) => a.$1.compareTo(b.$1));
       final len = sortedSzl.length;
-//
       final index = ((len * percent + 50) ~/ 100 - 1).clamp(0, len - 1);
       final (int fs1, String s) = sortedSzl[index];
       final u = sortedSzl.last.$1.clamp(0, 10);
       final fs = max(u, fs1).toInt();
-//       final u = sortedSzl.last.clamp(0, 10);
-//       final index = ((len * percent + 50) ~/ 100 - 1).clamp(0, len - 1);
-//       final fs = max(u, sortedSzl[index]).toInt();
       return loop([fs, ...fsl], nbCol + 1);
     }
   }
