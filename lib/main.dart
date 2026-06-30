@@ -1106,15 +1106,15 @@ Widget _buildNormal(States _st) {
         ],
         const SizedBox(height: 16),
         if (_fileName != null)
-          if (_fileType == FileType.csv)
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    "${transl(_lc, "File:")} $_fileName",
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  "${transl(_lc, "File:")} $_fileName",
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
+              ),
+              if (_fileType == FileType.csv)
                 GestureDetector(
                   onTap: () {
                     _st.setTextColorList1(-1, Colors.grey[300] ?? Colors.grey);
@@ -1135,13 +1135,8 @@ Widget _buildNormal(States _st) {
                     ),
                   ),
                 ),
-              ],
-            )
-          else
-            Text(
-              "${transl(_lc, "File:")} $_fileName",
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
+            ],
+          ),
         const SizedBox(height: 8),
         if (_errorMessage != null)
           Text(_errorMessage, style: const TextStyle(color: Colors.red)),
