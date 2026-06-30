@@ -816,8 +816,11 @@ Widget _clickOnCsvHeaderLine(States _st, int index, String txt) {
   );
 }
 
-List<Widget> _buildCsvFirstLineColumnChildren(States _st, bool click) {
-  final List<CsvLine> _csvLines = _st.getCsvLines();
+List<Widget> _buildCsvFirstLineColumnChildren(
+  States _st,
+  List<CsvLine> _csvLines,
+  bool click,
+) {
   final (leftList, rightLists) = _csvLines.first;
   return rightLists.map((rightList) {
     return Row(
@@ -941,7 +944,7 @@ Widget _fixedCsvView(States _st) {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(border, style: _fixedTextStyle(_fontSize)),
-        ..._buildCsvFirstLineColumnChildren(_st, true),
+        ..._buildCsvFirstLineColumnChildren(_st, _csvLines, true),
         Text(border, style: _fixedTextStyle(_fontSize)),
         Expanded(
           child: SingleChildScrollView(
@@ -1214,7 +1217,7 @@ Widget _buildCsvFiltered(States _st, List<CsvLine> _csvFilteredLines) {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(border, style: _fixedTextStyle(_fontSize)),
-          ..._buildCsvFirstLineColumnChildren(_st, false),
+          ..._buildCsvFirstLineColumnChildren(_st, _csvFilteredLines, false),
           Text(border, style: _fixedTextStyle(_fontSize)),
           Expanded(
             child: SingleChildScrollView(
@@ -1317,7 +1320,7 @@ Widget _build(States _st) {
                 ],
               ),
               if (_st.getUserInput() != "" && _nbMatched != 0)
-                Expanded(child: _buildCsvFiltered(_st, _csvFilteredLines)),
+                Expanded(child: _buildCsvFiltered(_st, _newCsvLines)),
             ],
           ),
         ),
