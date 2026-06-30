@@ -217,9 +217,9 @@ value compute_field_sizes lines : list int =
       let fs =
         let szl = List.sort compare szl in
         let len = List.length szl in
-        let u = min 10 (List.nth szl (len - 1)) in
-        max u
-          (List.nth szl (max 0 ((len * percent + 100 / 2) / 100 - 1)))
+        let sz = List.nth szl (max 0 ((len * percent + 100 / 2) / 100 - 1)) in
+        let u = List.nth szl (len - 1) in
+        max (min 10 u) sz (* too much ad hoc for my file "films.csv" *)
       in
       loop [fs :: fsl] (nb_col + 1)
 ;
