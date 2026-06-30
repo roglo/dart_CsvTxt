@@ -509,17 +509,16 @@ List<String> completeBySpaces(List<int> fsl, List<String> sl) {
   return completeBySpaces(fsl, sl);
 }
 
-(String, List<List<String>>) csvStruct(String content) {
+List<List<String>> csvStruct(String content) {
   final test = ",;|\t:";
   final rs = findSeparator(test, content);
   final sep = getGoodSeparator(rs);
   final trimmedContent = trimRightKeepNewlines(content);
-  return (sep, linesOfCsvString(sep, trimmedContent));
+  return linesOfCsvString(sep, trimmedContent);
 }
 
 List<CsvLine> formattedCsv(
   List<List<String>> lines,
-  String sep,
   bool csvShortColumns,
 ) {
   final fieldsSizes = csvShortColumns
@@ -534,6 +533,6 @@ List<CsvLine> formattedCsv(
 // the file correctly aligned
 
 List<CsvLine> treatCsv(String content, bool csvShortColumns) {
-  final (sep, lines) = csvStruct(content);
-  return formattedCsv(lines, sep, csvShortColumns);
+  final lines = csvStruct(content);
+  return formattedCsv(lines, csvShortColumns);
 }
