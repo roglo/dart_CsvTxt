@@ -517,7 +517,7 @@ List<List<String>> csvStruct(String content, String sep) {
 List<CsvLine> formattedCsv(
   List<List<String>> lines,
   String sep,
-  bool csvShortColumns
+  bool csvShortColumns,
 ) {
   final fieldsSizes = csvShortColumns
       ? computeFieldSizesShortColumns(lines)
