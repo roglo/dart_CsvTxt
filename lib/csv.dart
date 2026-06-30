@@ -293,9 +293,8 @@ List<int> computeFieldsSizes(List<List<String>> lines) {
   return maxLengths ?? [];
 }
 
-int _sizeOfLongestWord(String s) {
-  return 10;
-}
+int _sizeOfLongestWord(String s) =>
+  s.trim().isEmpty ? 0 : s.trim().split(" ").map((w) => w.length).reduce((a, b) => a > b ? a : b);
 
 const int percent = 90;
 
