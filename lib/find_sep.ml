@@ -196,6 +196,15 @@ value utf_8_string_sub s pos len =
       else loop (i + 1) t (if utf_8_cont_char s.[i] then tlen else tlen + 1)
 ;
 
+value size_of_longest_word_in_string s =
+  loop 0 0 0 where rec loop min_len curr_word_len i =
+    if i < String.length s then
+      if utf_8_cont_char s.[i] then loop min_len curr_word_len (i + 1)
+      else if s.[i] = ' ' then loop (max min_len curr_word_len) 0 (i + 1)
+      else loop min_len (curr_word_len + 1) (i + 1)
+    else max min_len curr_word_len
+;
+
 value percent = 90;
 
 value compute_field_sizes lines : list int =
@@ -206,7 +215,7 @@ value compute_field_sizes lines : list int =
         [ [line :: lines] →
             let szl =
               match List.nth_opt line nb_col with
-              [ Some s → [utf_8_string_length s :: szl]
+              [ Some s → [(s, utf_8_string_length s) :: szl]
               | None → szl ]
             in
             loop1 szl lines
@@ -215,11 +224,11 @@ value compute_field_sizes lines : list int =
     if szl = [] then List.rev fsl
     else
       let fs =
-        let szl = List.sort compare szl in
+        let szl = List.sort (fun (_, sz1) (_, sz2) → compare sz1 sz2) szl in
         let len = List.length szl in
-        let sz = List.nth szl (max 0 ((len * percent + 100 / 2) / 100 - 1)) in
-        let u = List.nth szl (len - 1) in
-        max (min 10 u) sz (* too much ad hoc for my file "films.csv" *)
+        let s_sz = List.nth szl (max 0 ((len * percent + 100 / 2) / 100 - 1)) in
+        let u = size_of_longest_word_in_string (fst (List.nth szl (len - 1))) in
+        max u (snd s_sz)
       in
       loop [fs :: fsl] (nb_col + 1)
 ;
