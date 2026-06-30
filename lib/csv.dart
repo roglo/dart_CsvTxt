@@ -295,7 +295,7 @@ List<int> computeFieldsSizes(List<List<String>> lines) {
 
 const int percent = 90;
 
-List<int> computeFieldSizes2(List<List<String>> lines) {
+List<int> computeFieldSizesShortColumns(List<List<String>> lines) {
   List<int> loop(List<int> fsl, int nbCol) {
     List<int> loop1(List<int> szl, List<List<String>> remainingLines) {
       if (remainingLines.isEmpty) {
@@ -517,11 +517,11 @@ List<List<String>> csvStruct(String content, String sep) {
 List<CsvLine> formattedCsv(
   String content,
   String sep,
-  bool newVersion,
+  bool csvShortColumns,
 ) {
   final lines = csvStruct(content, sep);
-  final fieldsSizes = newVersion
-      ? computeFieldSizes2(lines)
+  final fieldsSizes = csvShortColumns
+      ? computeFieldSizesShortColumns(lines)
       : computeFieldsSizes(lines);
   final flines = foldLongLines(fieldsSizes, lines);
   final flines2 = completeListBySpaces(fieldsSizes, flines);
@@ -531,9 +531,9 @@ List<CsvLine> formattedCsv(
 // Treat a csv file by searching its separator and displaying
 // the file correctly aligned
 
-List<CsvLine> treatCsv(String content, bool newVersion) {
+List<CsvLine> treatCsv(String content, bool csvShortColumns) {
   final test = ",;|\t:";
   final rs = findSeparator(test, content);
   final sep = getGoodSeparator(rs);
-  return formattedCsv(content, sep, newVersion);
+  return formattedCsv(content, sep, csvShortColumns);
 }

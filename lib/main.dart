@@ -155,7 +155,7 @@ typedef States = ({
   FileType? Function() getFileType,
   double Function() getFontSize,
   bool Function() getModeFixe,
-  bool Function() getNewVersion,
+  bool Function() getCsvShortColumns,
   bool Function() getLoading,
   bool Function() getSearch,
   int Function() getPdfLoadCount,
@@ -177,7 +177,7 @@ typedef States = ({
   void Function(List<CsvLine>) setCsvLines,
   void Function(double) setFontSize,
   void Function(bool) setModeFixe,
-  void Function() switchNewVersion,
+  void Function() switchCsvShortColumns,
   void Function(bool) setLoading,
   void Function(bool) setSearch,
   void Function() incrPdfLoadCount,
@@ -925,7 +925,7 @@ Widget _fixedCsvView(States _st) {
   final ScrollController _vScrollController = _st.getVScrollController();
   final ScrollController _hScrollController = _st.getHScrollController();
   if (_csvLines.isEmpty) {
-    _st.setCsvLines(treatCsv(_st.getFileContent()!, _st.getNewVersion()));
+    _st.setCsvLines(treatCsv(_st.getFileContent()!, _st.getCsvShortColumns()));
     _st.sync();
   }
   _csvLines = _st.getCsvLines();
@@ -1151,12 +1151,12 @@ Widget _buildNormal(States _st) {
             _st.getModeFixe())
           ElevatedButton(
             onPressed: () {
-              _st.switchNewVersion();
+              _st.switchCsvShortColumns();
               _st.setCsvLines([]);
               _st.sync();
             },
             child: Text(
-              _st.getNewVersion()
+              _st.getCsvShortColumns()
                   ? transl(_lc, "One row per entry")
                   : transl(_lc, "Short columns"),
             ),
@@ -1360,7 +1360,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   String? _errorMessage;
   bool _loading = false;
   bool _search = false;
-  bool _newVersion = true;
+  bool _csvShortColumns = true;
   bool _modeFixe = false;
   double _fontSize = _initialFontSize;
   final Map<int, Color> _textColorsList1 = {};
@@ -1419,7 +1419,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   FileType? _getFileType() => _fileType;
   double _getFontSize() => _fontSize;
   bool _getModeFixe() => _modeFixe;
-  bool _getNewVersion() => _newVersion;
+  bool _getCsvShortColumns() => _csvShortColumns;
   bool _getLoading() => _loading;
   bool _getSearch() => _search;
   int _getPdfLoadCount() => _pdfLoadCount;
@@ -1442,7 +1442,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   void _setCsvLines(List<CsvLine> _newCsvLines) => _csvLines = _newCsvLines;
   void _setFontSize(double sz) => _fontSize = sz.clamp(8.0, 40.0);
   void _setModeFixe(b) => _modeFixe = b;
-  void _switchNewVersion() => _newVersion = !_newVersion;
+  void _switchCsvShortColumns() => _csvShortColumns = !_csvShortColumns;
   void _setLoading(bool loading) => _loading = loading;
   void _setSearch(bool b) => _search = b;
   void _incrPdfLoadCount() => _pdfLoadCount++;
@@ -1468,7 +1468,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     getFileType: _getFileType,
     getFontSize: _getFontSize,
     getModeFixe: _getModeFixe,
-    getNewVersion: _getNewVersion,
+    getCsvShortColumns: _getCsvShortColumns,
     getLoading: _getLoading,
     getSearch: _getSearch,
     getPdfLoadCount: _getPdfLoadCount,
@@ -1490,7 +1490,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     setCsvLines: _setCsvLines,
     setFontSize: _setFontSize,
     setModeFixe: _setModeFixe,
-    switchNewVersion: _switchNewVersion,
+    switchCsvShortColumns: _switchCsvShortColumns,
     setLoading: _setLoading,
     setSearch: _setSearch,
     incrPdfLoadCount: _incrPdfLoadCount,
