@@ -293,6 +293,10 @@ List<int> computeFieldsSizes(List<List<String>> lines) {
   return maxLengths ?? [];
 }
 
+int _sizeOfLongestWord(String s) {
+  return 10;
+}
+
 const int percent = 90;
 
 List<int> computeFieldSizesShortColumns(List<List<String>> lines) {
@@ -319,7 +323,7 @@ List<int> computeFieldSizesShortColumns(List<List<String>> lines) {
       final len = sortedSzl.length;
       final index = ((len * percent + 50) ~/ 100 - 1).clamp(0, len - 1);
       final (int fs1, String s) = sortedSzl[index];
-      final u = sortedSzl.last.$1.clamp(0, 10);
+      final u = _sizeOfLongestWord(sortedSzl.last.$2);
       final fs = max(u, fs1).toInt();
       return loop([fs, ...fsl], nbCol + 1);
     }
