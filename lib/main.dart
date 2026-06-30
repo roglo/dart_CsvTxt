@@ -1109,9 +1109,11 @@ Widget _buildNormal(States _st) {
           if (_fileType == FileType.csv)
             Row(
               children: [
-                Text(
-                  transl(_lc, "File:"),
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                Expanded(
+                  child: Text(
+                    "${transl(_lc, "File:")} $_fileName",
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ),
                 GestureDetector(
                   onTap: () {
@@ -1126,7 +1128,7 @@ Widget _buildNormal(States _st) {
                     });
                   },
                   child: Text(
-                    " $_fileName",
+                    (transl(_lc, "search")),
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: _st.getTextColorList1(-1) ?? Colors.blue,

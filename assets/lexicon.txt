@@ -41,6 +41,10 @@ fr: Retour
 en: Search
 fr: Rechercher
 
+    search
+en: search
+fr: rechercher
+
     Short columns
 en: Short columns
 fr: Colonnes courtes

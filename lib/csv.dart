@@ -514,11 +514,7 @@ List<List<String>> csvStruct(String content, String sep) {
   return linesOfCsvString(sep, trimmedContent);
 }
 
-List<CsvLine> formattedCsv(
-  String content,
-  String sep,
-  bool csvShortColumns,
-) {
+List<CsvLine> formattedCsv(String content, String sep, bool csvShortColumns) {
   final lines = csvStruct(content, sep);
   final fieldsSizes = csvShortColumns
       ? computeFieldSizesShortColumns(lines)
