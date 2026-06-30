@@ -1272,10 +1272,13 @@ Widget _build(States _st) {
         : _filterCsvLines(_st);
     final int _nbMatched = _csvFilteredLines.length - 1;
     final int _nbTotal = _csvLines.length - 1;
-    final List<List<String>> _newLines =
-      _csvFilteredLines.map((ll) => ll.$1).toList();
-    final List<CsvLine> _newCsvLines =
-      formattedCsv(_newLines, _st.getCsvShortColumns());
+    final List<List<String>> _newLines = _csvFilteredLines
+        .map((ll) => ll.$1)
+        .toList();
+    final List<CsvLine> _newCsvLines = formattedCsv(
+      _newLines,
+      _st.getCsvShortColumns(),
+    );
     return Scaffold(
       appBar: AppBar(title: Text(transl(_lc, "Search"))),
       body: SafeArea(
