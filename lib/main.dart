@@ -1241,28 +1241,29 @@ Widget _buildCsvFiltered(States _st, List<CsvLine> _csvFilteredLines) {
   );
 }
 
+Widget _genDisplay(Widget wid) => Scaffold(
+  body: SafeArea(
+    child: Padding(padding: const EdgeInsets.all(16), child: wid),
+  ),
+);
+
 Widget _displayCsvTxt(States _st) {
   final LangCtx _lc = _st.getLangCtx();
   if (_st.getLoading()) {
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Center(child: LinearProgressIndicator()),
-              Text("merci de patienter..."),
-              ElevatedButton(
-                onPressed: () {
-                  _st.setLoading(false);
-                  _st.sync();
-                },
-                child: const Text("Interrompre"),
-              ),
-            ],
+    return _genDisplay(
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Center(child: LinearProgressIndicator()),
+          Text("merci de patienter..."),
+          ElevatedButton(
+            onPressed: () {
+              _st.setLoading(false);
+              _st.sync();
+            },
+            child: const Text("Interrompre"),
           ),
-        ),
+        ],
       ),
     );
   } else if (_st.getSearch()) {
@@ -1279,65 +1280,52 @@ Widget _displayCsvTxt(States _st) {
       _newLines,
       _st.getCsvShortColumns(),
     );
-    return Scaffold(
-      appBar: AppBar(title: Text(transl(_lc, "Search"))),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return _genDisplay(
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.all(16.0),
+            child: TextField(
+              controller: _st.getTextController(),
+              decoration: InputDecoration(
+                labelText: transl(_lc, "Search"),
+                border: OutlineInputBorder(),
+              ),
+              onChanged: (value) {
+                _st.setUserInput(value);
+                _st.getVScrollController().jumpTo(0);
+                _st.getHScrollController().jumpTo(0);
+                _st.sync();
+              },
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Padding(
-                padding: EdgeInsets.all(16.0),
-                child: TextField(
-                  controller: _st.getTextController(),
-                  decoration: InputDecoration(
-                    labelText: transl(_lc, "Search"),
-                    border: OutlineInputBorder(),
+              if (_st.getUserInput() != "")
+                Expanded(
+                  child: Text(
+                    "$_nbMatched/$_nbTotal",
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  onChanged: (value) {
-                    _st.setUserInput(value);
-                    _st.getVScrollController().jumpTo(0);
-                    _st.getHScrollController().jumpTo(0);
-                    _st.sync();
-                  },
                 ),
+              ElevatedButton(
+                onPressed: () {
+                  _st.setSearch(false);
+                  _st.sync();
+                },
+                child: Text(transl(_lc, "Return")),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  if (_st.getUserInput() != "")
-                    Expanded(
-                      child: Text(
-                        "$_nbMatched/$_nbTotal",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ElevatedButton(
-                    onPressed: () {
-                      _st.setSearch(false);
-                      _st.sync();
-                    },
-                    child: Text(transl(_lc, "Return")),
-                  ),
-                ],
-              ),
-              if (_st.getUserInput() != "" && _nbMatched != 0)
-                Expanded(child: _buildCsvFiltered(_st, _newCsvLines)),
             ],
           ),
-        ),
+          if (_st.getUserInput() != "" && _nbMatched != 0)
+            Expanded(child: _buildCsvFiltered(_st, _newCsvLines)),
+        ],
       ),
     );
   } else {
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: _buildNormal(_st),
-        ),
-      ),
-    );
+    return _genDisplay(_buildNormal(_st));
   }
 }
 
