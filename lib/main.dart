@@ -1241,7 +1241,7 @@ Widget _buildCsvFiltered(States _st, List<CsvLine> _csvFilteredLines) {
   );
 }
 
-Widget _build(States _st) {
+Widget _displayCsvTxt(States _st) {
   final LangCtx _lc = _st.getLangCtx();
   if (_st.getLoading()) {
     return Scaffold(
@@ -1509,7 +1509,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   );
 
   @override
-  Widget build(BuildContext context) => _build(_st);
+  Widget build(BuildContext context) => _displayCsvTxt(_st);
 }
 
 class FilePickerScreen extends StatefulWidget {
