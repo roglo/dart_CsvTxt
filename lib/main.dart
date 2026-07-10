@@ -158,7 +158,6 @@ typedef States = ({
   bool Function() getModeFixe,
   bool Function() getCsvShortColumns,
   bool Function() getLoading,
-  bool Function() getSearch,
   int Function() getPdfLoadCount,
   ScrollController Function() getVScrollController,
   ScrollController Function() getHScrollController,
@@ -180,7 +179,6 @@ typedef States = ({
   void Function(bool) setModeFixe,
   void Function() switchCsvShortColumns,
   void Function(bool) setLoading,
-  void Function(bool) setSearch,
   void Function() incrPdfLoadCount,
   void Function(int, Color) setTextColorList1,
   void Function(int, Color) setTextColorList2,
@@ -1192,7 +1190,6 @@ Widget _buildNormal(States _st) {
                     Future.delayed(const Duration(milliseconds: 100), () {
                       _st.setTextColorList1(-1, Colors.blue);
                       _st.setUserInput("");
-                      //                      _st.setSearch(true);
                       _st.getTextController().clear();
                       _st.sync();
                       Navigator.push(
@@ -1321,7 +1318,6 @@ Widget _genDisplay(Widget wid) => Scaffold(
 );
 
 Widget _displayCsvTxt(States _st) {
-  final LangCtx _lc = _st.getLangCtx();
   if (_st.getLoading()) {
     return _genDisplay(
       Column(
@@ -1336,64 +1332,6 @@ Widget _displayCsvTxt(States _st) {
             },
             child: const Text("Interrompre"),
           ),
-        ],
-      ),
-    );
-  } else if (_st.getSearch()) {
-    final List<CsvLine> _csvLines = _st.getCsvLines();
-    final List<CsvLine> _csvFilteredLines = _st.getUserInput() == ""
-        ? []
-        : _filterCsvLines(_st);
-    final int _nbMatched = _csvFilteredLines.length - 1;
-    final int _nbTotal = _csvLines.length - 1;
-    final List<List<String>> _newLines = _csvFilteredLines
-        .map((ll) => ll.$1)
-        .toList();
-    final List<CsvLine> _newCsvLines = formattedCsv(
-      _newLines,
-      _st.getCsvShortColumns(),
-    );
-    return _genDisplay(
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.all(16.0),
-            child: TextField(
-              controller: _st.getTextController(),
-              decoration: InputDecoration(
-                labelText: transl(_lc, "Search"),
-                border: OutlineInputBorder(),
-              ),
-              onChanged: (value) {
-                _st.setUserInput(value);
-                _st.getVScrollController().jumpTo(0);
-                _st.getHScrollController().jumpTo(0);
-                _st.sync();
-              },
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              if (_st.getUserInput() != "")
-                Expanded(
-                  child: Text(
-                    "$_nbMatched/$_nbTotal",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ElevatedButton(
-                onPressed: () {
-                  _st.setSearch(false);
-                  _st.sync();
-                },
-                child: Text(transl(_lc, "Return")),
-              ),
-            ],
-          ),
-          if (_st.getUserInput() != "" && _nbMatched != 0)
-            Expanded(child: _buildCsvFiltered(_st, _newCsvLines)),
         ],
       ),
     );
@@ -1427,7 +1365,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   List<TarEntry> _tarList = [];
   String? _errorMessage;
   bool _loading = false;
-  bool _search = false;
   bool _csvShortColumns = true;
   bool _modeFixe = false;
   double _fontSize = _initialFontSize;
@@ -1489,7 +1426,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   bool _getModeFixe() => _modeFixe;
   bool _getCsvShortColumns() => _csvShortColumns;
   bool _getLoading() => _loading;
-  bool _getSearch() => _search;
   int _getPdfLoadCount() => _pdfLoadCount;
   ScrollController _getVScrollController() => _vScrollController;
   ScrollController _getHScrollController() => _hScrollController;
@@ -1512,7 +1448,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   void _setModeFixe(b) => _modeFixe = b;
   void _switchCsvShortColumns() => _csvShortColumns = !_csvShortColumns;
   void _setLoading(bool loading) => _loading = loading;
-  void _setSearch(bool b) => _search = b;
   void _incrPdfLoadCount() => _pdfLoadCount++;
   void _setTextColorList1(int index, Color color) =>
       _textColorsList1[index] = color;
@@ -1538,7 +1473,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     getModeFixe: _getModeFixe,
     getCsvShortColumns: _getCsvShortColumns,
     getLoading: _getLoading,
-    getSearch: _getSearch,
     getPdfLoadCount: _getPdfLoadCount,
     getVScrollController: _getVScrollController,
     getHScrollController: _getHScrollController,
@@ -1560,7 +1494,6 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     setModeFixe: _setModeFixe,
     switchCsvShortColumns: _switchCsvShortColumns,
     setLoading: _setLoading,
-    setSearch: _setSearch,
     incrPdfLoadCount: _incrPdfLoadCount,
     setTextColorList1: _setTextColorList1,
     setTextColorList2: _setTextColorList2,
