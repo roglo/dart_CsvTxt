@@ -32,6 +32,7 @@ dependencies:
   flutter:
     sdk: flutter
   file_picker: ^8.1.7
+  flutter_hooks: ^0.20.0
   path_provider: ^2.1.1
   pdfrx: ^1.0.0
   permission_handler: ^11.0.0

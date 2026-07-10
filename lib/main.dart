@@ -13,6 +13,7 @@ import "package:file_picker/file_picker.dart";
 import 'package:flutter/foundation.dart';
 import "package:flutter/material.dart";
 import 'package:flutter/services.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:pdfrx/pdfrx.dart';
 
 import "csv.dart";
@@ -1088,6 +1089,72 @@ List<Widget> _buildContent(States _st) {
   ];
 }
 
+class _csvSearchScreen extends HookWidget {
+  final States st;
+  const _csvSearchScreen(this.st);
+
+  @override
+  Widget build(BuildContext context) {
+    return _buildCsvSearchScreen(st);
+  }
+}
+
+Widget _buildCsvSearchScreen(States _st) {
+  final List<CsvLine> _csvLines = _st.getCsvLines();
+  final _csvFilteredLines = useState<List<CsvLine>>([]);
+  final int _nbMatched = _csvFilteredLines.value.length - 1;
+  final int _nbTotal = _csvLines.length - 1;
+  final List<List<String>> _newLines = _csvFilteredLines.value
+      .map((ll) => ll.$1)
+      .toList();
+  final List<CsvLine> _newCsvLines = formattedCsv(
+    _newLines,
+    _st.getCsvShortColumns(),
+  );
+  final LangCtx _lc = _st.getLangCtx();
+  return Scaffold(
+    appBar: AppBar(title: Text(transl(_lc, "Search"))),
+    body: _genDisplay(
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.all(16.0),
+            child: TextField(
+              controller: _st.getTextController(),
+              decoration: InputDecoration(
+                labelText: transl(_lc, "Search"),
+                border: OutlineInputBorder(),
+              ),
+              onChanged: (value) {
+                _st.setUserInput(value);
+                _st.getVScrollController().jumpTo(0);
+                _st.getHScrollController().jumpTo(0);
+                _st.sync();
+                _csvFilteredLines.value = _st.getUserInput() == ""
+                    ? []
+                    : _filterCsvLines(_st);
+              },
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              if (_st.getUserInput() != "")
+                Text(
+                  "$_nbMatched/$_nbTotal",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+            ],
+          ),
+          if (_st.getUserInput() != "" && _nbMatched != 0)
+            Expanded(child: _buildCsvFiltered(_st, _newCsvLines)),
+        ],
+      ),
+    ),
+  );
+}
+
 Widget _buildNormal(States _st) {
   final bool _dirFromButton = _st.getDirFromButton();
   final FileType? _fileType = _st.getFileType();
@@ -1125,9 +1192,15 @@ Widget _buildNormal(States _st) {
                     Future.delayed(const Duration(milliseconds: 100), () {
                       _st.setTextColorList1(-1, Colors.blue);
                       _st.setUserInput("");
-                      _st.setSearch(true);
+                      //                      _st.setSearch(true);
                       _st.getTextController().clear();
                       _st.sync();
+                      Navigator.push(
+                        _st.getContext(),
+                        MaterialPageRoute(
+                          builder: (context) => _csvSearchScreen(_st),
+                        ),
+                      );
                     });
                   },
                   child: Text(
