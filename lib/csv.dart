@@ -333,7 +333,7 @@ List<int> computeFieldSizesShortColumns(List<List<String>> lines) {
 }
 
 (String, String) cutAtSpaceIfPossible(String s, int fs) {
-  for (int i = fs; i >= 0; i--) {
+  for (int i = fs + 1; i >= 0; i--) {
     if (i == 0) {
       // Cas 1 : Aucun espace trouvé → coupe à fs
       final s2 = s.substring(0, fs);
