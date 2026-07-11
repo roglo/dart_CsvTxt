@@ -716,7 +716,7 @@ void _actionClickOnCsvLine(States _st, String def, String line) {
       content: SingleChildScrollView(
         child: ConstrainedBox(
           constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.7,
+            maxHeight: MediaQuery.of(context).size.height,
           ),
           child: Text.rich(
             TextSpan(
