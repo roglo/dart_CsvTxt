@@ -182,6 +182,15 @@ value utf_8_string_length s =
     else loop (i + 1) (if utf_8_cont_char s.[i] then n else n + 1)
 ;
 
+value utf_8_nth_char s i =
+  loop 0 0 where rec loop cnt j =
+    if j < String.length s then
+      if utf_8_cont_char s.[j] then loop cnt (j + 1)
+      else if cnt = i then s.[j]
+      else loop (cnt + 1) (j + 1)
+    else failwith "utf_8_nth_char"
+;
+
 value utf_8_string_sub s pos len =
   loop pos "" 0 where rec loop i t tlen =
     if i = String.length s then (t, i)
@@ -275,9 +284,9 @@ value cut_at_space_if_possible s fs =
       let (s2, j) = utf_8_string_sub s 0 fs in
       let e = String.sub s j (String.length s - j) in
       (s2, e)
-    else if s.[i] = ' ' then
-      let s2 = String.sub s 0 i in
-      let e = String.sub s (i + 1) (String.length s - i - 1) in
+    else if utf_8_nth_char s i = ' ' then
+      let (s2, j) = utf_8_string_sub s 0 i in
+      let e = String.sub s (j + 1) (String.length s - j - 1) in
       (s2, e)
     else
       loop (i - 1)
