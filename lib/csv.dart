@@ -517,12 +517,39 @@ List<String> completeBySpaces(List<int> fsl, List<String> sl) {
   return completeBySpaces(fsl, sl);
 }
 
+bool isNumber(String s) {
+  if (int.tryParse(s) == null) return false;
+  return true;
+}
+
+bool _numbered(List<List<String>> lines) {
+  for (List<String> line in lines.sublist(1)) {
+    if (!isNumber(line.first)) return false;
+  }
+  return true;
+}
+
+List<List<String>> _numberCsvLines(List<List<String>> lines) {
+  final firstLine = lines.first;
+  final otherLines = lines.sublist(1);
+  return [
+    ["#", ...firstLine],
+    ...otherLines
+        .asMap()
+        .entries
+        .map((entry) => ["${entry.key + 1}", ...entry.value])
+        .toList(),
+  ];
+}
+
 List<List<String>> csvStruct(String content) {
   final test = ",;|\t:";
   final rs = findSeparator(test, content);
   final sep = getGoodSeparator(rs);
   final trimmedContent = trimRightKeepNewlines(content);
-  return linesOfCsvString(sep, trimmedContent);
+  final lines = linesOfCsvString(sep, trimmedContent);
+  final linesNum = _numbered(lines) ? lines : _numberCsvLines(lines);
+  return linesNum;
 }
 
 List<CsvLine> formattedCsv(List<List<String>> lines, bool csvShortColumns) {
