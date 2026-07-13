@@ -51,8 +51,8 @@ int compareElements(
   bool isNumber,
   int index,
 ) {
-  final valueA = a.$2.$1[index];
-  final valueB = b.$2.$1[index];
+  final valueA = index < a.$2.$1.length ? a.$2.$1[index] : "";
+  final valueB = index < b.$2.$1.length ? b.$2.$1[index] : "";
 
   if (isNumber) {
     final numA = double.tryParse(valueA) ?? 0;
@@ -672,7 +672,9 @@ List<CsvLine> _actionClickOnCsvHeaderLine(
 ) {
   bool isNumber = true;
   for (int i = 1; i < _csvLines.length - 1; i++) {
-    if (double.tryParse(_csvLines[i].$1[index]) == null) {
+    final line = _csvLines[i].$1;
+    final s = index < line.length ? line[index] : "";
+    if (double.tryParse(s) == null) {
       isNumber = false;
       break;
     }
