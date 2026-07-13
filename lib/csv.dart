@@ -448,6 +448,9 @@ List<String> splitOnCharButStrings(String sep, String s) {
   if (ibeg < s.length) {
     result.add(s.substring(ibeg));
   }
+  else {
+    result.add("");
+  }
 
   return result;
 }
