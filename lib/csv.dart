@@ -439,7 +439,7 @@ List<String> splitOnCharButStrings(String sep, String s) {
         inString = !inString;
       }
     } else if (!inString && s[i] == sep) {
-      result.add(s.substring(ibeg, i)); // Ajoute à la fin
+      result.add(s.substring(ibeg, i));
       ibeg = i + 1;
     }
   }
