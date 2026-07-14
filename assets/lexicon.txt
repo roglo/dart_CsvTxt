@@ -10,7 +10,7 @@ zh: 选择文件
 
     click here to start searching
 en: click here to start searching
-fr: cliquer ici pour démarrer
+fr: cliquer ici pour chercher
 
     File:
 en: File:
