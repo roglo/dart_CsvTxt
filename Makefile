@@ -10,6 +10,15 @@ linux:
 linux_run:
 	GDK_SCALE=2 build/linux/x64/release/bundle/csvtxt
 
+help_wifi:
+	@echo "1. branch the cable"
+	@echo "2. accept transfer in the phone"
+	@echo "3. type: adb tcpip 5555"
+	@echo "4. unplug the phone"
+	@echo "5. in phone: parameters/about/status, note IP address"
+	@echo "6. type: adb connect <that_address>:5555"
+	@echo "7. check by typing: adb devices"
+
 clean:
 	rm -rf build .dart_tool android/.gradle android/app/src/main/java
 	rm -rf android/.kotlin
