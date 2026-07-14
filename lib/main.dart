@@ -1122,7 +1122,7 @@ Widget _buildCsvSearchScreen(States _st) {
             child: TextField(
               controller: _st.getTextController(),
               decoration: InputDecoration(
-                labelText: transl(_lc, "Search"),
+                hintText: transl(_lc, "click here to start searching"),
                 border: OutlineInputBorder(),
               ),
               onChanged: (value) {

@@ -8,6 +8,10 @@ en: Choose a file
 fr: Choisir un fichier
 zh: 选择文件
 
+    click here to start searching
+en: click here to start searching
+fr: cliquer ici pour démarrer
+
     File:
 en: File:
 fr: Fichier :
