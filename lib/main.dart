@@ -81,22 +81,22 @@ void myprint(String txt) {
 enum FileType { txt, csv, image, pdf, tar, tooBig }
 
 class GzipReader {
-  final Iterator<List<int>> _iterator;
+  final StreamIterator<List<int>> _iterator;
   int _pos = 0;
   final _buffer = <int>[];
 
   GzipReader._(this._iterator);
 
-  static GzipReader open(String path) {
-    final bytes = File(path).readAsBytesSync();
-    final decoded = GZipCodec().decode(bytes);
-    return GzipReader._([decoded].iterator);
+  static Future<GzipReader> open(String path) async {
+    final stream = File(path).openRead().transform(GZipCodec().decoder);
+    final iterator = StreamIterator(stream);
+    return GzipReader._(iterator);
   }
 
-  Uint8List readAt(int offset, int size) {
+  Future<Uint8List> readAt(int offset, int size) async {
     while (_pos < offset) {
       if (_buffer.isEmpty) {
-        if (!_iterator.moveNext()) break;
+        if (!await _iterator.moveNext()) break;
         _buffer.addAll(_iterator.current);
       }
       final skip = min(offset - _pos, _buffer.length);
@@ -107,7 +107,7 @@ class GzipReader {
     final result = <int>[];
     while (result.length < size) {
       if (_buffer.isEmpty) {
-        if (!_iterator.moveNext()) break;
+        if (!await _iterator.moveNext()) break;
         _buffer.addAll(_iterator.current);
       }
       final take = min(size - result.length, _buffer.length);
@@ -340,16 +340,16 @@ String tPerm(Uint8List bytes) {
   return "$typeChar$perms";
 }
 
-List<TarEntry> _parseTarGz(States _st, String path) {
+Future<List<TarEntry>> _parseTarGz(States _st, String path) async {
   final tarList = <TarEntry>[];
   final _getLoading = _st.getLoading;
   Uint8List? bytes;
   int pos = 0;
-  final reader = GzipReader.open(path);
+  final reader = await GzipReader.open(path);
   String? pendingLongName;
   try {
     while (_getLoading()) {
-      bytes = reader.readAt(pos, 512);
+      bytes = await reader.readAt(pos, 512);
       final ended = bytes[0];
       if (ended == 0) break;
       final elemName = parseTarString(bytes, 0, 100);
@@ -363,7 +363,7 @@ List<TarEntry> _parseTarGz(States _st, String path) {
       if (elemName == '././@LongLink') {
         final nameBytes = <int>[];
         for (int i = 0; i < dataBlocks; i++) {
-          final block = reader.readAt(pos + (i + 1) * 512, 512);
+          final block = await reader.readAt(pos + (i + 1) * 512, 512);
           nameBytes.addAll(block);
         }
         pendingLongName = utf8.decode(
@@ -440,7 +440,7 @@ void _setState(
   _st.sync();
 }
 
-void _filePicked(States _st, String path, String? name) {
+Future<void> _filePicked(States _st, String path, String? name) async {
   final ScrollController _vScrollController = _st.getVScrollController();
   final ScrollController _hScrollController = _st.getHScrollController();
   final _setLoading = _st.setLoading;
@@ -451,8 +451,11 @@ void _filePicked(States _st, String path, String? name) {
     _hScrollController.jumpTo(0);
   }
   //
-  final bytes = File(path).readAsBytesSync();
-  final chunks = bytes.length > 1024 ? bytes.sublist(0, 1024) : bytes;
+  final chunks = <int>[];
+  await for (final chunk in File(path).openRead()) {
+    chunks.addAll(chunk);
+    if (chunks.length >= 1024) break;
+  }
   final beginning = Uint8List.fromList(
     chunks.sublist(0, min(1024, chunks.length)),
   );
@@ -460,9 +463,9 @@ void _filePicked(States _st, String path, String? name) {
   bool isGzip = false;
   if (beginning.startsWith(0, [0x1F, 0x8B])) {
     isGzip = true;
-    final reader = GzipReader.open(path);
+    final reader = await GzipReader.open(path);
     try {
-      header = reader.readAt(0, 512);
+      header = await reader.readAt(0, 512);
     } finally {
       reader.close();
     }
@@ -497,8 +500,8 @@ void _filePicked(States _st, String path, String? name) {
     if (isGzip) {
       _setLoading(true);
       _st.sync();
-      Future.delayed(Duration(milliseconds: 200));
-      tarList = _parseTarGz(_st, path);
+      await Future.delayed(Duration(milliseconds: 200));
+      tarList = await _parseTarGz(_st, path);
       _setLoading(false);
       _st.sync();
     } else {
@@ -750,7 +753,7 @@ void _actionClickOnCsvLine(States _st, String def, String line) {
   );
 }
 
-void _actionClickOnTarFileName(States _st, TarEntry entry) {
+Future<void> _actionClickOnTarFileName(States _st, TarEntry entry) async {
   final LangCtx _lc = _st.getLangCtx();
   final ScrollController _vScrollController = _st.getVScrollController();
   final ScrollController _hScrollController = _st.getHScrollController();
@@ -769,9 +772,9 @@ void _actionClickOnTarFileName(States _st, TarEntry entry) {
     final String fileName = entry.fname.split("/").last;
     Uint8List? bytes;
     if (entry.tarFileIsGz) {
-      final reader = GzipReader.open(entry.tarFilePath);
+      final reader = await GzipReader.open(entry.tarFilePath);
       try {
-        bytes = reader.readAt(entry.contentStartPos, entry.size);
+        bytes = await reader.readAt(entry.contentStartPos, entry.size);
       } finally {
         reader.close();
       }
