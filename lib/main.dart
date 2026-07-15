@@ -81,22 +81,22 @@ void myprint(String txt) {
 enum FileType { txt, csv, image, pdf, tar, tooBig }
 
 class GzipReader {
-  final StreamIterator<List<int>> _iterator;
+  final Iterator<List<int>> _iterator;
   int _pos = 0;
   final _buffer = <int>[];
 
   GzipReader._(this._iterator);
 
-  static Future<GzipReader> open(String path) async {
-    final stream = File(path).openRead().transform(GZipCodec().decoder);
-    final iterator = StreamIterator(stream);
-    return GzipReader._(iterator);
+  static GzipReader open(String path) {
+    final bytes = File(path).readAsBytesSync();
+    final decoded = GZipCodec().decode(bytes);
+    return GzipReader._([decoded].iterator);
   }
 
-  Future<Uint8List> readAt(int offset, int size) async {
+  Uint8List readAt(int offset, int size) {
     while (_pos < offset) {
       if (_buffer.isEmpty) {
-        if (!await _iterator.moveNext()) break;
+        if (!_iterator.moveNext()) break;
         _buffer.addAll(_iterator.current);
       }
       final skip = min(offset - _pos, _buffer.length);
@@ -107,7 +107,7 @@ class GzipReader {
     final result = <int>[];
     while (result.length < size) {
       if (_buffer.isEmpty) {
-        if (!await _iterator.moveNext()) break;
+        if (!_iterator.moveNext()) break;
         _buffer.addAll(_iterator.current);
       }
       final take = min(size - result.length, _buffer.length);
@@ -119,9 +119,7 @@ class GzipReader {
     return Uint8List.fromList(result);
   }
 
-  Future<void> close() async {
-    await _iterator.cancel();
-  }
+  void close() async { }
 }
 
 String parseTarString(Uint8List bytes, int offset, int length) {
@@ -187,19 +185,19 @@ typedef States = ({
   void Function() sync,
 });
 
-Future<Uint8List> readFilePart(String filePath, int pos, int size) async {
+Uint8List readFilePart(String filePath, int pos, int size) {
   final file = File(filePath);
-  final raf = await file.open(mode: FileMode.read);
+  final raf = file.openSync(mode: FileMode.read);
   try {
-    await raf.setPosition(pos);
+    raf.setPosition(pos);
     final buffer = Uint8List(size);
-    final bytesRead = await raf.readInto(buffer);
+    final bytesRead = raf.readInto(buffer);
     if (bytesRead != size) {
       throw Exception("Impossible de lire $size octets à partir de $pos");
     }
     return buffer;
   } finally {
-    await raf.close();
+    raf.close();
   }
 }
 
@@ -342,16 +340,16 @@ String tPerm(Uint8List bytes) {
   return "$typeChar$perms";
 }
 
-Future<List<TarEntry>> _parseTarGz(States _st, String path) async {
+List<TarEntry> _parseTarGz(States _st, String path) {
   final tarList = <TarEntry>[];
   final _getLoading = _st.getLoading;
   Uint8List? bytes;
   int pos = 0;
-  final reader = await GzipReader.open(path);
+  final reader = GzipReader.open(path);
   String? pendingLongName;
   try {
     while (_getLoading()) {
-      bytes = await reader.readAt(pos, 512);
+      bytes = reader.readAt(pos, 512);
       final ended = bytes[0];
       if (ended == 0) break;
       final elemName = parseTarString(bytes, 0, 100);
@@ -365,7 +363,7 @@ Future<List<TarEntry>> _parseTarGz(States _st, String path) async {
       if (elemName == '././@LongLink') {
         final nameBytes = <int>[];
         for (int i = 0; i < dataBlocks; i++) {
-          final block = await reader.readAt(pos + (i + 1) * 512, 512);
+          final block = reader.readAt(pos + (i + 1) * 512, 512);
           nameBytes.addAll(block);
         }
         pendingLongName = utf8.decode(
@@ -389,14 +387,14 @@ Future<List<TarEntry>> _parseTarGz(States _st, String path) async {
       pos += 512 + dataBlocks * 512;
     }
   } finally {
-    await reader.close();
+    reader.close();
   }
   return tarList;
 }
 
-Future<List<TarEntry>> _parseTar(String path) async {
+List<TarEntry> _parseTar(String path) {
   final tarList = <TarEntry>[];
-  final bytes = await File(path).readAsBytes();
+  final bytes = File(path).readAsBytesSync();
   int pos = 0;
   while (pos + 512 <= bytes.length) {
     if (bytes[pos] == 0) break;
@@ -442,7 +440,7 @@ void _setState(
   _st.sync();
 }
 
-Future<void> _filePicked(States _st, String path, String? name) async {
+void _filePicked(States _st, String path, String? name) {
   final ScrollController _vScrollController = _st.getVScrollController();
   final ScrollController _hScrollController = _st.getHScrollController();
   final _setLoading = _st.setLoading;
@@ -453,11 +451,8 @@ Future<void> _filePicked(States _st, String path, String? name) async {
     _hScrollController.jumpTo(0);
   }
   //
-  final chunks = <int>[];
-  await for (final chunk in File(path).openRead()) {
-    chunks.addAll(chunk);
-    if (chunks.length >= 1024) break;
-  }
+  final bytes = File(path).readAsBytesSync();
+  final chunks = bytes.length > 1024 ? bytes.sublist(0, 1024) : bytes;
   final beginning = Uint8List.fromList(
     chunks.sublist(0, min(1024, chunks.length)),
   );
@@ -465,15 +460,15 @@ Future<void> _filePicked(States _st, String path, String? name) async {
   bool isGzip = false;
   if (beginning.startsWith(0, [0x1F, 0x8B])) {
     isGzip = true;
-    final reader = await GzipReader.open(path);
+    final reader = GzipReader.open(path);
     try {
-      header = await reader.readAt(0, 512);
+      header = reader.readAt(0, 512);
     } finally {
-      await reader.close();
+      reader.close();
     }
   } else {
-    final bytes = await File(path).openRead(0, 512).first;
-    header = Uint8List.fromList(bytes);
+    final bytes = File(path).readAsBytesSync();
+    header = bytes.sublist(0, min(bytes.length, 512));
   }
   bool isGif = header.startsWith(0, [0x47, 0x49, 0x46]);
   bool isPng = header.startsWith(0, [0x89, 0x50, 0x4E]);
@@ -482,19 +477,19 @@ Future<void> _filePicked(States _st, String path, String? name) async {
   if (isImage) {
     Uint8List? bytes;
     if (isGzip) {
-      final zbytes = await File(path).readAsBytes();
+      final zbytes = File(path).readAsBytesSync();
       bytes = Uint8List.fromList(GZipDecoder().decodeBytes(zbytes));
     } else {
-      bytes = await File(path).readAsBytes();
+      bytes = File(path).readAsBytesSync();
     }
     _setState(_st, FileType.image, name, bytes, null, []);
   } else if (header.startsWith(0, [0x25, 0x50, 0x44, 0x46])) {
     Uint8List? bytes;
     if (isGzip) {
-      final zbytes = await File(path).readAsBytes();
+      final zbytes = File(path).readAsBytesSync();
       bytes = Uint8List.fromList(GZipDecoder().decodeBytes(zbytes));
     } else {
-      bytes = await File(path).readAsBytes();
+      bytes = File(path).readAsBytesSync();
     }
     _setState(_st, FileType.pdf, name, bytes, null, []);
   } else if (header.startsWith(257, [0x75, 0x73, 0x74, 0x61, 0x72])) {
@@ -502,21 +497,21 @@ Future<void> _filePicked(States _st, String path, String? name) async {
     if (isGzip) {
       _setLoading(true);
       _st.sync();
-      await Future.delayed(Duration(milliseconds: 200));
-      tarList = await _parseTarGz(_st, path);
+      Future.delayed(Duration(milliseconds: 200));
+      tarList = _parseTarGz(_st, path);
       _setLoading(false);
       _st.sync();
     } else {
-      tarList = await _parseTar(path);
+      tarList = _parseTar(path);
     }
     _setState(_st, FileType.tar, name, null, null, tarList);
   } else {
     Uint8List? bytes;
     if (isGzip) {
-      final zbytes = await File(path).readAsBytes();
+      final zbytes = File(path).readAsBytesSync();
       bytes = Uint8List.fromList(GZipDecoder().decodeBytes(zbytes));
     } else {
-      bytes = await File(path).readAsBytes();
+      bytes = File(path).readAsBytesSync();
     }
     final s = utf8.decode(bytes);
     final content = s.isNotEmpty && !s.endsWith("\n") ? "$s\n" : s;
@@ -528,7 +523,7 @@ Future<void> _filePicked(States _st, String path, String? name) async {
 
 // ignore: unused_element
 Future<String?> _pickFile(States _st) async {
-  final result = await FilePicker.platform.pickFiles();
+  final FilePickerResult? result = await FilePicker.platform.pickFiles();
   if (result != null && result.files.single.path != null) {
     final path = result.files.single.path!;
     final name = result.files.single.name;
@@ -542,15 +537,15 @@ Future<String?> _pickFile(States _st) async {
 const _channel = MethodChannel('app/mediastore');
 
 Future<void> _createLexicon() async {
-  final data = await rootBundle.load('assets/lexicon.txt');
-  await _channel.invokeMethod('createLexicon', data.buffer.asUint8List());
+  final ByteData data = await rootBundle.load('assets/lexicon.txt');
+  _channel.invokeMethod('createLexicon', data.buffer.asUint8List());
 }
 
 Future<void> syncLexiconIfNewer() async {
   if (!Platform.isAndroid) return;
   final file = File("${appDirName()}/lexicon.txt");
-  if (!await file.exists()) {
-    await _createLexicon();
+  if (!file.existsSync()) {
+    _createLexicon();
     return;
   }
   final apkInstallMs = await _channel.invokeMethod<int>('getApkInstallDate');
@@ -558,7 +553,7 @@ Future<void> syncLexiconIfNewer() async {
   final lexiconDate = await file.lastModified();
 
   if (apkInstallDate.isAfter(lexiconDate)) {
-    await _createLexicon();
+    _createLexicon();
   }
 }
 
@@ -584,10 +579,10 @@ Widget _buildButtonsChooseFile(States _st) {
         child: Text(transl(_lc, "Choose a file")),
         onPressed: () async {
           final String? path = Platform.isLinux
-              // ? await _pickFile()
+              // ? _pickFile()
               ? await customPickFile(context, _lc, _initialDir)
               : await _pickFile(_st);
-          // : await customPickFile(context, _initialDir);
+          // : customPickFile(context, _initialDir);
           // to be able to use the custom file picker on the phone, one
           // must add
           // <uses-permission
@@ -755,7 +750,7 @@ void _actionClickOnCsvLine(States _st, String def, String line) {
   );
 }
 
-Future<void> _actionClickOnTarFileName(States _st, TarEntry entry) async {
+void _actionClickOnTarFileName(States _st, TarEntry entry) {
   final LangCtx _lc = _st.getLangCtx();
   final ScrollController _vScrollController = _st.getVScrollController();
   final ScrollController _hScrollController = _st.getHScrollController();
@@ -774,14 +769,14 @@ Future<void> _actionClickOnTarFileName(States _st, TarEntry entry) async {
     final String fileName = entry.fname.split("/").last;
     Uint8List? bytes;
     if (entry.tarFileIsGz) {
-      final reader = await GzipReader.open(entry.tarFilePath);
+      final reader = GzipReader.open(entry.tarFilePath);
       try {
-        bytes = await reader.readAt(entry.contentStartPos, entry.size);
+        bytes = reader.readAt(entry.contentStartPos, entry.size);
       } finally {
-        await reader.close();
+        reader.close();
       }
     } else {
-      bytes = await readFilePart(
+      bytes = readFilePart(
         entry.tarFilePath,
         entry.contentStartPos,
         entry.size,

@@ -101,10 +101,10 @@ typedef PickerState = ({
   void Function() sync,
 });
 
-Future<void> _loadFiles(PickerState _ps, String path) async {
+void _loadFiles(PickerState _ps, String path) {
   final dir = Directory(path);
   try {
-    final entities = await dir.list().toList();
+    final entities = dir.listSync();
     final filteredEntities = entities.where((entity) {
       final basename = entity.path.split('/').last;
       return !basename.startsWith('.');
@@ -324,8 +324,6 @@ class CustomFilePickerState extends State<CustomFilePicker> {
     } else if (Platform.isLinux) {
       _currentDir = "/home";
     } else {
-      //      final appDir = await getApplicationDocumentsDirectory();
-      //      final tempDir = await getTemporaryDirectory();
       final extDir = await getExternalStorageDirectory();
       final status = await Permission.manageExternalStorage.request();
       if (status.isGranted) {
