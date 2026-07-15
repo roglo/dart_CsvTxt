@@ -119,7 +119,9 @@ class GzipReader {
     return Uint8List.fromList(result);
   }
 
-  void close() async { }
+  Future<void> close() async {
+    await _iterator.cancel();
+  }
 }
 
 String parseTarString(Uint8List bytes, int offset, int length) {
@@ -387,7 +389,7 @@ Future<List<TarEntry>> _parseTarGz(States _st, String path) async {
       pos += 512 + dataBlocks * 512;
     }
   } finally {
-    reader.close();
+    await reader.close();
   }
   return tarList;
 }
@@ -467,7 +469,7 @@ Future<void> _filePicked(States _st, String path, String? name) async {
     try {
       header = await reader.readAt(0, 512);
     } finally {
-      reader.close();
+      await reader.close();
     }
   } else {
     final bytes = File(path).readAsBytesSync();
@@ -776,7 +778,7 @@ Future<void> _actionClickOnTarFileName(States _st, TarEntry entry) async {
       try {
         bytes = await reader.readAt(entry.contentStartPos, entry.size);
       } finally {
-        reader.close();
+        await reader.close();
       }
     } else {
       bytes = readFilePart(
