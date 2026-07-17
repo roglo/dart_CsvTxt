@@ -1119,16 +1119,10 @@ class _chosenFileScreen extends HookWidget {
 
 Widget _buildChosenFileScreen(States _st, String file) {
   final name = file.split("/").last;
-  return SafeArea(
-    child: Padding(
-      padding: const EdgeInsets.all(16),
-      child:
-        Scaffold(
-          appBar: AppBar(title: Text(name)),
-          body: _displayCsvTxt1(_st, true),
-        ),
-      ),
-   );
+  return Scaffold(
+    appBar: AppBar(title: Text(name)),
+    body: _displayCsvTxt1(_st, true),
+  );
 }
 
 class _csvSearchScreen extends HookWidget {
