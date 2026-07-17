@@ -1105,15 +1105,27 @@ List<Widget> _buildContent(States _st) {
   ];
 }
 
+class FileState extends ChangeNotifier {
+  bool loading = false;
+  void setLoading(bool v) {
+    loading = v;
+    notifyListeners(); // remplace le setState(() {}) du parent
+  }
+  // ... autres champs/méthodes
+}
+
 class _chosenFileScreen extends HookWidget {
-  final States _st;
+  final FileState _st;
   final String file;
   const _chosenFileScreen(this._st, this.file);
 
   @override
   Widget build(BuildContext context) {
-    final future = useMemoized(() => _filePicked(_st, file), [_st, file]);
+    useListenable(_st);
+
+    final future = useMemoized(() => _filePicked(_st, file), [file]);
     final snapshot = useFuture(future);
+
     if (snapshot.connectionState == ConnectionState.waiting) {
       return const Center(child: CircularProgressIndicator());
     }
