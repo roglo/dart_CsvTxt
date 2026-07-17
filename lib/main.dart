@@ -572,7 +572,7 @@ void _openFile(States _st, String file) {
   _st.sync();
 }
 
-Widget _buildButtonsChooseFile(States _st) {
+Widget _buildButtonsChooseFile(States _st, bool _fromNavig) {
   final BuildContext context = _st.getContext();
   final String? _initialDir = _st.getInitialDir();
   final String? _fileName = _st.getFileName();
@@ -580,35 +580,36 @@ Widget _buildButtonsChooseFile(States _st) {
   final LangCtx _lc = _st.getLangCtx();
   return Row(
     children: [
-      ElevatedButton(
-        child: Text(transl(_lc, "Choose a file")),
-        onPressed: () async {
-          final String? path = Platform.isLinux
-              // ? _pickFile()
-              ? await customPickFile(context, _lc, _initialDir)
-              : await _pickFile(_st);
-          // : customPickFile(context, _initialDir);
-          // to be able to use the custom file picker on the phone, one
-          // must add
-          // <uses-permission
-          //   android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
-          // in android/app/src/main/AndroidManifest.xml
-          // But not recommended if this application could be installable
-          // in the Play Store.
-          if (path != null) {
-            _st.setInitialDir(path.substring(0, path.lastIndexOf("/")));
-            _st.setCurrentPage(1);
-            _st.incrPdfLoadCount();
-            _st.setFontSize(_initialFontSize);
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => _chosenFileScreen(_st, path),
-              ),
-            );
-          }
-        },
-      ),
+      if (!_fromNavig)
+        ElevatedButton(
+          child: Text(transl(_lc, "Choose a file")),
+          onPressed: () async {
+            final String? path = Platform.isLinux
+                // ? _pickFile()
+                ? await customPickFile(context, _lc, _initialDir)
+                : await _pickFile(_st);
+            // : customPickFile(context, _initialDir);
+            // to be able to use the custom file picker on the phone, one
+            // must add
+            // <uses-permission
+            //   android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
+            // in android/app/src/main/AndroidManifest.xml
+            // But not recommended if this application could be installable
+            // in the Play Store.
+            if (path != null) {
+              _st.setInitialDir(path.substring(0, path.lastIndexOf("/")));
+              _st.setCurrentPage(1);
+              _st.incrPdfLoadCount();
+              _st.setFontSize(_initialFontSize);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => _chosenFileScreen(_st, path),
+                ),
+              );
+            }
+          },
+        ),
       if (_fileName != null &&
           _fileType != FileType.image &&
           _fileType != FileType.pdf &&
@@ -1211,8 +1212,8 @@ Widget _buildNormal(States _st, bool _fromNavig) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 40),
-        if (_dirFromButton) _buildButtonsChooseFile(_st),
+        if (!_fromNavig) const SizedBox(height: 40),
+        if (_dirFromButton) _buildButtonsChooseFile(_st, _fromNavig),
         if ((!_dirFromButton || _fileName != null) &&
             _fileType != FileType.image &&
             _errorMessage == null) ...[
@@ -1559,7 +1560,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   );
 
   @override
-  Widget build(BuildContext context) => _displayCsvTxt(_st, true);
+  Widget build(BuildContext context) => _displayCsvTxt(_st, false);
 }
 
 class FilePickerScreen extends StatefulWidget {
