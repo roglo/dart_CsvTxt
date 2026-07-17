@@ -566,7 +566,7 @@ void _openFile(States _st, String file) {
   final name = file.split("/").last;
   _st.setInitialDir(file.substring(0, file.lastIndexOf("/")));
   _st.setCurrentPage(1);
-  _st.incrPdfLoadCount;
+  _st.incrPdfLoadCount();
   _st.setFontSize(_initialFontSize);
   _filePicked(_st, file, name);
   _st.sync();
