@@ -230,7 +230,7 @@ Widget _buildRowButtonSizeAndJump(States _st) {
           child: const Text("«"),
         ),
         const SizedBox(width: 16),
-        Text("${_st.getCurrentPage()}"),
+        Text("fucking ${_st.getCurrentPage()}"),
         const SizedBox(width: 16),
         ElevatedButton(
           onPressed: () {
@@ -532,7 +532,7 @@ Future<String?> _pickFile(States _st) async {
   final FilePickerResult? result = await FilePicker.platform.pickFiles();
   if (result != null && result.files.single.path != null) {
     final path = result.files.single.path!;
-//    final name = result.files.single.name;
+    //    final name = result.files.single.name;
     _filePicked(_st, path);
     myprint(path);
     return path;
@@ -565,6 +565,7 @@ Future<void> syncLexiconIfNewer() async {
 
 void _openFile(States _st, String file) {
   _st.setInitialDir(file.substring(0, file.lastIndexOf("/")));
+  print("_openFile set current page 1");
   _st.setCurrentPage(1);
   _st.incrPdfLoadCount;
   _st.setFontSize(_initialFontSize);
@@ -597,7 +598,15 @@ Widget _buildButtonsChooseFile(States _st, bool _fromNavig) {
             // But not recommended if this application could be installable
             // in the Play Store.
             if (path != null) {
-  //            _openFile(_st, path);
+              //            _openFile(_st, path);
+
+              _st.setInitialDir(path.substring(0, path.lastIndexOf("/")));
+              print("set current page 1");
+              _st.setCurrentPage(1);
+              _st.incrPdfLoadCount;
+              _st.setFontSize(_initialFontSize);
+              _st.sync();
+
               Navigator.push(
                 _st.getContext(),
                 MaterialPageRoute(
@@ -1047,6 +1056,7 @@ List<Widget> _buildContent(States _st) {
           params: PdfViewerParams(
             scrollByMouseWheel: 1.0,
             onPageChanged: (page) {
+              print("buildContent set current page ${page!}");
               _st.setCurrentPage(page!);
               _st.sync();
             },
@@ -1102,10 +1112,7 @@ class _chosenFileScreen extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final future = useMemoized(
-      () => _filePicked(_st, file),
-      [file],
-    );
+    final future = useMemoized(() => _filePicked(_st, file), [_st, file]);
     final snapshot = useFuture(future);
     if (snapshot.connectionState == ConnectionState.waiting) {
       return const Center(child: CircularProgressIndicator());
@@ -1118,6 +1125,7 @@ class _chosenFileScreen extends HookWidget {
 }
 
 Widget _buildChosenFileScreen(States _st, String file) {
+  print("_buildChosenFileScreen...");
   final name = file.split("/").last;
   final LangCtx _lc = _st.getLangCtx();
   return Scaffold(
@@ -1379,7 +1387,8 @@ Widget _displayCsvTxt1(States _st, bool _fromNavig) {
     );
   } else {
     return _buildNormal(_st, _fromNavig);
-  };
+  }
+  ;
 }
 
 Widget _displayCsvTxt(States _st, bool _fromNavig) {
