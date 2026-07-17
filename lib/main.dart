@@ -1105,7 +1105,7 @@ class _chosenFileScreen extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    useValueListenable(_st.getSyncTick ());
+    useValueListenable(_st.getSyncTick());
 
     final future = useMemoized(() => _filePicked(_st, file), [file]);
     final snapshot = useFuture(future);
