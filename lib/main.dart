@@ -1119,8 +1119,14 @@ class _chosenFileScreen extends HookWidget {
 
 Widget _buildChosenFileScreen(States _st, String file) {
   final name = file.split("/").last;
+  final LangCtx _lc = _st.getLangCtx();
   return Scaffold(
-    appBar: AppBar(title: Text(name)),
+    appBar: AppBar(
+      title: Text(
+        "${transl(_lc, "File:")} $name",
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
+    ),
     body: _displayCsvTxt1(_st, true),
   );
 }
