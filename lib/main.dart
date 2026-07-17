@@ -1208,7 +1208,7 @@ Widget _buildNormal(States _st, bool _fromNavig) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 40),
+        if (!_fromNavig) const SizedBox(height: 40),
         if (_dirFromButton) _buildButtonsChooseFile(_st, _fromNavig),
         if ((!_dirFromButton || _fileName != null) &&
             _fileType != FileType.image &&
