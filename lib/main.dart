@@ -143,6 +143,7 @@ typedef TarEntry = ({
 });
 
 typedef States = ({
+  ValueNotifier Function() getSyncTick,
   BuildContext Function() getContext,
   LangCtx Function() getLangCtx,
   bool Function() getDirFromButton,
@@ -230,7 +231,7 @@ Widget _buildRowButtonSizeAndJump(States _st) {
           child: const Text("«"),
         ),
         const SizedBox(width: 16),
-        Text("fucking ${_st.getCurrentPage()}"),
+        Text("${_st.getCurrentPage()}"),
         const SizedBox(width: 16),
         ElevatedButton(
           onPressed: () {
@@ -532,7 +533,6 @@ Future<String?> _pickFile(States _st) async {
   final FilePickerResult? result = await FilePicker.platform.pickFiles();
   if (result != null && result.files.single.path != null) {
     final path = result.files.single.path!;
-    //    final name = result.files.single.name;
     _filePicked(_st, path);
     myprint(path);
     return path;
@@ -565,15 +565,14 @@ Future<void> syncLexiconIfNewer() async {
 
 void _openFile(States _st, String file) {
   _st.setInitialDir(file.substring(0, file.lastIndexOf("/")));
-  print("_openFile set current page 1");
   _st.setCurrentPage(1);
-  _st.incrPdfLoadCount;
+  _st.incrPdfLoadCount();
   _st.setFontSize(_initialFontSize);
   _filePicked(_st, file);
   _st.sync();
 }
 
-Widget _buildButtonsChooseFile(States _st, bool _fromNavig) {
+Widget _buildButtonsChooseFile(States _st) {
   final BuildContext context = _st.getContext();
   final String? _initialDir = _st.getInitialDir();
   final String? _fileName = _st.getFileName();
@@ -581,41 +580,35 @@ Widget _buildButtonsChooseFile(States _st, bool _fromNavig) {
   final LangCtx _lc = _st.getLangCtx();
   return Row(
     children: [
-      if (!_fromNavig)
-        ElevatedButton(
-          child: Text(transl(_lc, "Choose a file")),
-          onPressed: () async {
-            final String? path = Platform.isLinux
-                // ? _pickFile()
-                ? await customPickFile(context, _lc, _initialDir)
-                : await _pickFile(_st);
-            // : customPickFile(context, _initialDir);
-            // to be able to use the custom file picker on the phone, one
-            // must add
-            // <uses-permission
-            //   android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
-            // in android/app/src/main/AndroidManifest.xml
-            // But not recommended if this application could be installable
-            // in the Play Store.
-            if (path != null) {
-              //            _openFile(_st, path);
-
-              _st.setInitialDir(path.substring(0, path.lastIndexOf("/")));
-              print("set current page 1");
-              _st.setCurrentPage(1);
-              _st.incrPdfLoadCount;
-              _st.setFontSize(_initialFontSize);
-              _st.sync();
-
-              Navigator.push(
-                _st.getContext(),
-                MaterialPageRoute(
-                  builder: (context) => _chosenFileScreen(_st, path),
-                ),
-              );
-            }
-          },
-        ),
+      ElevatedButton(
+        child: Text(transl(_lc, "Choose a file")),
+        onPressed: () async {
+          final String? path = Platform.isLinux
+              // ? _pickFile()
+              ? await customPickFile(context, _lc, _initialDir)
+              : await _pickFile(_st);
+          // : customPickFile(context, _initialDir);
+          // to be able to use the custom file picker on the phone, one
+          // must add
+          // <uses-permission
+          //   android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
+          // in android/app/src/main/AndroidManifest.xml
+          // But not recommended if this application could be installable
+          // in the Play Store.
+          if (path != null) {
+            _st.setInitialDir(path.substring(0, path.lastIndexOf("/")));
+            _st.setCurrentPage(1);
+            _st.incrPdfLoadCount();
+            _st.setFontSize(_initialFontSize);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => _chosenFileScreen(_st, path),
+              ),
+            );
+          }
+        },
+      ),
       if (_fileName != null &&
           _fileType != FileType.image &&
           _fileType != FileType.pdf &&
@@ -1056,7 +1049,6 @@ List<Widget> _buildContent(States _st) {
           params: PdfViewerParams(
             scrollByMouseWheel: 1.0,
             onPageChanged: (page) {
-              print("buildContent set current page ${page!}");
               _st.setCurrentPage(page!);
               _st.sync();
             },
@@ -1105,23 +1097,14 @@ List<Widget> _buildContent(States _st) {
   ];
 }
 
-class FileState extends ChangeNotifier {
-  bool loading = false;
-  void setLoading(bool v) {
-    loading = v;
-    notifyListeners(); // remplace le setState(() {}) du parent
-  }
-  // ... autres champs/méthodes
-}
-
 class _chosenFileScreen extends HookWidget {
-  final FileState _st;
+  final States _st;
   final String file;
   const _chosenFileScreen(this._st, this.file);
 
   @override
   Widget build(BuildContext context) {
-    useListenable(_st);
+    useValueListenable(_st.getSyncTick ());
 
     final future = useMemoized(() => _filePicked(_st, file), [file]);
     final snapshot = useFuture(future);
@@ -1160,12 +1143,6 @@ class _csvSearchScreen extends HookWidget {
     return _buildCsvSearchScreen(st);
   }
 }
-
-Widget _genDisplay(Widget wid) => Scaffold(
-  body: SafeArea(
-    child: Padding(padding: const EdgeInsets.all(16), child: wid),
-  ),
-);
 
 Widget _buildCsvSearchScreen(States _st) {
   final List<CsvLine> _csvLines = _st.getCsvLines();
@@ -1234,8 +1211,8 @@ Widget _buildNormal(States _st, bool _fromNavig) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (!_fromNavig) const SizedBox(height: 40),
-        if (_dirFromButton) _buildButtonsChooseFile(_st, _fromNavig),
+        const SizedBox(height: 40),
+        if (_dirFromButton) _buildButtonsChooseFile(_st),
         if ((!_dirFromButton || _fileName != null) &&
             _fileType != FileType.image &&
             _errorMessage == null) ...[
@@ -1381,6 +1358,12 @@ Widget _buildCsvFiltered(States _st, List<CsvLine> _csvFilteredLines) {
   );
 }
 
+Widget _genDisplay(Widget wid) => Scaffold(
+  body: SafeArea(
+    child: Padding(padding: const EdgeInsets.all(16), child: wid),
+  ),
+);
+
 Widget _displayCsvTxt1(States _st, bool _fromNavig) {
   if (_st.getLoading()) {
     return Column(
@@ -1412,6 +1395,7 @@ String _userLang() {
 }
 
 class _FilePickerScreenState extends State<FilePickerScreen> {
+  final ValueNotifier<int> _syncTick = ValueNotifier(0);
   final String _lang = _userLang();
   final ScrollController _vScrollController = ScrollController();
   final ScrollController _hScrollController = ScrollController();
@@ -1456,7 +1440,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     _vScrollController.dispose();
     _hScrollController.dispose();
     _textController.dispose();
-    //    _pdfController.dispose();
+    _syncTick.dispose();
     super.dispose();
   }
 
@@ -1478,6 +1462,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
     setLexDate: _setLexDate,
   );
 
+  ValueNotifier<int> _getSyncTick() => _syncTick;
   BuildContext _getContext() => context;
   LangCtx _getLangCtx() => _lc;
   bool _getDirFromButton() => _dirFromButton;
@@ -1522,9 +1507,13 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
       _textColorsList2[index] = color;
   void _setUserInput(String s) => _userInput = s;
   void _setErrorMessage(String? msg) => _errorMessage = msg;
-  void _sync() => setState(() {});
+  void _sync() {
+    setState(() {});
+    _syncTick.value++;
+  }
 
   late States _st = (
+    getSyncTick: _getSyncTick,
     getContext: _getContext,
     getLangCtx: _getLangCtx,
     getDirFromButton: _getDirFromButton,
@@ -1570,7 +1559,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   );
 
   @override
-  Widget build(BuildContext context) => _displayCsvTxt(_st, false);
+  Widget build(BuildContext context) => _displayCsvTxt(_st, true);
 }
 
 class FilePickerScreen extends StatefulWidget {
