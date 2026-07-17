@@ -442,7 +442,8 @@ void _setState(
   _st.sync();
 }
 
-Future<void> _filePicked(States _st, String path, String? name) async {
+Future<void> _filePicked(States _st, String path) async {
+  final name = path.split("/").last;
   final ScrollController _vScrollController = _st.getVScrollController();
   final ScrollController _hScrollController = _st.getHScrollController();
   final _setLoading = _st.setLoading;
@@ -531,8 +532,8 @@ Future<String?> _pickFile(States _st) async {
   final FilePickerResult? result = await FilePicker.platform.pickFiles();
   if (result != null && result.files.single.path != null) {
     final path = result.files.single.path!;
-    final name = result.files.single.name;
-    _filePicked(_st, path, name);
+//    final name = result.files.single.name;
+    _filePicked(_st, path);
     myprint(path);
     return path;
   }
@@ -563,16 +564,15 @@ Future<void> syncLexiconIfNewer() async {
 }
 
 void _openFile(States _st, String file) {
-  final name = file.split("/").last;
   _st.setInitialDir(file.substring(0, file.lastIndexOf("/")));
   _st.setCurrentPage(1);
   _st.incrPdfLoadCount;
   _st.setFontSize(_initialFontSize);
-  _filePicked(_st, file, name);
+  _filePicked(_st, file);
   _st.sync();
 }
 
-Widget _buildButtonsChooseFile(States _st) {
+Widget _buildButtonsChooseFile(States _st, bool _fromNavig) {
   final BuildContext context = _st.getContext();
   final String? _initialDir = _st.getInitialDir();
   final String? _fileName = _st.getFileName();
@@ -580,26 +580,33 @@ Widget _buildButtonsChooseFile(States _st) {
   final LangCtx _lc = _st.getLangCtx();
   return Row(
     children: [
-      ElevatedButton(
-        child: Text(transl(_lc, "Choose a file")),
-        onPressed: () async {
-          final String? path = Platform.isLinux
-              // ? _pickFile()
-              ? await customPickFile(context, _lc, _initialDir)
-              : await _pickFile(_st);
-          // : customPickFile(context, _initialDir);
-          // to be able to use the custom file picker on the phone, one
-          // must add
-          // <uses-permission
-          //   android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
-          // in android/app/src/main/AndroidManifest.xml
-          // But not recommended if this application could be installable
-          // in the Play Store.
-          if (path != null) {
-            _openFile(_st, path);
-          }
-        },
-      ),
+      if (!_fromNavig)
+        ElevatedButton(
+          child: Text(transl(_lc, "Choose a file")),
+          onPressed: () async {
+            final String? path = Platform.isLinux
+                // ? _pickFile()
+                ? await customPickFile(context, _lc, _initialDir)
+                : await _pickFile(_st);
+            // : customPickFile(context, _initialDir);
+            // to be able to use the custom file picker on the phone, one
+            // must add
+            // <uses-permission
+            //   android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
+            // in android/app/src/main/AndroidManifest.xml
+            // But not recommended if this application could be installable
+            // in the Play Store.
+            if (path != null) {
+  //            _openFile(_st, path);
+              Navigator.push(
+                _st.getContext(),
+                MaterialPageRoute(
+                  builder: (context) => _chosenFileScreen(_st, path),
+                ),
+              );
+            }
+          },
+        ),
       if (_fileName != null &&
           _fileType != FileType.image &&
           _fileType != FileType.pdf &&
@@ -1088,6 +1095,36 @@ List<Widget> _buildContent(States _st) {
   ];
 }
 
+class _chosenFileScreen extends HookWidget {
+  final States _st;
+  final String file;
+  const _chosenFileScreen(this._st, this.file);
+
+  @override
+  Widget build(BuildContext context) {
+    final future = useMemoized(
+      () => _filePicked(_st, file),
+      [file],
+    );
+    final snapshot = useFuture(future);
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (snapshot.hasError) {
+      return Center(child: Text('Erreur : ${snapshot.error}'));
+    }
+    return _buildChosenFileScreen(_st, file);
+  }
+}
+
+Widget _buildChosenFileScreen(States _st, String file) {
+  final name = file.split("/").last;
+  return Scaffold(
+     appBar: AppBar(title: Text(name)),
+     body: _displayCsvTxt(_st, true),
+   );
+}
+
 class _csvSearchScreen extends HookWidget {
   final States st;
   const _csvSearchScreen(this.st);
@@ -1097,6 +1134,12 @@ class _csvSearchScreen extends HookWidget {
     return _buildCsvSearchScreen(st);
   }
 }
+
+Widget _genDisplay(Widget wid) => Scaffold(
+  body: SafeArea(
+    child: Padding(padding: const EdgeInsets.all(16), child: wid),
+  ),
+);
 
 Widget _buildCsvSearchScreen(States _st) {
   final List<CsvLine> _csvLines = _st.getCsvLines();
@@ -1154,7 +1197,7 @@ Widget _buildCsvSearchScreen(States _st) {
   );
 }
 
-Widget _buildNormal(States _st) {
+Widget _buildNormal(States _st, bool _fromNavig) {
   final bool _dirFromButton = _st.getDirFromButton();
   final FileType? _fileType = _st.getFileType();
   final String? _fileName = _st.getFileName();
@@ -1166,7 +1209,7 @@ Widget _buildNormal(States _st) {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 40),
-        if (_dirFromButton) _buildButtonsChooseFile(_st),
+        if (_dirFromButton) _buildButtonsChooseFile(_st, _fromNavig),
         if ((!_dirFromButton || _fileName != null) &&
             _fileType != FileType.image &&
             _errorMessage == null) ...[
@@ -1312,13 +1355,7 @@ Widget _buildCsvFiltered(States _st, List<CsvLine> _csvFilteredLines) {
   );
 }
 
-Widget _genDisplay(Widget wid) => Scaffold(
-  body: SafeArea(
-    child: Padding(padding: const EdgeInsets.all(16), child: wid),
-  ),
-);
-
-Widget _displayCsvTxt(States _st) {
+Widget _displayCsvTxt(States _st, bool _fromNavig) {
   if (_st.getLoading()) {
     return _genDisplay(
       Column(
@@ -1337,7 +1374,7 @@ Widget _displayCsvTxt(States _st) {
       ),
     );
   } else {
-    return _genDisplay(_buildNormal(_st));
+    return _genDisplay(_buildNormal(_st, _fromNavig));
   }
 }
 
@@ -1504,7 +1541,7 @@ class _FilePickerScreenState extends State<FilePickerScreen> {
   );
 
   @override
-  Widget build(BuildContext context) => _displayCsvTxt(_st);
+  Widget build(BuildContext context) => _displayCsvTxt(_st, false);
 }
 
 class FilePickerScreen extends StatefulWidget {
