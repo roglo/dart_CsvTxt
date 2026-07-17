@@ -1119,9 +1119,15 @@ class _chosenFileScreen extends HookWidget {
 
 Widget _buildChosenFileScreen(States _st, String file) {
   final name = file.split("/").last;
-  return Scaffold(
-     appBar: AppBar(title: Text(name)),
-     body: _displayCsvTxt(_st, true),
+  return SafeArea(
+    child: Padding(
+      padding: const EdgeInsets.all(16),
+      child:
+        Scaffold(
+          appBar: AppBar(title: Text(name)),
+          body: _displayCsvTxt1(_st, true),
+        ),
+      ),
    );
 }
 
@@ -1355,27 +1361,29 @@ Widget _buildCsvFiltered(States _st, List<CsvLine> _csvFilteredLines) {
   );
 }
 
-Widget _displayCsvTxt(States _st, bool _fromNavig) {
+Widget _displayCsvTxt1(States _st, bool _fromNavig) {
   if (_st.getLoading()) {
-    return _genDisplay(
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Center(child: LinearProgressIndicator()),
-          Text("merci de patienter..."),
-          ElevatedButton(
-            onPressed: () {
-              _st.setLoading(false);
-              _st.sync();
-            },
-            child: const Text("Interrompre"),
-          ),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Center(child: LinearProgressIndicator()),
+        Text("merci de patienter..."),
+        ElevatedButton(
+          onPressed: () {
+            _st.setLoading(false);
+            _st.sync();
+          },
+          child: const Text("Interrompre"),
+        ),
+      ],
     );
   } else {
-    return _genDisplay(_buildNormal(_st, _fromNavig));
-  }
+    return _buildNormal(_st, _fromNavig);
+  };
+}
+
+Widget _displayCsvTxt(States _st, bool _fromNavig) {
+  return _genDisplay(_displayCsvTxt1(_st, _fromNavig));
 }
 
 String _userLang() {
