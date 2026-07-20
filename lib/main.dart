@@ -922,6 +922,26 @@ Widget _clickOnTarFileName(States _st, int index, TarEntry entry) {
   );
 }
 
+List<Widget> _firstCsvColumn(States _st, List<CsvLine> _csvLines) {
+  final double _fontSize = _st.getFontSize();
+  final String firstLine = "|${_csvLines.first.$1.join('|')}|";
+  return _csvLines.sublist(1).asMap().entries.expand((entry) {
+    final index = entry.key;
+    final (leftList, rightLists) = entry.value;
+    return rightLists.map((rightList) {
+      final firstField = rightList.first;
+      final currentLine = "|${leftList.join('|')}|";
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Text("|", style: _fixedTextStyle(_fontSize)),
+          _clickOnCsvLine(_st, index, firstLine, currentLine, firstField),
+        ],
+      );
+    });
+  }).toList();
+}
+
 Widget _fixedCsvView(States _st) {
   List<CsvLine> _csvLines = _st.getCsvLines();
   final double _fontSize = _st.getFontSize();
@@ -941,8 +961,8 @@ Widget _fixedCsvView(States _st) {
     mainAxisAlignment: MainAxisAlignment.start,
     children: [
       // Column(
-      //   mainAxisAlignment: MainAxisAlignment.start,
-      //   children: [Text("arghh")],
+      //  mainAxisAlignment: MainAxisAlignment.start,
+      //  children: _firstCsvColumn(_st, _csvLines),
       // ),
       Expanded(
         child: SingleChildScrollView(
