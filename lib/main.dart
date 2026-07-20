@@ -937,33 +937,44 @@ Widget _fixedCsvView(States _st) {
       _csvLines.first.$2.first.length +
       1;
   final border = "-" * length;
-  return SingleChildScrollView(
-    controller: _hScrollController,
-    scrollDirection: Axis.horizontal,
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(border, style: _fixedTextStyle(_fontSize)),
-        ..._buildCsvFirstLineColumnChildren(_st, _csvLines, true),
-        Text(border, style: _fixedTextStyle(_fontSize)),
-        Expanded(
-          child: SingleChildScrollView(
-            controller: _vScrollController,
-            scrollDirection: Axis.vertical,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ..._buildCsvColumnChildren(_st, _csvLines),
-                Text(border, style: _fixedTextStyle(_fontSize)),
-                Text(""),
-                Text(""),
-                Text(""),
-              ],
-            ),
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.start,
+    children: [
+      // Column(
+      //   mainAxisAlignment: MainAxisAlignment.start,
+      //   children: [Text("arghh")],
+      // ),
+      Expanded(
+        child: SingleChildScrollView(
+          controller: _hScrollController,
+          scrollDirection: Axis.horizontal,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(border, style: _fixedTextStyle(_fontSize)),
+              ..._buildCsvFirstLineColumnChildren(_st, _csvLines, true),
+              Text(border, style: _fixedTextStyle(_fontSize)),
+              Expanded(
+                child: SingleChildScrollView(
+                  controller: _vScrollController,
+                  scrollDirection: Axis.vertical,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ..._buildCsvColumnChildren(_st, _csvLines),
+                      Text(border, style: _fixedTextStyle(_fontSize)),
+                      Text(""),
+                      Text(""),
+                      Text(""),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
-      ],
-    ),
+      ),
+    ],
   );
 }
 
