@@ -285,9 +285,12 @@ value cut_at_space_if_possible s fs =
       let e = String.sub s j (String.length s - j) in
       (s2, e)
     else if utf_8_nth_char s i = ' ' then
-      let (s2, j) = utf_8_string_sub s 0 i in
-      let e = String.sub s (j + 1) (String.length s - j - 1) in
-      (s2, e)
+      if i + 1 < String.length s && utf_8_nth_char s (i + 1) = '!' then
+        loop (i - 1)
+      else
+        let (s2, j) = utf_8_string_sub s 0 i in
+        let e = String.sub s (j + 1) (String.length s - j - 1) in
+        (s2, e)
     else
       loop (i - 1)
 ;
@@ -387,11 +390,15 @@ value formatted_csv content sep nb_occ_of_sep : string = do {
   let content = strip_spaces content in
   let lines = lines_of_csv_string sep content in
   let fields_sizes = compute_field_sizes lines in
-  let flines = fold_long_lines fields_sizes lines in
-  let flines = complete_list_by_spaces fields_sizes flines in
   printf "=== fields_sizes";
   List.iter (fun sz → printf " %3d" sz) fields_sizes;
   printf "\n%!";
+  let flines : list (list (list string)) =
+    fold_long_lines fields_sizes lines
+  in
+  let flines : list (list (list string)) =
+    complete_list_by_spaces fields_sizes flines
+  in
   format_content fields_sizes flines
 };
 
