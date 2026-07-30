@@ -1152,8 +1152,9 @@ Widget _buildCsvSearchScreen(States _st) {
             padding: EdgeInsets.all(16.0),
             child: TextField(
               controller: _st.getTextController(),
+              autofocus: true,
               decoration: InputDecoration(
-                hintText: transl(_lc, "click here to start searching"),
+                hintText: transl(_lc, "type here to start searching"),
                 border: OutlineInputBorder(),
               ),
               onChanged: (value) {

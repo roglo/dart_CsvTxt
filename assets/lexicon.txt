@@ -8,10 +8,6 @@ en: Choose a file
 fr: Choisir un fichier
 zh: 选择文件
 
-    click here to start searching
-en: click here to start searching
-fr: cliquer ici pour chercher
-
     File:
 en: File:
 fr: Fichier :
@@ -53,3 +49,7 @@ fr: rechercher
 en: Short columns
 fr: Colonnes courtes
 zh: 短列
+
+    type here to start searching
+en: type here to start searching
+fr: taper ici pour chercher
