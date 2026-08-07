@@ -49,7 +49,3 @@ fr: rechercher
 en: Short columns
 fr: Colonnes courtes
 zh: 短列
-
-    type here to start searching
-en: type here to start searching
-fr: taper ici pour chercher

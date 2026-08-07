@@ -36,6 +36,7 @@ String normalizeString(String input) {
   // Replace common accented characters with their base equivalents
   return input
       .toLowerCase()
+      .replaceAll("(", "")
       .replaceAll(RegExp(r'[áàâåäãā]'), 'a')
       .replaceAll(RegExp(r'[éèêë]'), 'e')
       .replaceAll(RegExp(r'[îï]'), 'i')
@@ -1154,7 +1155,7 @@ Widget _buildCsvSearchScreen(States _st) {
               controller: _st.getTextController(),
               autofocus: true,
               decoration: InputDecoration(
-                hintText: transl(_lc, "type here to start searching"),
+                hintText: transl(_lc, "search"),
                 border: OutlineInputBorder(),
               ),
               onChanged: (value) {
