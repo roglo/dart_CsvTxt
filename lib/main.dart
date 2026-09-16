@@ -241,33 +241,33 @@ Widget _buildRowButtonSizeAndJump(States _st) {
           child: const Text("»"),
         ),
       ] else ...[
-        ElevatedButton(
-          onPressed: () {
-            final double oldFontSize = _fontSize;
-            _setFontSize(_fontSize - 1);
-            _changedFontSizeAdjustScroll(_st, oldFontSize);
-            _st.sync();
-          },
-          child: const Text("A-"),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            final double oldFontSize = _fontSize;
-            _setFontSize(_initialFontSize);
-            _changedFontSizeAdjustScroll(_st, oldFontSize);
-            _st.sync();
-          },
-          child: const Text("A"),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            final double oldFontSize = _fontSize;
-            _setFontSize(_fontSize + 1);
-            _changedFontSizeAdjustScroll(_st, oldFontSize);
-            _st.sync();
-          },
-          child: const Text("A+"),
-        ),
+        // ElevatedButton(
+        //   onPressed: () {
+        //     final double oldFontSize = _fontSize;
+        //     _setFontSize(_fontSize - 1);
+        //     _changedFontSizeAdjustScroll(_st, oldFontSize);
+        //     _st.sync();
+        //   },
+        //   child: const Text("A-"),
+        // ),
+        // ElevatedButton(
+        //   onPressed: () {
+        //     final double oldFontSize = _fontSize;
+        //     _setFontSize(_initialFontSize);
+        //     _changedFontSizeAdjustScroll(_st, oldFontSize);
+        //     _st.sync();
+        //   },
+        //   child: const Text("A"),
+        // ),
+        // ElevatedButton(
+        //   onPressed: () {
+        //     final double oldFontSize = _fontSize;
+        //     _setFontSize(_fontSize + 1);
+        //     _changedFontSizeAdjustScroll(_st, oldFontSize);
+        //     _st.sync();
+        //   },
+        //   child: const Text("A+"),
+        // ),
         ElevatedButton(
           onPressed: () => _vScrollController.jumpTo(0),
           child: const Text("«"),
