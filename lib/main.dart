@@ -1559,7 +1559,9 @@ class CsvTxt extends StatelessWidget {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  if (!Platform.isLinux) {
+    lexiconAssetText = await rootBundle.loadString('assets/lexicon.txt');
+  }
   const channel = MethodChannel('app/intent');
   String? initialUri;
   try {

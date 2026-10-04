@@ -13,8 +13,8 @@ typedef LangCtx = ({
   void Function(DateTime) setLexDate,
 });
 
-void readLexicon(LangCtx _lc, File lexFile) {
-  List<String> sl = utf8.decode(lexFile.readAsBytesSync()).split("\n");
+void readLexicon(LangCtx _lc, String text) {
+  List<String> sl = text.split("\n");
   final table = _lc.getLexTable();
   table.clear();
   int i = 0;
@@ -39,26 +39,27 @@ void readLexicon(LangCtx _lc, File lexFile) {
   }
 }
 
+String? lexiconAssetText;
+
 String transl(LangCtx? _lc, txt) {
   if (_lc == null) return txt;
-  final String _lexFileName = "${appDirName()}/lexicon.txt";
-  final lexFile = File(_lexFileName);
-  if (!lexFile.existsSync()) {
-    print("transl \"$txt\", no lexicon");
-    return txt;
+  if (Platform.isLinux) {
+    final lexFile = File("${appDirName()}/lexicon.txt");
+    if (!lexFile.existsSync()) {
+      print("transl \"$txt\", no lexicon");
+      return txt;
+    }
+    final DateTime lexDate = lexFile.lastModifiedSync();
+    final DateTime? prevLexDate = _lc.getLexDate();
+    if (prevLexDate == null || lexDate.isAfter(prevLexDate)) {
+      readLexicon(_lc, utf8.decode(lexFile.readAsBytesSync()));
+      _lc.setLexDate(lexDate);
+    }
+  } else if (_lc.getLexDate() == null) {
+    readLexicon(_lc, lexiconAssetText!);
+    _lc.setLexDate(DateTime.now());
   }
-  final DateTime lexDate = lexFile.lastModifiedSync();
-  final DateTime? prevLexDate = _lc.getLexDate();
-  if (prevLexDate == null) {
-    // lexicon not yet loaded
-    readLexicon(_lc, lexFile);
-    _lc.setLexDate(lexDate);
-  } else if (lexDate.isAfter(prevLexDate)) {
-    // lexicon has changed
-    readLexicon(_lc, lexFile);
-    _lc.setLexDate(lexDate);
-  }
-  final table = _lc.getLexTable();
+   final table = _lc.getLexTable();
   final lang = _lc.getLang();
   List<(String, String)>? val = table[txt];
   if (val == null) return "<$txt>";
