@@ -1001,24 +1001,51 @@ Widget _fixedCsvView(States _st) {
 
 Widget _parseWithItalics(States _st) {
   final String content = _st.getFileContent()!;
+  // Capture le texte + les marqueurs * _ ~~ présents avant
+  final RegExp pattern = RegExp(r'(\*+|_+|~~+)');
+
   return Text.rich(
     TextSpan(
-      children: content.split("*").asMap().entries.expand((v) {
-        final int i = v.key;
-        final String txt = v.value;
-        return txt.split("_").asMap().entries.map((w) {
-          final int j = w.key;
-          final String txt2 = w.value;
-          return TextSpan(
-            text: txt2,
-            style: TextStyle(
-              fontSize: _st.getFontSize(),
-              fontWeight: (i % 2 == 1) ? FontWeight.bold : FontWeight.normal,
-              fontStyle: (j % 2 == 1) ? FontStyle.italic : FontStyle.normal,
-            ),
-          );
-        });
-      }).toList(),
+      children: () {
+        final List<TextSpan> spans = [];
+        final List<String> parts = pattern.allMatches(content).isEmpty
+            ? [content]
+            : [];
+
+        // Découpage manuel en gardant les séparateurs
+        final List<String> tokens = [];
+        int last = 0;
+        for (final Match m in pattern.allMatches(content)) {
+          if (m.start > last) tokens.add(content.substring(last, m.start));
+          tokens.add(m.group(0)!);
+          last = m.end;
+        }
+        if (last < content.length) tokens.add(content.substring(last));
+
+        bool bold = false, italic = false, strike = false;
+        for (final String t in tokens) {
+          if (t == '*') {
+            bold = !bold;
+          } else if (t == '_') {
+            italic = !italic;
+          } else if (t == '~~') {
+            strike = !strike;
+          } else {
+            spans.add(TextSpan(
+              text: t,
+              style: TextStyle(
+                fontSize: _st.getFontSize(),
+                decoration: strike
+                  ? TextDecoration.lineThrough
+                  : TextDecoration.none,
+                fontWeight: bold ? FontWeight.bold : FontWeight.normal,
+                fontStyle: italic ? FontStyle.italic : FontStyle.normal,
+              ),
+            ));
+          }
+        }
+        return spans;
+      }(),
     ),
   );
 }
