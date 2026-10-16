@@ -1,5 +1,5 @@
 all:
-	flutter run --release --android-skip-build-dependency-validation
+	flutter run --release
 
 compile:
 	flutter build apk --release

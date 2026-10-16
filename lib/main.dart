@@ -529,10 +529,10 @@ Future<void> _filePicked(States _st, String path, String? name) async {
 
 // ignore: unused_element
 Future<String?> _pickFile(States _st) async {
-  final FilePickerResult? result = await FilePicker.platform.pickFiles();
-  if (result != null && result.files.single.path != null) {
-    final path = result.files.single.path!;
-    final name = result.files.single.name;
+  final List<PlatformFile> files = await FilePicker.pickFiles();
+  if (files.isNotEmpty) {
+    final path = files.single.path!;
+    final name = files.single.name;
     _filePicked(_st, path, name);
     myprint(path);
     return path;
@@ -1008,11 +1008,6 @@ Widget _parseWithItalics(States _st) {
     TextSpan(
       children: () {
         final List<TextSpan> spans = [];
-        final List<String> parts = pattern.allMatches(content).isEmpty
-            ? [content]
-            : [];
-
-        // Découpage manuel en gardant les séparateurs
         final List<String> tokens = [];
         int last = 0;
         for (final Match m in pattern.allMatches(content)) {

@@ -31,7 +31,7 @@ dependencies:
   archive: ^3.6.0
   flutter:
     sdk: flutter
-  file_picker: ^8.1.7
+  file_picker: ^13.1.0
   flutter_hooks: ^0.20.0
   path_provider: ^2.1.1
   pdfrx: ^1.0.0
