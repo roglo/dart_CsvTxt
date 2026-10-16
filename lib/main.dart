@@ -1026,17 +1026,19 @@ Widget _parseWithItalics(States _st) {
           } else if (t == '~~') {
             strike = !strike;
           } else {
-            spans.add(TextSpan(
-              text: t,
-              style: TextStyle(
-                fontSize: _st.getFontSize(),
-                decoration: strike
-                  ? TextDecoration.lineThrough
-                  : TextDecoration.none,
-                fontWeight: bold ? FontWeight.bold : FontWeight.normal,
-                fontStyle: italic ? FontStyle.italic : FontStyle.normal,
+            spans.add(
+              TextSpan(
+                text: t,
+                style: TextStyle(
+                  fontSize: _st.getFontSize(),
+                  decoration: strike
+                      ? TextDecoration.lineThrough
+                      : TextDecoration.none,
+                  fontWeight: bold ? FontWeight.bold : FontWeight.normal,
+                  fontStyle: italic ? FontStyle.italic : FontStyle.normal,
+                ),
               ),
-            ));
+            );
           }
         }
         return spans;

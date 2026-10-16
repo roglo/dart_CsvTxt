@@ -59,7 +59,7 @@ String transl(LangCtx? _lc, txt) {
     readLexicon(_lc, lexiconAssetText!);
     _lc.setLexDate(DateTime.now());
   }
-   final table = _lc.getLexTable();
+  final table = _lc.getLexTable();
   final lang = _lc.getLang();
   List<(String, String)>? val = table[txt];
   if (val == null) return "<$txt>";
