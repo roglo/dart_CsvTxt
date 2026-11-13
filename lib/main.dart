@@ -1159,10 +1159,12 @@ Widget _buildCsvSearchScreen(States _st) {
   final _csvFilteredLines = useState<List<CsvLine>>([]);
   final int _nbMatched = _csvFilteredLines.value.length - 1;
   final int _nbTotal = _csvLines.length - 1;
+  final glop = _csvLines.map((ll) => ll.$1).toList();
   final List<List<String>> _newLines = _csvFilteredLines.value
       .map((ll) => ll.$1)
       .toList();
   final List<CsvLine> _newCsvLines = formattedCsv(
+    glop,
     _newLines,
     _st.getCsvShortColumns(),
   );

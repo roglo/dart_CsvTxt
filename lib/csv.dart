@@ -552,10 +552,14 @@ List<List<String>> csvStruct(String content) {
   return linesNum;
 }
 
-List<CsvLine> formattedCsv(List<List<String>> lines, bool csvShortColumns) {
+List<CsvLine> formattedCsv(
+  List<List<String>> initialLines,
+  List<List<String>> lines,
+  bool csvShortColumns
+) {
   final fieldsSizes = csvShortColumns
-      ? computeFieldSizesShortColumns(lines)
-      : computeFieldsSizes(lines);
+      ? computeFieldSizesShortColumns(initialLines)
+      : computeFieldsSizes(initialLines);
   final flines = foldLongLines(fieldsSizes, lines);
   final flines2 = completeListBySpaces(fieldsSizes, flines);
   return flines2;
@@ -566,5 +570,5 @@ List<CsvLine> formattedCsv(List<List<String>> lines, bool csvShortColumns) {
 
 List<CsvLine> treatCsv(String content, bool csvShortColumns) {
   final lines = csvStruct(content);
-  return formattedCsv(lines, csvShortColumns);
+  return formattedCsv(lines, lines, csvShortColumns);
 }

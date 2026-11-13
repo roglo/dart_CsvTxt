@@ -215,6 +215,7 @@ value size_of_longest_word_in_string s =
 ;
 
 value percent = 90;
+value max_field_length = ref 45;
 
 value compute_field_sizes lines : list int =
   loop [] 0 where rec loop fsl nb_col =
@@ -237,7 +238,7 @@ value compute_field_sizes lines : list int =
         let len = List.length szl in
         let s_sz = List.nth szl (max 0 ((len * percent + 100 / 2) / 100 - 1)) in
         let u = size_of_longest_word_in_string (fst (List.nth szl (len - 1))) in
-        max u (snd s_sz)
+        max u (min max_field_length.val (snd s_sz))
       in
       loop [fs :: fsl] (nb_col + 1)
 ;
